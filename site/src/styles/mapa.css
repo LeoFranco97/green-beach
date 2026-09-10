@@ -1,0 +1,219 @@
+/* ============================ MAPA DE ITAPEMA ============================= */
+
+.mapa { background: var(--bg); color: var(--text); }
+
+.mapa__grade-mestre { display: grid; gap: var(--space-xl); align-items: center; }
+
+.mapa__texto { max-width: var(--measure-body); }
+.mapa .secao__titulo { color: var(--text-strong); max-width: 16ch; }
+
+.mapa__apoio {
+  margin-top: var(--space-md);
+  max-width: 46ch;
+  font-size: var(--fs-lead);
+  line-height: var(--lh-lead);
+  color: var(--text-soft);
+}
+
+.mapa__endereco {
+  margin-top: var(--space-lg);
+  padding-top: var(--space-md);
+  border-top: 1px solid var(--border-hairline);
+  font-style: normal;
+  font-family: var(--font-display);
+  font-size: var(--fs-h3);
+  color: var(--text-strong);
+}
+
+.mapa__rota { margin-top: var(--space-lg); }
+
+/* -------------------------------------------------------------- palco */
+
+/* O palco é sempre escuro, esteja a seção clara ou escura. Por isso ele tem
+   tinta própria: usar --text-inverse aqui pegava o valor invertido do
+   contexto .gb-dark e escrevia tinta escura sobre fundo escuro. */
+.mapa__palco {
+  --mapa-tinta: #f4efe6;
+  --mapa-fundo: #0d1209;
+
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius-card);
+  border: 1px solid var(--border-hairline);
+  /* O fundo é o mar: verde profundo com um respiro de luz no meio, para a
+     terra ter de onde se destacar. */
+  background:
+    radial-gradient(ellipse 62% 58% at 60% 42%, rgb(58 69 43 / 0.55), transparent 68%),
+    linear-gradient(160deg, #182016, #0d1209 74%);
+  aspect-ratio: 4 / 3;
+}
+
+/* Malha discreta, só para o fundo não ser um vazio chapado. */
+.mapa__grade {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgb(244 239 230 / 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(244 239 230 / 0.03) 1px, transparent 1px);
+  background-size: 44px 44px;
+  mask-image: radial-gradient(ellipse 70% 70% at 50% 50%, #000 10%, transparent 76%);
+  -webkit-mask-image: radial-gradient(ellipse 70% 70% at 50% 50%, #000 10%, transparent 76%);
+}
+
+.mapa__svg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+
+.mapa__cam { will-change: transform; }
+.mapa__palco.is-pronto .mapa__cam { transition: transform 1.7s cubic-bezier(0.65, 0, 0.35, 1); }
+
+/* --------------------------------------------------------- camadas */
+
+.mapa__terra {
+  fill: url(#gbTerra);
+  stroke: none;
+  opacity: 0;
+  transition: opacity 0.9s ease 0.35s;
+}
+
+.mapa__divisas {
+  fill: none;
+  stroke: rgb(244 239 230 / 0.16);
+  stroke-width: 0.8;
+  vector-effect: non-scaling-stroke;
+  opacity: 0;
+  transition: opacity 1s ease 0.8s, stroke 0.6s ease;
+}
+
+.mapa__cidade {
+  fill: url(#gbDestaque);
+  stroke: rgb(255 255 255 / 0.5);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+  opacity: 0;
+  transition: opacity 0.7s ease;
+}
+
+/* O contorno é o gesto: ele se desenha, e é o que dá vida ao bloco. */
+.mapa__contorno {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 2.2;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+  filter: url(#gbGlow);
+  stroke-dasharray: var(--traco);
+  stroke-dashoffset: var(--traco);
+}
+
+.mapa__palco.is-desenhado .mapa__contorno {
+  transition: stroke-dashoffset 1.9s cubic-bezier(0.65, 0, 0.35, 1);
+  stroke-dashoffset: 0;
+}
+.mapa__palco.is-desenhado .mapa__terra,
+.mapa__palco.is-desenhado .mapa__divisas { opacity: 1; }
+.mapa__palco.is-perto .mapa__cidade { opacity: 0.92; }
+.mapa__palco.is-perto .mapa__divisas { stroke: rgb(244 239 230 / 0.28); }
+
+/* -------------------------------------------------------- alfinete */
+
+.alfinete { opacity: 0; }
+.mapa__palco.is-marcado .alfinete { animation: alfineteCai 0.75s cubic-bezier(0.34, 1.3, 0.42, 1) both; }
+/* Se a animação não rodar, por aba em segundo plano ou navegador que parou de
+   compor, o alfinete ficaria invisível. Esta classe entra por tempo. */
+.mapa__palco.is-final .alfinete { animation: none !important; opacity: 1; }
+
+@keyframes alfineteCai {
+  0%   { opacity: 0; transform: translateY(-30px) scale(0.5); }
+  62%  { opacity: 1; transform: translateY(3px) scale(1.05); }
+  100% { opacity: 1; transform: none; }
+}
+
+.alfinete__corpo { filter: url(#gbSombra); }
+.alfinete__forma { fill: #fbf8f4; stroke: #242d21; stroke-width: 1.6; }
+.alfinete__miolo { fill: var(--accent); }
+
+.alfinete__eco {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 1.6;
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.mapa__palco.is-final .alfinete__eco { animation: eco 2.8s ease-out 0.2s infinite; }
+
+@keyframes eco {
+  0%   { opacity: 0.7; transform: scale(0.4); }
+  70%  { opacity: 0; transform: scale(2.6); }
+  100% { opacity: 0; transform: scale(2.6); }
+}
+
+.alfinete__rotulo {
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  fill: var(--mapa-tinta);
+  text-anchor: middle;
+  paint-order: stroke;
+  stroke: rgb(13 18 9 / 0.92);
+  stroke-width: 3.4;
+  stroke-linejoin: round;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+.mapa__palco.is-marcado .alfinete__rotulo { opacity: 1; }
+
+/* -------------------------------------------------------------- hud */
+
+.mapa__hud {
+  position: absolute;
+  inset: auto var(--space-sm) var(--space-sm) var(--space-sm);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-xs);
+  pointer-events: none;
+}
+
+.mapa__badge,
+.mapa__botao {
+  pointer-events: auto;
+  padding: 0.55rem 0.95rem;
+  border-radius: var(--radius-pill);
+  font-size: var(--fs-caption);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  backdrop-filter: blur(10px);
+}
+
+.mapa__badge {
+  background: rgb(13 18 9 / 0.62);
+  border: 1px solid rgb(244 239 230 / 0.18);
+  color: var(--mapa-tinta);
+}
+
+.mapa__botao {
+  min-height: var(--tap-min);
+  background: rgb(244 239 230 / 0.14);
+  border: 1px solid rgb(244 239 230 / 0.34);
+  color: var(--mapa-tinta);
+  cursor: pointer;
+  transition: background-color var(--dur-fast) var(--ease-standard), border-color var(--dur-fast) var(--ease-standard);
+}
+.mapa__botao:hover { background: rgb(244 239 230 / 0.22); border-color: rgb(244 239 230 / 0.55); }
+
+@media (min-width: 62em) {
+  .mapa__grade-mestre {
+    grid-template-columns: minmax(0, 0.82fr) minmax(0, 1.18fr);
+    gap: var(--space-3xl);
+  }
+  .mapa__palco { aspect-ratio: 5 / 4; }
+  .mapa__hud { inset: auto var(--space-md) var(--space-md) var(--space-md); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mapa__palco.is-final .alfinete__eco { animation: none; opacity: 0; }
+}

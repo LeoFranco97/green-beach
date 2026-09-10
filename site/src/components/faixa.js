@@ -22,7 +22,7 @@ export const criarFaixa = ({ arquivo, frase, apoio = '', altura = 'baixa', veu =
   const [foto] = prepararFotos(pousada.fotos.filter((f) => f.arquivo === arquivo), '100vw')
   if (!foto) return null
 
-  return el('section', { class: `faixa faixa--${altura}`, 'aria-label': frase }, [
+  return el('section', { class: `faixa faixa--${altura} tem-fundo`, 'aria-label': frase }, [
     el('div', { class: 'faixa__fundo' }, [
       el('img', {
         class: 'faixa__imagem',

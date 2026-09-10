@@ -377,6 +377,18 @@
   --overlay-lightbox: rgb(var(--veil-rgb) / 0.985);
   --shadow-bar: 0 -2px 4px rgb(var(--shadow-rgb) / 0.04),
                 0 -10px 30px -16px rgb(var(--shadow-rgb) / 0.26);
+
+  /**
+   * Raio das quebras de página.
+   * Toda seção que tem fundo próprio, seja cor ou foto, encosta na de cima e
+   * na de baixo. Sem raio, esse encontro é um corte reto de ponta a ponta, e
+   * é o que dá cara de bloco empilhado. Com raio, a página vira uma pilha de
+   * lajes de canto macio.
+   *
+   * Fluido porque um raio de 28px numa tela de 320px é desproporcional, e um
+   * de 18px numa de 1700px some.
+   */
+  --radius-secao: clamp(20px, 2.4vw, 36px);
 }
 
 

@@ -81,14 +81,58 @@ export const liberarScroll = () => {
 export const menosMovimento = () =>
   window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
-/** Observa a entrada de um elemento na viewport, uma unica vez. */
-export const aoAparecer = (node, callback, margem = '120px') => {
-  if (!('IntersectionObserver' in window)) { callback(); return () => {} }
-  const obs = new IntersectionObserver((entradas) => {
-    for (const entrada of entradas) {
-      if (entrada.isIntersecting) { callback(); obs.disconnect(); return }
-    }
-  }, { rootMargin: margem })
-  obs.observe(node)
-  return () => obs.disconnect()
+/**
+ * Dispara uma vez, quando o elemento entra na tela.
+ *
+ * Nao confia so no IntersectionObserver. Ele deixa de disparar em situacoes
+ * reais: aba em segundo plano, navegador que parou de compor quadros, captura
+ * automatizada. Como aqui ele costuma ser o gatilho de uma animacao que
+ * revela conteudo, falhar em silencio significa deixar um bloco invisivel.
+ * Por isso: observador como atalho, medicao direta a cada rolagem como fonte
+ * da verdade, e um teto de tempo como ultimo recurso.
+ */
+export const aoAparecer = (node, callback, margem = '120px', teto = 6000) => {
+  let disparado = false
+  const disparar = () => {
+    if (disparado) return
+    disparado = true
+    limpar()
+    callback()
+  }
+
+  const naTela = () => {
+    const r = node.getBoundingClientRect()
+    const altura = window.innerHeight || document.documentElement.clientHeight
+    return r.top < altura * 1.05 && r.bottom > -altura * 0.05
+  }
+
+  let agendado = false
+  const aoRolar = () => {
+    if (agendado) return
+    agendado = true
+    requestAnimationFrame(() => { agendado = false; if (naTela()) disparar() })
+  }
+
+  let obs = null
+  const prazo = window.setTimeout(disparar, teto)
+
+  const limpar = () => {
+    window.clearTimeout(prazo)
+    window.removeEventListener('scroll', aoRolar)
+    window.removeEventListener('resize', aoRolar)
+    if (obs) obs.disconnect()
+  }
+
+  if ('IntersectionObserver' in window) {
+    obs = new IntersectionObserver((entradas) => {
+      for (const entrada of entradas) if (entrada.isIntersecting) return disparar()
+    }, { rootMargin: margem })
+    obs.observe(node)
+  }
+
+  window.addEventListener('scroll', aoRolar, { passive: true })
+  window.addEventListener('resize', aoRolar, { passive: true })
+  if (naTela()) disparar()
+
+  return limpar
 }

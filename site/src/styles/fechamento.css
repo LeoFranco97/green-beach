@@ -112,9 +112,14 @@
 /* ---------------------------------------------------------------- rodape */
 
 .rodape {
+  position: relative;
   background: var(--green-deep);
   color: rgb(255 255 255 / 0.82);
   padding-top: var(--space-3xl);
+  /* Só os cantos de cima: o rodapé fecha a página, embaixo dele não há nada
+     para arredondar contra. */
+  border-radius: var(--radius-secao) var(--radius-secao) 0 0;
+  margin-top: calc(-1 * var(--radius-secao));
 }
 
 .rodape__interno { display: grid; gap: var(--space-2xl); }

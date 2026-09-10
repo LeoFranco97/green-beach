@@ -38,7 +38,7 @@ export const criarFechamento = () => {
     el('div', { class: 'fechamento__veu', 'aria-hidden': 'true' }),
   ])
 
-  return el('section', { class: 'fechamento', id: 'reservar' }, [
+  return el('section', { class: 'fechamento tem-fundo', id: 'reservar' }, [
     fundo,
     el('div', { class: 'fechamento__interno' }, [
       el('div', { class: 'fechamento__texto' }, [

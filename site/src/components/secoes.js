@@ -174,11 +174,11 @@ export const criarLocalizacao = () => {
       )
     : null
 
-  return el('section', { class: 'secao localizacao', id: 'localizacao' }, [
+  return el('section', { class: 'secao localizacao tem-fundo', id: 'localizacao' }, [
     el('div', { class: 'secao__interno localizacao__grade' }, [
       el('div', { class: 'localizacao__texto' }, [
-        el('p', { class: 'olho', text: 'Onde fica' }),
-        el('h2', { class: 'secao__titulo', text: 'No centro de Itapema' }),
+        el('p', { class: 'olho', text: 'Como chegar' }),
+        el('h2', { class: 'secao__titulo', text: 'Rua 141, no centro' }),
         endereco.confirmado && endereco.linhaUnica
           ? el('address', { class: 'localizacao__endereco', text: endereco.linhaUnica })
           : el('p', { class: 'localizacao__endereco', text: 'Litoral de Santa Catarina' }),

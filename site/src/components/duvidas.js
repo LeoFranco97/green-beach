@@ -32,7 +32,7 @@ const SEM_RESPOSTA = {
   cafeDaManha: 'Confirme o horário e o que é servido pelo WhatsApp antes de reservar.',
   criancas: 'A regra muda conforme a idade e o apartamento. Diga a idade das crianças no WhatsApp que a pousada informa berço, cama extra e cortesia.',
   pets: 'Confirme o porte do seu pet pelo WhatsApp antes de fechar a reserva.',
-  estacionamento: 'Pergunte pelo WhatsApp sobre vaga, tamanho do carro e se precisa reservar.',
+  estacionamento: 'Combine pelo WhatsApp antes de vir de carro.',
   cancelamento: 'O prazo de cancelamento é combinado no momento da reserva. Pergunte no WhatsApp antes de confirmar as datas, para não ter surpresa depois.',
   pagamento: 'A pousada informa as formas de pagamento, o parcelamento e o sinal na hora da consulta pelo WhatsApp.',
 }

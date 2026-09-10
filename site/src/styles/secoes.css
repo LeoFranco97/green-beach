@@ -212,12 +212,10 @@
   }
   .comodidades__foto {
     aspect-ratio: 3 / 4;
-    /* Sangra até a borda direita da tela. Margem negativa, e não translate:
-       translate é só visual e deixaria a caixa de layout estourando o
-       documento. */
-    width: auto;
-    margin-right: calc(-1 * var(--sangria));
-    border-radius: var(--radius-image) 0 0 var(--radius-image);
+    /* Antes sangrava até a borda da tela. Deixou de sangrar porque uma foto
+       cortada reto na borda é justamente o "facão" que a página não tem em
+       mais nenhum lugar: aqui ela é um bloco de canto macio como os outros. */
+    border-radius: var(--radius-image);
   }
 }
 
@@ -298,8 +296,7 @@
   .localizacao__grade { grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: var(--space-3xl); align-items: start; }
   .localizacao__mapa {
     aspect-ratio: 1 / 1;
-    margin-right: calc(-1 * var(--sangria));
-    border-radius: var(--radius-image) 0 0 var(--radius-image);
+    border-radius: var(--radius-image);
   }
 }
 

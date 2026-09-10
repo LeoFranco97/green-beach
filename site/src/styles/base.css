@@ -107,6 +107,29 @@ ul, ol { list-style: none; padding: 0; }
 
 .secao--alt { background: var(--bg-alt); }
 
+/* ------------------------------------------------------ quebras de página
+
+   Seção com fundo próprio vira laje de canto macio. O overflow recortado é
+   parte da regra: sem ele, foto que sangra para a borda passa por cima do
+   canto arredondado e o corte reto volta.
+
+   A margem negativa de baixo faz uma laje entrar por baixo da outra pelo
+   tanto do raio, para não sobrar um filete do fundo da página entre as duas.
+*/
+.tem-fundo {
+  position: relative;
+  border-radius: var(--radius-secao);
+  overflow: hidden;
+  isolation: isolate;
+}
+
+/* Duas lajes seguidas se encaixam, em vez de deixar um vinco entre elas. */
+.tem-fundo + .tem-fundo { margin-top: calc(-1 * var(--radius-secao)); }
+
+/* A primeira laje depois do hero sobe por cima dele pelo tanto do raio: é o
+   que faz a foto de tela cheia terminar com canto macio, e não com corte. */
+.hero + .tem-fundo { margin-top: calc(-1 * var(--radius-secao)); }
+
 .secao__interno,
 .hero__interno,
 .galeria__interno,

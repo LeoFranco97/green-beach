@@ -112,7 +112,7 @@ export const criarAcomodacoes = () => {
   const lista = pousada.acomodacoes
   if (lista.length === 0) return null
 
-  return el('section', { class: 'secao acomodacoes', id: 'acomodacoes' }, [
+  return el('section', { class: 'secao acomodacoes tem-fundo', id: 'acomodacoes' }, [
     el('div', { class: 'secao__interno' }, [
       el('header', { class: 'secao__cabecalho' }, [
         el('p', { class: 'olho', text: 'Onde dormir' }),

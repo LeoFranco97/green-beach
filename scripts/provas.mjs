@@ -62,8 +62,11 @@ async function main() {
   await ir(cdp, aba, URL_ALVO, 1900)
   await tela('01-desktop-hero')
 
-  await rolarAte('.galeria')
-  await tela('02-desktop-galeria')
+  await rolarAte('.mapa')
+  // A coreografia do mapa leva cerca de 4,6s: capturar antes disso pega o
+  // contorno pela metade e nenhum alfinete.
+  await espera(5200)
+  await tela('02-desktop-mapa')
 
   await avaliar(cdp, aba, `(async () => {
     window.scrollTo({ top: 0, behavior: 'instant' });
@@ -93,7 +96,10 @@ async function main() {
   await avaliar(cdp, aba, `(async () => {
     document.querySelector('.hospedes__aplicar').click();
     await new Promise(r => setTimeout(r, 350));
-    document.querySelector('.galeria__todas').click();
+    const foto = document.querySelector('.sobre__foto');
+    foto.scrollIntoView({ block: 'center', behavior: 'instant' });
+    await new Promise(r => setTimeout(r, 400));
+    foto.click();
     await new Promise(r => setTimeout(r, 700));
   })()`, { awaitPromise: true })
   await tela('06-desktop-lightbox')

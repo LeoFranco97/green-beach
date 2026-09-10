@@ -450,13 +450,70 @@ async function main() {
   checar('hóspedes da URL respeitados', /3 adultos, 1 criança/.test(comUtm.campos[2] || ''), comUtm.campos[2])
   checar('UTMs entram na mensagem', /Campanha: utm_source=instagram/.test(comUtm.msg), comUtm.msg.split('\n').find((l) => l.startsWith('Campanha')) || 'ausente')
 
-  /* --------------------------------------------------------- galeria */
-  grupo('Galeria')
+  /* ----------------------------------------------------------- mapa */
+  grupo('Mapa de Itapema')
   await ir(cdp, aba, URL_ALVO)
-  const galeria = await avaliar(cdp, aba, `(async () => {
+  await forcarQuadro(cdp, aba)
+  const mapa = await avaliar(cdp, aba, `${ASSENTAR}(async () => {
     const esperar = (ms) => new Promise(r => setTimeout(r, ms));
-    document.querySelector('.galeria__todas').click();
-    await esperar(260);
+    const secao = document.querySelector('#mapa');
+    if (!secao) return { existe: false };
+    secao.scrollIntoView({ block: 'center', behavior: 'instant' });
+    const palco = document.querySelector('.mapa__palco');
+    // A coreografia leva cerca de 4,6s do primeiro traço ao alfinete parado.
+    await window.__ate(() => palco.classList.contains('is-final'), 8000);
+    await esperar(200);
+
+    const alf = document.querySelector('.alfinete');
+    const rAlf = alf.getBoundingClientRect();
+    const rPalco = palco.getBoundingClientRect();
+    const contorno = document.querySelector('.mapa__contorno');
+
+    const botao = document.querySelector('.mapa__botao');
+    const antes = document.querySelector('.mapa__cam').getAttribute('transform');
+    botao.click();
+    await esperar(1900);
+    const depois = document.querySelector('.mapa__cam').getAttribute('transform');
+
+    return {
+      existe: true,
+      classes: palco.className,
+      alfineteVisivel: Number(getComputedStyle(alf).opacity) > 0.9,
+      alfineteDentro: rAlf.left >= rPalco.left - 1 && rAlf.right <= rPalco.right + 1
+        && rAlf.top >= rPalco.top - 1 && rAlf.bottom <= rPalco.bottom + 1,
+      alfineteNaTela: Math.round(rAlf.height),
+      contornoDesenhado: getComputedStyle(contorno).strokeDashoffset,
+      alternou: antes !== depois,
+      rotuloBotao: botao.textContent.trim(),
+      tituloSvg: document.querySelector('.mapa__svg').getAttribute('aria-label'),
+      medidas: 'alfinete ' + Math.round(rAlf.left) + '-' + Math.round(rAlf.right) + ' palco ' + Math.round(rPalco.left) + '-' + Math.round(rPalco.right),
+    };
+  })()`, { awaitPromise: true })
+
+  checar('seção do mapa existe', mapa.existe)
+  checar('coreografia chega ao fim', /is-final/.test(mapa.classes || ''), mapa.classes)
+  checar('contorno do estado terminou de se desenhar', mapa.contornoDesenhado === '0px', mapa.contornoDesenhado)
+  checar('alfinete aparece', mapa.alfineteVisivel)
+  checar('alfinete fica dentro do palco', mapa.alfineteDentro, mapa.medidas)
+  checar('alfinete tem tamanho de alvo, e não de ponto', mapa.alfineteNaTela >= 24, `${mapa.alfineteNaTela}px`)
+  checar('botão alterna o enquadramento', mapa.alternou)
+  checar('botão diz para onde vai', mapa.rotuloBotao === 'Ver a pousada', mapa.rotuloBotao)
+  checar('svg do mapa tem descrição', /Santa Catarina/.test(mapa.tituloSvg || ''), mapa.tituloSvg)
+
+  /* -------------------------------------------------------- lightbox */
+  grupo('Lightbox')
+  await ir(cdp, aba, URL_ALVO)
+  await forcarQuadro(cdp, aba)
+  const galeria = await avaliar(cdp, aba, `${ASSENTAR}(async () => {
+    const esperar = (ms) => new Promise(r => setTimeout(r, ms));
+    // A galeria saiu da página. Quem abre o lightbox agora é a foto da
+    // seção "A pousada", a das comodidades e os recortes de Itapema.
+    const gatilho = document.querySelector('.sobre__foto');
+    gatilho.scrollIntoView({ block: 'center', behavior: 'instant' });
+    await esperar(400);
+    gatilho.click();
+    await esperar(400); await window.__assentar();
+
     const lb = document.querySelector('.lightbox');
     const contador = document.querySelector('.lightbox__contador')?.textContent;
     const imagem = document.querySelector('.lightbox__imagem');
@@ -465,11 +522,12 @@ async function main() {
     const rLegenda = document.querySelector('.lightbox__rodape').getBoundingClientRect();
     const cabe = rImg.bottom <= rLegenda.top + 1 && rImg.top >= 0 && rImg.bottom <= innerHeight + 1;
     const medidas = 'foto ' + Math.round(rImg.top) + '-' + Math.round(rImg.bottom) + ', legenda em ' + Math.round(rLegenda.top) + ', tela ' + innerHeight;
+
     document.querySelector('.lightbox-overlay').dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }));
-    await esperar(80);
+    await esperar(200);
     const depois = document.querySelector('.lightbox__contador')?.textContent;
     document.querySelector('.lightbox-overlay').dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
-    await esperar(300);
+    await esperar(400);
     return {
       abriu: !!lb, modal: lb?.getAttribute('aria-modal') === 'true',
       contador, depois, objectFit, cabe, medidas,
@@ -478,7 +536,7 @@ async function main() {
     };
   })()`, { awaitPromise: true })
 
-  checar('lightbox abre pelo botão de fotos', galeria.abriu)
+  checar('lightbox abre pela foto da pousada', galeria.abriu)
   checar('lightbox é um dialog modal', galeria.modal)
   checar('lightbox mostra contador', /\d+ de \d+/.test(galeria.contador || ''), galeria.contador)
   checar('seta direita troca a foto', galeria.contador !== galeria.depois, `${galeria.contador} -> ${galeria.depois}`)

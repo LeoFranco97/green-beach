@@ -64,7 +64,7 @@ export const criarItapema = () => {
   if (cartoes.length === 0) return null
 
   return el('section', {
-    class: 'secao itapema gb-dark',
+    class: 'secao itapema gb-dark tem-fundo',
     id: 'itapema',
     dataset: { surface: 'dark' },
   }, [

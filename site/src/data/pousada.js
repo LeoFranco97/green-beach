@@ -94,7 +94,7 @@ export const pousada = {
       confirmado: true,
     },
     estacionamento: {
-      valor: 'Sim, a pousada tem estacionamento para os hóspedes.',
+      valor: 'A pousada não tem estacionamento próprio. Se você vem de carro, combine antes pelo WhatsApp onde deixar o veículo.',
       confirmado: true,
     },
     pets: {
@@ -332,7 +332,6 @@ export const pousada = {
     { icone: 'ar', nome: 'Ar-condicionado' },
     { icone: 'frigobar', nome: 'Frigobar no apartamento' },
     { icone: 'tv', nome: 'TV no apartamento' },
-    { icone: 'estacionamento', nome: 'Estacionamento' },
     { icone: 'pet', nome: 'Aceita animais de estimação' },
     { icone: 'recepcao', nome: 'Recepção e atendimento direto' },
     { icone: 'praia', nome: 'Perto da praia de Itapema' },
@@ -366,7 +365,7 @@ export const pousada = {
   seo: {
     titulo: 'Pousada & Hotel Green Beach | Hospedagem no centro de Itapema, SC',
     descricao:
-      'Pousada no centro de Itapema, perto da praia, com piscina, café da manhã incluso e estacionamento. Escolha suas datas e consulte disponibilidade pelo WhatsApp.',
+      'Pousada no centro de Itapema, a poucos passos da praia, com piscina e café da manhã incluso. Escolha suas datas e consulte disponibilidade pelo WhatsApp.',
     ogImagem: '/og-green-beach.jpg',
   },
 }
