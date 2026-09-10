@@ -1,0 +1,274 @@
+/* ========================== GALERIA E LIGHTBOX ============================ */
+
+.galeria { padding-block: var(--space-2xl) 0; }
+
+.galeria__interno { position: relative; }
+
+/* No celular a grade vira faixa que rola com encaixe: mais confortável que
+   empilhar seis fotos altas e fazer a pessoa rolar meia página de imagem. */
+.mosaico {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 78%;
+  gap: var(--space-xs);
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: var(--gutter);
+  scrollbar-width: none;
+  padding-bottom: var(--space-2xs);
+  margin-inline: calc(-1 * var(--gutter));
+  padding-inline: var(--gutter);
+}
+.mosaico::-webkit-scrollbar { display: none; }
+
+.mosaico__celula {
+  position: relative;
+  display: block;
+  scroll-snap-align: start;
+  overflow: hidden;
+  border-radius: var(--radius-image);
+  background: var(--bg-alt);
+  aspect-ratio: 3 / 2;
+  cursor: zoom-in;
+}
+
+.mosaico__imagem {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.mosaico__tag {
+  position: absolute;
+  left: var(--space-xs);
+  bottom: var(--space-xs);
+  padding: 0.3rem 0.7rem;
+  border-radius: var(--radius-pill);
+  background: rgb(var(--veil-rgb) / 0.55);
+  backdrop-filter: blur(8px);
+  color: var(--text-inverse);
+  font-size: var(--fs-caption);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+
+.galeria__todas {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  margin-top: var(--space-md);
+  margin-inline: auto;
+  padding: 0.85rem 1.5rem;
+  min-height: var(--tap-min);
+  border-radius: var(--radius-button);
+  border: 1px solid var(--border-control);
+  background: var(--surface);
+  color: var(--green-deep);
+  font-size: var(--fs-body-s);
+  font-weight: 600;
+  transition: background-color var(--dur-fast) var(--ease-standard),
+              border-color var(--dur-fast) var(--ease-standard);
+}
+.galeria__todas:hover { background: var(--bg-alt); border-color: var(--green-brand); }
+.galeria__grade-icone svg { width: 1rem; height: 1rem; fill: none; stroke: currentColor; stroke-width: 1.6; }
+
+/* ------------------------------------------------- grade editorial */
+
+@media (min-width: 48em) {
+  .galeria { padding-block: var(--space-3xl) 0; }
+
+  /* Doze colunas, três fileiras, três proporções. A escala é o que separa
+     editorial de catálogo. */
+  .mosaico {
+    grid-auto-flow: row;
+    grid-template-columns: repeat(12, 1fr);
+    grid-auto-columns: auto;
+    overflow: visible;
+    margin-inline: 0;
+    padding-inline: 0;
+    padding-bottom: 0;
+    gap: var(--space-xs);
+  }
+
+  .mosaico__celula { aspect-ratio: auto; }
+
+  .mosaico__celula[data-peca='1'] { grid-column: 1 / 8;  aspect-ratio: 16 / 9; }
+  .mosaico__celula[data-peca='2'] { grid-column: 8 / 13; aspect-ratio: 4 / 5; }
+  .mosaico__celula[data-peca='3'] { grid-column: 1 / 5;  aspect-ratio: 3 / 2; }
+  .mosaico__celula[data-peca='4'] { grid-column: 5 / 9;  aspect-ratio: 1 / 1; }
+  .mosaico__celula[data-peca='5'] { grid-column: 9 / 13; aspect-ratio: 3 / 2; }
+
+  /* A peça 6 sangra de ponta a ponta e fecha a seção. Raio zero: sangrar é
+     o gesto, e arredondar o que sangra mata o gesto. */
+  .mosaico__celula[data-peca='6'] {
+    grid-column: 1 / -1;
+    aspect-ratio: 21 / 9;
+    border-radius: 0;
+    /* Sangria sem estourar o documento: translate é só visual, a caixa de
+       layout continua onde estava e a página ganha rolagem lateral. Margem
+       negativa mexe na caixa de verdade. */
+    width: auto;
+    margin-inline: calc(-1 * var(--sangria));
+    margin-top: var(--space-lg);
+  }
+
+  /* O botão se apoia no canto escuro da foto da noite, onde tem contraste
+     garantido sem precisar de caixa branca por baixo. */
+  .galeria__todas {
+    position: absolute;
+    right: var(--gutter);
+    bottom: var(--space-lg);
+    margin: 0;
+    border-color: rgb(255 255 255 / 0.4);
+    background: rgb(var(--veil-rgb) / 0.5);
+    backdrop-filter: blur(10px);
+    color: var(--text-inverse);
+  }
+  .galeria__todas:hover {
+    background: rgb(var(--veil-rgb) / 0.72);
+    border-color: rgb(255 255 255 / 0.7);
+  }
+}
+
+/* Se a grade não tiver as seis peças, cada uma ocupa uma fatia igual e a
+   última continua sangrando, para a seção nunca ficar com buraco. */
+@media (min-width: 48em) {
+  .mosaico:not([data-total='6']) .mosaico__celula {
+    grid-column: span 6;
+    aspect-ratio: 3 / 2;
+  }
+  .mosaico:not([data-total='6']) .mosaico__celula[data-peca='1'] {
+    grid-column: 1 / -1;
+    aspect-ratio: 21 / 9;
+  }
+}
+
+/* ------------------------------------------------------------- lightbox */
+
+.lightbox-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: var(--overlay-lightbox);
+  opacity: 0;
+  transition: opacity var(--dur-base) var(--ease-standard);
+}
+.lightbox-overlay.is-aberto { opacity: 1; }
+
+.lightbox {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  height: 100svh;
+  color: var(--text-inverse);
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.lightbox__topo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-sm) var(--space-md);
+}
+
+.lightbox__contador {
+  font-size: var(--fs-body-s);
+  font-variant-numeric: tabular-nums;
+  opacity: 0.8;
+}
+
+.lightbox__fechar,
+.lightbox__nav {
+  display: grid;
+  place-items: center;
+  width: 2.9rem;
+  height: 2.9rem;
+  border-radius: var(--radius-pill);
+  border: 1px solid rgb(255 255 255 / 0.28);
+  color: var(--text-inverse);
+  background: rgb(255 255 255 / 0.06);
+  transition: background-color var(--dur-fast) var(--ease-standard), border-color var(--dur-fast) var(--ease-standard);
+}
+.lightbox__fechar:hover,
+.lightbox__nav:hover { background: rgb(255 255 255 / 0.18); border-color: rgb(255 255 255 / 0.5); }
+.lightbox__fechar svg,
+.lightbox__nav svg {
+  width: 1.2rem; height: 1.2rem;
+  fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round;
+}
+
+.lightbox__meio {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  /* stretch, e nao center: com center a linha cresce ate caber a foto inteira
+     e a imagem passa por cima da legenda. */
+  align-items: stretch;
+  gap: var(--space-xs);
+  padding-inline: var(--space-xs);
+  min-height: 0;
+}
+
+.lightbox__nav { align-self: center; }
+
+.lightbox__palco {
+  display: grid;
+  place-items: center;
+  min-height: 0;
+  min-width: 0;
+  height: 100%;
+  overflow: hidden;
+  touch-action: pan-y;
+}
+
+.lightbox__imagem {
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  min-height: 0;
+  /* A foto aparece inteira, sem corte, seja ela vertical ou horizontal. */
+  object-fit: contain;
+  border-radius: var(--radius-image);
+  transition: transform var(--dur-fast) var(--ease-standard);
+}
+
+.lightbox__rodape {
+  padding: var(--space-sm) var(--space-lg) var(--space-lg);
+  text-align: center;
+}
+
+.lightbox__legenda {
+  font-size: var(--fs-body-s);
+  color: rgb(255 255 255 / 0.82);
+  max-width: 60ch;
+  margin-inline: auto;
+}
+
+@media (min-width: 48em) {
+  .lightbox__meio { padding-inline: var(--space-lg); gap: var(--space-md); }
+  .lightbox__fechar,
+  .lightbox__nav { width: 3.2rem; height: 3.2rem; }
+}
+
+/* O mosaico se adapta a quantidade de fotos disponiveis. Com duas, duas
+   colunas iguais. Com uma, largura cheia. Assim a galeria nunca fica com
+   buraco enquanto o acervo de fotos ainda esta sendo montado. */
+@media (min-width: 48em) {
+  .mosaico[data-total='1'] {
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr;
+    aspect-ratio: 21 / 9;
+  }
+  .mosaico[data-total='2'] {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr;
+    aspect-ratio: 21 / 9;
+  }
+  .mosaico[data-total='3'] {
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(2, minmax(0, 1fr));
+  }
+  .mosaico[data-total='3'] .mosaico__celula--principal { grid-column: span 2; grid-row: span 2; }
+  .mosaico[data-total='4'] { grid-template-columns: repeat(3, 1fr); }
+  .mosaico[data-total='4'] .mosaico__celula--principal { grid-column: span 2; grid-row: span 2; }
+}

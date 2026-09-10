@@ -1,0 +1,154 @@
+{
+  "fachada-green-beach": {
+    "larguras": [
+      800
+    ],
+    "w": 628,
+    "h": 910,
+    "proporcao": 0.6901
+  },
+  "itapema-baia-aberta": {
+    "larguras": [
+      800,
+      1280,
+      1920
+    ],
+    "w": 4032,
+    "h": 2268,
+    "proporcao": 1.7778
+  },
+  "itapema-baia-do-mirante": {
+    "larguras": [
+      800,
+      1280,
+      1920,
+      2560
+    ],
+    "w": 4032,
+    "h": 2268,
+    "proporcao": 1.7778
+  },
+  "itapema-barcos-de-pesca": {
+    "larguras": [
+      800,
+      1280,
+      1920
+    ],
+    "w": 4032,
+    "h": 2268,
+    "proporcao": 1.7778
+  },
+  "itapema-canto-da-praia": {
+    "larguras": [
+      800,
+      1280,
+      1920
+    ],
+    "w": 4032,
+    "h": 2268,
+    "proporcao": 1.7778
+  },
+  "itapema-entardecer": {
+    "larguras": [
+      800,
+      1280,
+      1920
+    ],
+    "w": 4032,
+    "h": 2268,
+    "proporcao": 1.7778
+  },
+  "itapema-faixa-de-areia": {
+    "larguras": [
+      800,
+      1280,
+      1920
+    ],
+    "w": 4032,
+    "h": 2268,
+    "proporcao": 1.7778
+  },
+  "itapema-guarda-sois": {
+    "larguras": [
+      800,
+      1280,
+      1920
+    ],
+    "w": 4032,
+    "h": 2268,
+    "proporcao": 1.7778
+  },
+  "itapema-ilha-praia-grossa": {
+    "larguras": [
+      800,
+      1280,
+      1920
+    ],
+    "w": 8064,
+    "h": 4536,
+    "proporcao": 1.7778
+  },
+  "itapema-meia-praia-aerea": {
+    "larguras": [
+      800,
+      1280,
+      1920,
+      2560
+    ],
+    "w": 4032,
+    "h": 2268,
+    "proporcao": 1.7778
+  },
+  "itapema-nascer-do-sol": {
+    "larguras": [
+      800,
+      1280,
+      1920
+    ],
+    "w": 4032,
+    "h": 2268,
+    "proporcao": 1.7778
+  },
+  "itapema-orla-a-noite": {
+    "larguras": [
+      800,
+      1280,
+      1920,
+      2560
+    ],
+    "w": 4032,
+    "h": 2268,
+    "proporcao": 1.7778
+  },
+  "itapema-por-do-sol": {
+    "larguras": [
+      800,
+      1280,
+      1920,
+      2560
+    ],
+    "w": 4032,
+    "h": 2268,
+    "proporcao": 1.7778
+  },
+  "itapema-praia-grossa": {
+    "larguras": [
+      800,
+      1280,
+      1920
+    ],
+    "w": 8064,
+    "h": 4536,
+    "proporcao": 1.7778
+  },
+  "itapema-verao-na-praia": {
+    "larguras": [
+      800,
+      1280,
+      1920
+    ],
+    "w": 4032,
+    "h": 2268,
+    "proporcao": 1.7778
+  }
+}

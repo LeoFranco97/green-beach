@@ -1,0 +1,14 @@
+/* Ordem importa: tokens primeiro, base depois, componentes por ultimo. */
+@import './tokens.css';
+@import './base.css';
+@import './cabecalho.css';
+@import './hero.css';
+@import './busca.css';
+@import './calendario.css';
+@import './galeria.css';
+@import './secoes.css';
+@import './itapema.css';
+@import './fechamento.css';
+
+/* Movimento por ultimo: ele reage ao que os componentes ja desenharam. */
+@import './movimento.css';

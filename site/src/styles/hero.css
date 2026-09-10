@@ -1,0 +1,158 @@
+/* ================================== HERO ================================== */
+
+.hero {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  min-height: max(var(--hero-min-h), 40rem);
+  /* O lockup da marca ultrapassa a barra do cabecalho, entao o hero comeca
+     abaixo dele. Sem isso a logo encosta no titulo. */
+  padding-top: calc(9.5rem + env(safe-area-inset-top));
+  padding-bottom: var(--space-2xl);
+  color: var(--text-inverse);
+  overflow: hidden;
+}
+
+.hero__fundo { position: absolute; inset: 0; z-index: 0; }
+
+/* O enquadramento vem do arquivo de dados, foto a foto, porque depende do
+   que cada imagem mostra. O CSS so define o padrao. */
+.hero__imagem {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: var(--img-focal-default);
+}
+
+.hero__imagem--vazia { background: var(--green-deep); }
+
+/* Veu em duas camadas: uma vertical para o texto embaixo, uma leve geral,
+   para escurecer o suficiente sem apagar a cor da foto. */
+/* Veu vertical da direcao de arte: escurece o topo para proteger a marca,
+   abre o meio para a foto respirar e fecha embaixo, onde o texto vive. */
+.hero__veu {
+  position: absolute;
+  inset: 0;
+  background: var(--overlay-hero-v);
+}
+
+/* A partir do desktop o texto vai para a esquerda e ganha o scrim lateral. */
+@media (min-width: 62em) {
+  .hero__veu { background: var(--overlay-hero-h), var(--overlay-hero-v); }
+}
+
+.hero__interno {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: var(--space-2xl);
+  align-items: end;
+}
+
+/* O bloco do hero acompanha a coluna. Quem tem medida própria é cada peça:
+   o display precisa de largura para não virar uma escada de cinco linhas,
+   o parágrafo precisa de estreiteza para continuar legível. */
+.hero__texto { max-width: 100%; }
+
+.hero__selo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: var(--space-md);
+  padding: 0.4rem 0.9rem 0.4rem 0.7rem;
+  border-radius: var(--radius-pill);
+  background: rgb(255 255 255 / 0.16);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgb(255 255 255 / 0.24);
+  font-size: var(--fs-caption);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+.hero__selo-icone svg { width: 1rem; height: 1rem; fill: var(--accent); stroke: none; }
+
+.hero__titulo {
+  /* Um degrau abaixo do --fs-display-xl do sistema. A 104px esta frase não
+     cabe na coluna e quebra em quatro degraus; a 88px ela respira em duas
+     ou três linhas em qualquer largura. */
+  font-size: clamp(2.75rem, 1.55rem + 4.8vw, 5.5rem);
+  line-height: var(--lh-display-xl);
+  letter-spacing: var(--ls-display-xl);
+  max-width: min(100%, 15ch);
+  /* Sem balance: aqui o equilíbrio automático inventa quebras estranhas
+     ("Itapema / inteira a / poucos passos"). O display quebra melhor no
+     fluxo natural, e o tamanho é ajustado para caber. */
+  text-wrap: nowrap;
+  text-wrap: wrap;
+  color: var(--text-inverse);
+  text-shadow: 0 1px 30px rgb(var(--veil-rgb) / 0.35);
+}
+
+.hero__apoio {
+  margin-top: var(--space-md);
+  max-width: min(100%, 38ch);
+  font-size: var(--fs-lead);
+  line-height: var(--lh-lead);
+  color: rgb(255 255 255 / 0.92);
+  text-shadow: 0 1px 20px rgb(var(--veil-rgb) / 0.4);
+}
+
+.hero__local {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin-top: var(--space-md);
+  font-size: var(--fs-body-s);
+  color: rgb(255 255 255 / 0.86);
+}
+.hero__local-icone svg { width: 1.1rem; height: 1.1rem; }
+
+/* ---------------------------------------------- caixa de consulta */
+
+.hero__busca {
+  padding: var(--space-md) var(--space-lg) var(--space-lg);
+  border-radius: var(--radius-card);
+  background: var(--surface);
+  color: var(--text-strong);
+  box-shadow: var(--shadow-3);
+  scroll-margin-top: 7rem;
+}
+
+.hero__busca-titulo {
+  font-family: var(--font-display);
+  font-size: var(--fs-h3);
+  color: var(--green-deep);
+  margin-bottom: var(--space-sm);
+}
+
+@media (min-width: 48em) {
+  .hero__busca-titulo { margin-bottom: var(--space-md); }
+}
+
+/* Telas baixas, como notebook de 13 polegadas: o titulo cede primeiro,
+   para o formulario de consulta nunca sair da primeira dobra. */
+@media (min-width: 62em) and (max-height: 46em) {
+  .hero { min-height: 0; padding-top: calc(9.5rem + env(safe-area-inset-top)); }
+  .hero__titulo { font-size: var(--fs-display-l); }
+}
+
+@media (min-width: 62em) {
+  .hero {
+    align-items: center;
+    min-height: max(var(--hero-max-h), 44rem);
+    padding-top: calc(13rem + env(safe-area-inset-top));
+    padding-bottom: var(--space-3xl);
+  }
+  .hero__interno {
+    grid-template-columns: minmax(0, 1fr) minmax(24rem, 26rem);
+    gap: var(--space-3xl);
+    align-items: center;
+  }
+  .hero__busca { padding: var(--space-xl); }
+}
+
+/* A caixa de consulta não encolhe no desktop grande: abaixo de 26rem o campo
+   corta "Adicionar data" e o botão principal quebra em duas linhas. Quem
+   resolveu a quebra do título foi o tamanho do display, não a largura daqui. */
+@media (min-width: 75em) {
+  .hero__interno { grid-template-columns: minmax(0, 1fr) minmax(26rem, 27rem); }
+}

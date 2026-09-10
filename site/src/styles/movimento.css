@@ -1,0 +1,1000 @@
+/* ============================================================================
+   POUSADA & HOTEL GREEN BEACH  |  Grupo Green
+   movimento.css  |  v1.0  |  set/2026
+
+   Só movimento. Nenhuma cor nova, nenhuma medida de layout, nenhuma
+   tipografia. Tudo vem de tokens.css, mais o bloco de extensão logo abaixo.
+
+   Importar POR ÚLTIMO, depois de todos os componentes:
+       @import './movimento.css';
+
+   Regra de segurança que manda em tudo neste arquivo:
+   NADA fica escondido sem JavaScript. Todo estado inicial invisível está
+   trancado atrás de .js (classe que o main.js põe no <html> antes de montar).
+   Sem JS, sem observador, sem suporte a scroll-driven: a página aparece
+   inteira, estática e legível.
+
+   Documentação das decisões: green-beach/direcao-de-movimento.md
+   ========================================================================= */
+
+
+/* ---------------------------------------------------------------------------
+   0. EXTENSÃO DE TOKENS
+   Tudo que o tokens.css ainda não tinha. Derivado do que já existe: nenhuma
+   duração nova sem razão escrita ao lado.
+   ------------------------------------------------------------------------ */
+
+:root {
+  /* durações --------------------------------------------------------- */
+  --m-dur-troca:   260ms;  /* troca de foto no lightbox: rápido o bastante para
+                              aguentar a seta pressionada em repetição */
+  --m-dur-abrir:   320ms;  /* abrir resposta do FAQ: 220 é estalo, 420 cansa
+                              quando o visitante compara 8 respostas */
+  --m-dur-titulo:  800ms;  /* uma linha do display do hero. Ela percorre ~115px:
+                              a 560ms seria 205px/s, que lê como salto */
+  --m-dur-revela:  900ms;  /* limpeza (wipe) da foto editorial */
+  --m-dur-barra:   360ms;  /* barra fixa do mobile entrando e saindo */
+
+  /* atrasos ---------------------------------------------------------- */
+  --m-stagger-linha: 90ms;  /* entre linhas do display: 70ms cola linha em linha */
+  --m-stagger-grade: 45ms;  /* dentro de grade de 4 ou 5 colunas: onda, não fila */
+
+  /* curvas ----------------------------------------------------------- */
+  --m-ease-display: cubic-bezier(0.16, 1, 0.3, 1);   /* peso: 80% do caminho no
+                                                        primeiro terço do tempo */
+  --m-ease-saida:   cubic-bezier(0.4, 0, 0.9, 0.5);  /* sair é sempre mais seco
+                                                        que entrar */
+
+  /* deslocamentos ---------------------------------------------------- */
+  --m-y:          18px;   /* entrada de bloco. Menor que uma entrelinha de corpo
+                             (19px x 1,62 = 30,8px): chega, não voa */
+  --m-y-curto:    10px;   /* item de lista dentro de grade densa */
+  --m-y-linha:   125%;    /* linha do display. 100% deixaria a perna do "p"
+                             aparecendo abaixo da máscara */
+  --m-seta:        3px;   /* seta do botão no hover: 17% da largura do glifo */
+  --m-press:      0.985;  /* compressão no :active */
+
+  /* parallax --------------------------------------------------------- */
+  --m-parallax-hero:  12svh;  /* 12% de diferencial. Abaixo de 8% ninguém vê,
+                                 acima de 20% a foto escorrega atrás do texto */
+  --m-parallax-faixa:  4svh;  /* faixa sangrada: metade para cima, metade para
+                                 baixo, neutra quando a faixa está centrada */
+
+  /* Ken Burns -------------------------------------------------------- */
+  --m-kb-escala: 1.05;   /* 5% em 28s = 0,18%/s. Num hero de 1600px são 3px/s
+                            de crescimento de borda: vivo, não zoom */
+  --m-kb-dur:      28s;
+
+  /* revelação de imagem --------------------------------------------- */
+  --m-revela-escala: 1.06;  /* a foto assenta no quadro em vez de ser
+                               descoberta como persiana */
+}
+
+
+/* ---------------------------------------------------------------------------
+   1. PRIMITIVAS DE ENTRADA
+   Duas implementações do mesmo efeito:
+     a) IntersectionObserver  (.is-dentro)  -> funciona em todo lugar
+     b) animation-timeline: view()          -> Chrome e Safari, sem JS por item
+   A (b) vence a (a) por cascata dentro do @supports.
+   ------------------------------------------------------------------------ */
+
+@keyframes m-entra {
+  from { opacity: 0; translate: 0 var(--m-y); }
+  to   { opacity: 1; translate: 0 0; }
+}
+
+@keyframes m-entra-curto {
+  from { opacity: 0; translate: 0 var(--m-y-curto); }
+  to   { opacity: 1; translate: 0 0; }
+}
+
+/* Estado inicial: SÓ com JS na página. Sem .js nada disso existe. */
+.js .m-entra,
+.js .m-cascata > * {
+  opacity: 0;
+  translate: 0 var(--m-y);
+}
+
+.js .m-cascata > * { translate: 0 var(--m-y-curto); }
+
+/* (a) caminho do IntersectionObserver */
+.js .m-entra.is-dentro {
+  animation: m-entra var(--dur-enter) var(--ease-out) both;
+}
+
+.js .m-cascata.is-dentro > * {
+  animation: m-entra-curto var(--dur-enter) var(--ease-out) both;
+  animation-delay: calc(var(--m-i, 0) * var(--m-stagger-grade));
+}
+
+/* O índice do item sai do próprio DOM. Sem JS, sem atributo inline.
+   A partir do nono item o atraso congela: uma lista de 12 não pode demorar
+   mais que uma de 8. */
+.m-cascata > *:nth-child(1) { --m-i: 0 }
+.m-cascata > *:nth-child(2) { --m-i: 1 }
+.m-cascata > *:nth-child(3) { --m-i: 2 }
+.m-cascata > *:nth-child(4) { --m-i: 3 }
+.m-cascata > *:nth-child(5) { --m-i: 4 }
+.m-cascata > *:nth-child(6) { --m-i: 5 }
+.m-cascata > *:nth-child(7) { --m-i: 6 }
+.m-cascata > *:nth-child(n + 8) { --m-i: 7 }
+
+/* Cascata lenta, para lista de 3 ou 4 itens grandes (destaques, recortes). */
+.m-cascata--lenta > * { --m-passo: var(--dur-stagger); }
+.js .m-cascata--lenta.is-dentro > * {
+  animation-delay: calc(var(--m-i, 0) * var(--dur-stagger));
+}
+
+/* (b) caminho nativo, dirigido pela rolagem.
+   Vantagem real: roda fora da thread principal, então não briga com a
+   rolagem por inércia do iOS, e não custa um observador por elemento.
+   A faixa escolhida (entry 5% até cover 28%) completa a entrada quando o
+   bloco cruza o terço inferior da tela, e é segura tanto para um item de
+   60px quanto para uma seção mais alta que a viewport. */
+@supports (animation-timeline: view()) {
+  /* Os dois seletores existem de propósito: o motor de JS acrescenta
+     .is-dentro, e sem o segundo seletor a regra do observador venceria por
+     especificidade e o caminho nativo nunca entraria em campo. */
+  .js .m-entra,
+  .js .m-entra.is-dentro {
+    animation: m-entra var(--dur-enter) var(--ease-out) both;
+    animation-timeline: view();
+    animation-range-start: entry 5%;
+    animation-range-end: cover 28%;
+  }
+
+  .js .m-cascata > *,
+  .js .m-cascata.is-dentro > * {
+    animation: m-entra-curto var(--dur-enter) var(--ease-out) both;
+    animation-timeline: view();
+    /* O escalonamento vira deslocamento de faixa, não de tempo: se o
+       visitante rolar rápido, a lista inteira chega junto em vez de
+       enfileirar 8 atrasos. */
+    animation-range-start: entry calc(5% + var(--m-i, 0) * 3%);
+    animation-range-end: cover calc(28% + var(--m-i, 0) * 3%);
+    animation-delay: 0s;
+  }
+}
+
+
+/* ---------------------------------------------------------------------------
+   2. REVELAÇÃO DE IMAGEM
+   Três camadas, da mais barata para a mais cara. Use a mais barata que
+   resolver.
+   ------------------------------------------------------------------------ */
+
+/* 2.1 Blur-up. A miniatura de 24px já está como background-image da <img>
+   pelo lib/imagens.js. Falta só a foto grande entrar por cima em vez de
+   trocar em corte seco. Precisa de uma linha de JS (ver a direção de
+   movimento, seção "marcação necessária"): a classe .is-carregada entra no
+   load da imagem. Enquanto ela não entra, a miniatura segura o lugar. */
+.m-foto {
+  transition:
+    opacity var(--dur-slow) var(--ease-standard),
+    scale var(--dur-slow) var(--ease-soft);
+}
+/* Estado inicial só com JS. Sem JS a foto nasce visível. 420ms: mais curto
+   que isso é corte seco; mais longo, numa conexão ruim, parece defeito. */
+.js .m-foto:not(.is-carregada) { opacity: 0; scale: 1.015; }
+
+/* 2.2 Limpeza editorial (wipe). Reservada para a PRIMEIRA foto de uma
+   seção. Se toda foto da página se revela assim, a página vira slideshow.
+   Máximo de três por página inteira.
+   A foto entra em densidade cheia o tempo todo, então nunca parece lavada
+   no meio do caminho, e o sentido de cima para baixo concorda com a leitura
+   e com a rolagem. */
+/* A opacidade fica presa em 1 dentro dos dois quadros de propósito.
+   Motivo, e é uma regra de sistema, não um remendo: uma peça que está sendo
+   descoberta por máscara NÃO pode estar transparente ao mesmo tempo, senão a
+   máscara descobre o nada. Como cada elemento só tem uma lista `animation`,
+   se .m-revela e .m-cascata caírem no mesmo elemento a de máscara vence e a
+   de opacidade nunca roda. Prendendo a opacidade aqui, o resultado é o mesmo
+   com ou sem essa colisão. */
+@keyframes m-revela {
+  from { clip-path: inset(0 0 100% 0 round var(--m-raio, 0px)); opacity: 1; }
+  to   { clip-path: inset(0 0 0 0 round var(--m-raio, 0px));    opacity: 1; }
+}
+@keyframes m-revela-foto {
+  from { scale: var(--m-revela-escala); }
+  to   { scale: 1; }
+}
+
+.js .m-revela { clip-path: inset(0 0 100% 0 round var(--m-raio, 0px)); }
+
+.js .m-revela.is-dentro {
+  animation: m-revela var(--m-dur-revela) var(--ease-out) both;
+}
+
+/* O contra-movimento por dentro (a foto assentando no quadro) só entra em
+   peça NÃO clicável. Regra dura, e a razão é de produto, não de gosto:
+   a foto do mosaico, do recorte e do card é um <button>, e nesses o `scale`
+   já pertence ao zoom de hover. Uma animação com preenchimento trava a
+   propriedade e mataria o hover para sempre. Entre um floreio de 900ms uma
+   vez e o retorno de hover em toda visita, o hover ganha.
+   Peça inerte (.faixa, .fechamento, foto editorial dentro de figure) fica
+   com o assentamento completo. */
+.js .m-revela:not(button):not(a) > :is(img, picture) { scale: var(--m-revela-escala); }
+.js .m-revela:not(button):not(a).is-dentro > :is(img, picture) {
+  /* Termina 220ms DEPOIS da máscara: é esse atraso que faz o conjunto
+     parecer um objeto só, e não duas animações somadas. */
+  animation: m-revela-foto calc(var(--m-dur-revela) + 220ms) var(--ease-soft) both;
+}
+
+/* Teto de limpeza editorial por página. O motor de JS marca todas as
+   células do mosaico e todos os recortes de Itapema; nove limpezas seguidas
+   transformam a página em slideshow. O CSS é a lei: só a peça principal do
+   mosaico se revela com máscara, as demais só aparecem. */
+.js .mosaico__celula--apoio.m-revela,
+.js .recorte:nth-child(n + 2) .m-revela {
+  clip-path: none;
+  opacity: 0;
+  animation-name: m-aparece;
+}
+
+/* .m-revela e .m-cascata/.m-entra são primitivas EXCLUSIVAS: uma peça
+   ou é descoberta por máscara ou sobe com opacidade, nunca as duas. Quando o
+   motor de JS marcar as duas no mesmo elemento (acontece no mosaico, que é
+   .m-cascata com células .m-revela), a máscara manda e a opacidade é
+   devolvida aqui. */
+.js .m-cascata > .m-revela,
+.js .m-entra.m-revela { opacity: 1; }
+
+/* clip-path corta o anel de foco junto com o resto. Como a animação já
+   terminou quando alguém chega no elemento pelo teclado, soltar o recorte
+   no foco não muda nada visualmente e devolve o anel inteiro. */
+.m-revela:focus-visible { clip-path: none; }
+
+@supports (animation-timeline: view()) {
+  .js .m-revela,
+  .js .m-revela.is-dentro {
+    animation: m-revela var(--m-dur-revela) var(--ease-out) both;
+    animation-timeline: view();
+    animation-range-start: entry 8%;
+    animation-range-end: cover 34%;
+  }
+  .js .m-revela:not(button):not(a) > :is(img, picture),
+  .js .m-revela.is-dentro:not(button):not(a) > :is(img, picture) {
+    animation: m-revela-foto var(--m-dur-revela) var(--ease-soft) both;
+    animation-timeline: view();
+    animation-range-start: entry 8%;
+    animation-range-end: cover 42%;   /* termina depois, de propósito */
+  }
+  .js .mosaico__celula--apoio.m-revela,
+  .js .mosaico__celula--apoio.m-revela.is-dentro,
+  .js .recorte:nth-child(n + 2) .m-revela,
+  .js .recorte:nth-child(n + 2) .m-revela.is-dentro {
+    animation-name: m-aparece;
+    clip-path: none;
+  }
+}
+
+/* Raio por contexto, para a máscara acompanhar o arredondamento do
+   componente em vez de cortar quadrado por cima dele. */
+.mosaico__celula.m-revela,
+.recorte__foto.m-revela   { --m-raio: var(--radius-image); }
+.acomodacao__foto.m-revela { --m-raio: 0px; }
+.faixa.m-revela,
+.fechamento.m-revela      { --m-raio: 0px; }
+
+
+/* ---------------------------------------------------------------------------
+   3. PARALLAX
+   Só em foto que sangra. Nunca em texto, nunca em card, nunca em ícone.
+
+   ARMADILHA que vale para todo este bloco: view() resolve contra o
+   scrollport ancestral mais próximo, e .hero, .faixa, .fechamento,
+   .mosaico__celula e .acomodacao__foto TÊM overflow:hidden, o que já os
+   torna scrollport. Por isso o timeline é declarado com nome NO PRÓPRIO
+   contêiner (que é medido contra o documento) e consumido lá dentro.
+   Sem isso o parallax simplesmente não anda, e é o erro nº1 de quem
+   escreve scroll-driven pela primeira vez.
+   ------------------------------------------------------------------------ */
+
+@supports (animation-timeline: scroll()) {
+
+  /* 3.1 Hero. Usa scroll(root), que ignora qualquer ancestral e mede o
+     documento. A foto anda 12svh enquanto a página anda 100svh: fator 0,88.
+     O excedente de altura é exatamente o percurso, então a foto nunca
+     descobre a borda de baixo. */
+  .hero__fundo {
+    height: calc(100% + var(--m-parallax-hero));
+  }
+  /* O percurso vive no CONTÊINER da foto, não na foto.
+     Motivo, e este é o detalhe que decide se o sistema inteiro funciona:
+     `animation` é uma abreviação e cada elemento só tem uma lista de
+     animações. A foto já é dona da deriva Ken Burns (seção 4), que anda em
+     `scale`. Se o parallax também morasse nela, uma das duas sumiria.
+     Separando por elemento, o contêiner anda em `translate` e a foto cresce
+     em `scale`, e as duas compõem sem nenhuma matriz somada à mão. */
+  .hero__fundo {
+    will-change: transform;
+    animation: m-parallax-hero linear both;
+    animation-timeline: scroll(root block);
+    animation-range: 0 100svh;
+  }
+  @keyframes m-parallax-hero {
+    from { translate: 0 0; }
+    to   { translate: 0 calc(-1 * var(--m-parallax-hero)); }
+  }
+
+  /* 3.2 Faixa sangrada e fechamento. Timeline nomeada no contêiner.
+     O percurso é simétrico: no instante em que a faixa está centrada na
+     tela, ou seja no ponto de atenção máxima, a foto está no enquadramento
+     neutro, que é o que o diretor de arte escolheu. */
+  .faixa,
+  .fechamento {
+    view-timeline-name: --m-faixa;
+    view-timeline-axis: block;
+  }
+  .faixa__fundo,
+  .fechamento__fundo {
+    top: calc(-1 * var(--m-parallax-faixa));
+    height: calc(100% + 2 * var(--m-parallax-faixa));
+    will-change: transform;
+    animation: m-parallax-faixa linear both;
+    animation-timeline: --m-faixa;
+    animation-range: cover 0% cover 100%;
+  }
+  @keyframes m-parallax-faixa {
+    from { translate: 0 var(--m-parallax-faixa); }
+    to   { translate: 0 calc(-1 * var(--m-parallax-faixa)); }
+  }
+
+  @media (min-width: 62em) {
+    :root { --m-parallax-faixa: 6svh; }
+  }
+
+  /* No celular o parallax do hero sai. Motivo técnico, não de gosto: o
+     recorte 4:5 já é apertado e a barra de endereço do iOS mexe na altura
+     visível durante a rolagem, o que faz o percurso saltar. */
+  @media (max-width: 47.99em) {
+    .hero__fundo { height: 100%; animation: none; will-change: auto; }
+  }
+}
+
+
+/* ---------------------------------------------------------------------------
+   4. KEN BURNS
+   Contraria de propósito a direcao-de-arte.md v1, que proibia Ken Burns no
+   hero. A proibição valia contra o LOOP: laço infinito é protetor de tela.
+   Aqui a deriva roda UMA vez, 28s, e acaba. Está registrado na entrega.
+
+   Detalhe de composição que evita conflito: parallax é dono da propriedade
+   `translate` e Ken Burns é dono da propriedade `scale`. São propriedades
+   independentes no CSS moderno, então as duas animações convivem no mesmo
+   elemento sem nenhuma matriz somada à mão.
+   ------------------------------------------------------------------------ */
+
+@keyframes m-kenburns {
+  from { scale: 1; }
+  to   { scale: var(--m-kb-escala); }
+}
+
+@media (min-width: 62em) {
+  .js .m-kenburns {
+    animation: m-kenburns var(--m-kb-dur) linear 1 both;
+    /* linear, e não ease: qualquer curva num zoom lento vira aceleração
+       visível, e aceleração é o que denuncia o efeito. */
+  }
+  /* Duas fotos vizinhas nunca derivam para o mesmo lado. */
+  .m-kenburns--inversa { animation-direction: reverse; }
+}
+
+
+/* ---------------------------------------------------------------------------
+   5. HERO: COREOGRAFIA DE CHEGADA
+   Baseada em tempo, não em rolagem: no primeiro quadro nada rolou ainda.
+
+   O gatilho é .is-pronto no <html>, posto pelo main.js depois de
+   document.fonts.ready (com teto de 900ms). Sem isso o título anima em
+   Georgia e reflui para Playfair no meio do caminho, que é o defeito mais
+   visível que existe numa primeira dobra.
+
+   Ordem deliberada:
+     0ms    caixa de consulta (só opacidade, sem percurso)
+     200ms  linha 1 do título
+     290ms  linha 2
+     380ms  linha 3
+     560ms  parágrafo de apoio
+     640ms  linha de endereço
+   A caixa de consulta NUNCA espera a coreografia. É o elemento de conversão:
+   página de hotel que faz o formulário chegar por último está otimizando
+   para o portfólio do designer, não para o hóspede.
+   ------------------------------------------------------------------------ */
+
+/* Máscara por linha. Padding e margem negativa dão à máscara a folga exata
+   dos descendentes e dos acentos, sem mexer no layout: com line-height 0,98
+   a caixa de linha da Playfair é 0,18em menor que a área de conteúdo da
+   fonte, então a perna do "p" e o til do "ã" ficam FORA da linha. */
+.m-titulo .m-linha {
+  display: block;
+  overflow: hidden;
+  padding-block: 0.22em;
+  margin-block: -0.22em;
+}
+.m-titulo .m-linha > span { display: block; }
+
+@keyframes m-linha {
+  from { translate: 0 var(--m-y-linha); }
+  to   { translate: 0 0; }
+}
+@keyframes m-suave {
+  from { opacity: 0; translate: 0 var(--m-y); }
+  to   { opacity: 1; translate: 0 0; }
+}
+@keyframes m-aparece {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.js.is-pronto .m-titulo .m-linha > span {
+  animation: m-linha var(--m-dur-titulo) var(--m-ease-display) both;
+  animation-delay: calc(200ms + var(--m-i, 0) * var(--m-stagger-linha));
+}
+.m-titulo .m-linha:nth-child(1) > span { --m-i: 0 }
+.m-titulo .m-linha:nth-child(2) > span { --m-i: 1 }
+.m-titulo .m-linha:nth-child(3) > span { --m-i: 2 }
+.m-titulo .m-linha:nth-child(n + 4) > span { --m-i: 3 }
+
+/* Antes de .is-pronto o título fica invisível, para não piscar em fallback.
+   Só quando há JS: sem JS o h1 aparece normal. */
+.js:not(.is-pronto) .m-titulo .m-linha > span { opacity: 0; }
+.js.is-pronto .m-titulo .m-linha > span { opacity: 1; }
+
+.js.is-pronto .hero__apoio { animation: m-suave 620ms var(--ease-out) 560ms both; }
+.js.is-pronto .hero__local { animation: m-suave 620ms var(--ease-out) 640ms both; }
+.js.is-pronto .hero__selo  { animation: m-aparece 520ms var(--ease-out) 120ms both; }
+.js.is-pronto .hero__busca { animation: m-aparece 420ms var(--ease-standard) 0ms both; }
+
+/* A foto do hero NÃO tem animação de entrada por tempo, e isso é decisão.
+   Quem faz a foto aparecer é o blur-up da seção 2.1: ela entra por cima da
+   miniatura no instante em que termina de baixar, que é o instante honesto.
+   Um fade por cronômetro só serviria para atrasar de propósito a chegada da
+   primeira dobra.
+   Consequência técnica que é preciso respeitar: a foto (.hero__imagem) é dona
+   de `scale` por causa do Ken Burns, e o contêiner (.hero__fundo) é dono de
+   `translate` por causa do parallax. Nenhum dos dois pode receber outra
+   declaração `animation`, porque a abreviação zera a lista inteira, inclusive
+   o animation-timeline. Se alguém precisar de mais uma animação aqui, ela
+   entra como segundo item na MESMA lista, nunca em outra regra.
+
+
+/* ---------------------------------------------------------------------------
+   6. CABEÇALHO
+   O estado continua binário (.is-solido), e isso é decisão, não preguiça:
+   a cor do texto tem que virar de claro para escuro, e interpolar cor de
+   texto continuamente enquanto o fundo também interpola passa por um meio
+   termo em que nenhum dos dois lados tem contraste. O que fica contínuo é
+   só o que não carrega texto: a barra de progresso.
+   ------------------------------------------------------------------------ */
+
+/* 6.1 A barra sólida DESCE, não aparece. Objeto que chega, não bug que
+   pisca. O vidro (backdrop-filter) faz a barra ler como camada da mesma
+   página; opaca a 100% ela lê como placa colada por cima. */
+.cabecalho::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: rgb(251 248 244 / 0.86);
+  box-shadow: var(--shadow-header);
+  translate: 0 -100%;
+  opacity: 0;
+  transition:
+    translate var(--dur-base) var(--m-ease-saida),
+    opacity var(--dur-fast) var(--m-ease-saida);
+}
+.cabecalho.is-solido::before {
+  translate: 0 0;
+  opacity: 1;
+  transition:
+    translate 300ms var(--ease-out),
+    opacity 180ms var(--ease-out);
+}
+@supports (backdrop-filter: blur(1px)) {
+  .cabecalho.is-solido::before {
+    backdrop-filter: blur(14px) saturate(1.06);
+  }
+}
+/* O fundo agora é do ::before. O da classe original sai de cena para os
+   dois não se somarem. */
+.cabecalho.is-solido {
+  background: transparent;
+  box-shadow: none;
+}
+
+/* 6.2 Troca de assinatura assimétrica.
+   Hoje o lockup e a rosácea dividem a mesma célula de grade e fazem
+   crossfade nos mesmos 220ms: existe um intervalo em que duas versões da
+   marca aparecem meio transparentes, em tamanhos diferentes, uma dentro da
+   outra. É o defeito mais visível do cabeçalho.
+   Correção: o lockup sai em 120ms e a rosácea só começa a entrar aos 120ms.
+   Nunca há dois logotipos no ar ao mesmo tempo. */
+.cabecalho__logo--lockup {
+  transition:
+    opacity 120ms var(--m-ease-saida) 0ms,
+    scale 260ms var(--ease-out) 0ms;
+}
+.cabecalho__logo--simbolo {
+  transition:
+    opacity 200ms var(--ease-out) 120ms,
+    scale 260ms var(--ease-out) 120ms;
+}
+.cabecalho.is-solido .cabecalho__logo--lockup { scale: 0.92; }
+.cabecalho__logo--simbolo { scale: 0.92; }
+.cabecalho.is-solido .cabecalho__logo--simbolo { scale: 1; }
+
+/* 6.3 Régua de progresso de leitura, 2px, colada na base da barra sólida.
+   É o único elemento decorativo permitido na página, porque não é
+   decorativo: carrega informação (quanto falta). 2px e não 1px porque 1px
+   some em tela de baixa densidade. */
+@supports (animation-timeline: scroll()) {
+  .cabecalho::after {
+    content: '';
+    position: absolute;
+    inset: auto 0 0 0;
+    height: 2px;
+    background: var(--accent);
+    transform-origin: 0 50%;
+    scale: 0 1;
+    opacity: 0;
+    transition: opacity var(--dur-fast) var(--ease-standard);
+    animation: m-progresso linear both;
+    animation-timeline: scroll(root block);
+  }
+  .cabecalho.is-solido::after { opacity: 0.9; }
+  @keyframes m-progresso {
+    from { scale: 0 1; }
+    to   { scale: 1 1; }
+  }
+}
+
+/* 6.4 Hambúrguer: as duas hastes já giram. Falta a do meio sumir DEPOIS
+   das outras começarem, senão o X se forma com um buraco no meio. */
+.cabecalho__hamburguer { transition-delay: 0ms; }
+.cabecalho.is-menu-aberto .cabecalho__hamburguer { transition-delay: 60ms; }
+
+/* 6.5 Menu mobile: o painel abre e os links sobem em cascata. */
+@keyframes m-painel { from { opacity: 0 } to { opacity: 1 } }
+.cabecalho.is-menu-aberto ~ * .menu-mobile,
+.menu-mobile:not([hidden]) {
+  animation: m-painel var(--dur-base) var(--ease-out) both;
+}
+.js .menu-mobile:not([hidden]) .nav__lista--empilhada > li {
+  animation: m-entra-curto 460ms var(--ease-out) both;
+  animation-delay: calc(120ms + var(--m-i, 0) * 60ms);
+}
+.menu-mobile .nav__lista--empilhada > li:nth-child(1) { --m-i: 0 }
+.menu-mobile .nav__lista--empilhada > li:nth-child(2) { --m-i: 1 }
+.menu-mobile .nav__lista--empilhada > li:nth-child(3) { --m-i: 2 }
+.menu-mobile .nav__lista--empilhada > li:nth-child(4) { --m-i: 3 }
+.menu-mobile .nav__lista--empilhada > li:nth-child(n + 5) { --m-i: 4 }
+
+
+/* ---------------------------------------------------------------------------
+   7. MICRO-INTERAÇÕES
+   Regra que manda em toda esta seção: retorno de hover só em coisa
+   clicável. Item de comodidade é texto, não botão, e por isso não reage ao
+   mouse. Reação em elemento inerte é o que faz a página parecer inquieta.
+   ------------------------------------------------------------------------ */
+
+/* 7.1 Botão. O tokens.css já dá 160ms de cor. Falta a física:
+   subir 1px ao aproximar e COMPRIMIR ao apertar. É a compressão que faz um
+   botão parecer um objeto e não um retângulo colorido. */
+.botao {
+  transition:
+    background-color var(--dur-fast) var(--ease-standard),
+    border-color var(--dur-fast) var(--ease-standard),
+    color var(--dur-fast) var(--ease-standard),
+    box-shadow var(--dur-base) var(--ease-standard),
+    translate var(--dur-fast) var(--ease-out),
+    scale 90ms var(--ease-in);
+}
+.botao:hover { transform: none; translate: 0 -1px; }
+.botao:active { transform: none; translate: 0 0; scale: var(--m-press); }
+.botao[disabled] { translate: 0 0; scale: 1; }
+
+/* A seta anda 3px para a direita. 3px são 17% da largura do glifo: lê como
+   intenção. A 6px ela se descola do rótulo. */
+.botao__seta svg,
+.botao__icone svg { transition: translate var(--dur-fast) var(--ease-out); }
+.botao:hover .botao__seta svg { translate: var(--m-seta) 0; }
+.botao--primario:hover { box-shadow: var(--shadow-1); }
+
+/* 7.2 Campo. Além da borda, um halo de 3px que cresce do zero. Duas pistas
+   em vez de uma ajudam quem enxerga pouco, e o halo aparece mesmo quando a
+   borda já é escura. */
+.campo__gatilho,
+.texto__input {
+  transition:
+    border-color var(--dur-instant) var(--ease-standard),
+    background-color var(--dur-instant) var(--ease-standard),
+    box-shadow var(--dur-base) var(--ease-out);
+}
+.campo__gatilho[aria-expanded='true'],
+.campo__gatilho:focus-visible,
+.texto__input:focus-visible { box-shadow: 0 0 0 3px var(--green-wash); }
+.campo__rotulo { transition: color var(--dur-fast) var(--ease-standard); }
+.campo:focus-within .campo__rotulo { color: var(--text-strong); }
+
+/* Erro de formulário: um tremor de 3px, uma vez só. Não é enfeite, é a
+   maneira mais rápida de dizer "olhe aqui" sem depender de cor, o que
+   importa para daltônico. Amplitude pequena de propósito: 8px vira alarme. */
+@keyframes m-erro {
+  0%, 100% { translate: 0 0 }
+  25%      { translate: -3px 0 }
+  75%      { translate: 3px 0 }
+}
+.js .campo.is-invalido .campo__gatilho { animation: m-erro 260ms var(--ease-standard) 1; }
+
+/* 7.3 Card de acomodação. O card inteiro responde como um objeto só:
+   sobe 2px, ganha sombra, a foto amplia e o botão de dentro acende. Card em
+   que só a foto reage parece dois elementos empilhados. */
+.acomodacao {
+  transition:
+    box-shadow var(--dur-slow) var(--ease-soft),
+    translate var(--dur-slow) var(--ease-soft);
+}
+.acomodacao:hover,
+.acomodacao:focus-within { translate: 0 var(--lift-card); box-shadow: var(--shadow-2); }
+.acomodacao__foto img { transition: scale var(--dur-slow) var(--ease-soft); }
+.acomodacao:hover .acomodacao__foto img,
+.acomodacao__foto:hover img { scale: 1.045; }
+.acomodacao__contador { transition: opacity var(--dur-fast) var(--ease-standard); }
+.acomodacao__foto:hover .acomodacao__contador { opacity: 0.75; }
+
+/* 7.4 Mosaico e recortes de Itapema: a foto amplia e a legenda sobe 2px.
+   Sem véu escurecendo no hover: a foto é o produto, escurecer é castigo. */
+.mosaico__imagem,
+.recorte__foto img { transition: scale var(--dur-slow) var(--ease-soft); }
+.mosaico__celula:hover .mosaico__imagem,
+.mosaico__celula:focus-visible .mosaico__imagem,
+.recorte__foto:hover img,
+.recorte__foto:focus-visible img { scale: 1.045; }
+
+.mosaico__tag { transition: translate var(--dur-base) var(--ease-out); }
+.mosaico__celula:hover .mosaico__tag { translate: 0 -2px; }
+
+/* 7.5 Comodidade. Só entrada, nenhum hover: não é clicável.
+   O filete de baixo é que faz a entrada, crescendo da esquerda: a lista
+   parece ser escrita, não empilhada. */
+.js .m-cascata .comodidade { position: relative; }
+.js .m-cascata .comodidade::after {
+  content: '';
+  position: absolute;
+  inset: auto 0 -1px 0;
+  height: 1px;
+  background: var(--border-hairline);
+  transform-origin: 0 50%;
+}
+.js .m-cascata.is-dentro .comodidade::after {
+  animation: m-filete 520ms var(--ease-out) both;
+  animation-delay: calc(var(--m-i, 0) * var(--m-stagger-grade) + 120ms);
+}
+@keyframes m-filete {
+  from { scale: 0 1 }
+  to   { scale: 1 1 }
+}
+
+/* 7.6 FAQ. grid-template-rows de 0fr para 1fr é a única forma de animar
+   até altura automática sem medir nada em JS.
+   Esta versão funciona COM o atributo [hidden] que o componente já usa,
+   graças a @starting-style: abrir anima, fechar corta seco. Fechar seco não
+   incomoda; abrir seco incomoda. Se quiser as duas pontas animadas, troque
+   [hidden] por uma classe (ver a direção de movimento).
+   O padding foi para dentro do <p>: se ficasse no contêiner, os 24px
+   apareceriam no primeiro quadro e a resposta abriria com um degrau. */
+.duvida__resposta {
+  display: grid;
+  grid-template-rows: 1fr;
+  padding-bottom: 0;
+  opacity: 1;
+  transition:
+    grid-template-rows var(--m-dur-abrir) var(--ease-standard),
+    opacity var(--m-dur-abrir) var(--ease-standard) 60ms;
+}
+.duvida__resposta > p {
+  min-height: 0;
+  overflow: hidden;
+  padding-bottom: var(--space-md);
+}
+@starting-style {
+  .duvida__resposta { grid-template-rows: 0fr; opacity: 0; }
+}
+
+/* O sinal de + vira - girando 90 graus, e a pergunta aberta muda de cor.
+   O giro é do traço vertical apenas, então o traço horizontal fica parado
+   e o olho segue uma coisa só. */
+.duvida__sinal::after {
+  transition:
+    rotate var(--dur-base) var(--ease-out),
+    opacity var(--dur-fast) var(--ease-standard);
+}
+.duvida.is-aberto .duvida__pergunta { color: var(--accent-text); }
+.duvida__pergunta > span:first-child {
+  transition: translate var(--dur-base) var(--ease-out);
+}
+.duvida__pergunta:hover > span:first-child { translate: 2px 0; }
+
+/* 7.7 Setas e troca de foto no lightbox.
+   260ms porque o visitante segura a seta: acima de 300ms as trocas
+   enfileiram. 24px de percurso e não 60px porque a 60px a repetição rápida
+   vira borrão. */
+.lightbox__nav svg,
+.lightbox__fechar svg { transition: translate var(--dur-fast) var(--ease-out); }
+.lightbox__nav--anterior:hover svg { translate: -2px 0; }
+.lightbox__nav--proximo:hover svg  { translate: 2px 0; }
+.lightbox__nav:active,
+.lightbox__fechar:active { scale: 0.94; }
+.lightbox__nav,
+.lightbox__fechar { transition: background-color var(--dur-fast) var(--ease-standard),
+                                border-color var(--dur-fast) var(--ease-standard),
+                                scale 90ms var(--ease-in); }
+
+@keyframes m-lb-entra {
+  from { opacity: 0; translate: var(--m-lb-de, 0) 0; }
+  to   { opacity: 1; translate: 0 0; }
+}
+/* O JS põe data-sentido no palco a cada troca (ver marcação necessária). */
+.js .lightbox__palco[data-sentido='proximo']   { --m-lb-de: 24px; }
+.js .lightbox__palco[data-sentido='anterior']  { --m-lb-de: -24px; }
+.js .lightbox__palco.is-trocando .lightbox__imagem {
+  animation: m-lb-entra var(--m-dur-troca) var(--ease-out) both;
+}
+/* Abertura do lightbox: o fundo escurece e o painel cresce de 0,98. */
+@keyframes m-lb-painel {
+  from { opacity: 0; scale: 0.985 }
+  to   { opacity: 1; scale: 1 }
+}
+.lightbox-overlay.is-aberto .lightbox {
+  animation: m-lb-painel var(--dur-slow) var(--ease-out) both;
+}
+
+/* 7.8 Barra fixa do mobile. Ela já entra; faltava sair.
+   Some quando o formulário de fechamento está na tela, porque duas
+   chamadas iguais visíveis ao mesmo tempo competem entre si. */
+.barra-fixa {
+  animation: none;
+  translate: 0 0;
+  transition: translate var(--m-dur-barra) var(--ease-out),
+              opacity var(--dur-base) var(--ease-standard);
+}
+.js .barra-fixa[hidden],
+.barra-fixa.is-recolhida { translate: 0 100%; opacity: 0; }
+
+/* 7.9 Âncora do menu. O link ativo sublinha crescendo da esquerda, o que o
+   cabecalho.css já faz. Falta só desfazer pela direita, para o sublinhado
+   não voltar por onde veio, que é o detalhe que dá direção ao menu. */
+.nav__link::after { transform-origin: right; }
+.nav__link:hover::after,
+.nav__link.is-ativo::after { transform-origin: left; }
+
+
+/* ---------------------------------------------------------------------------
+   8. NÚMERO QUE SOBE
+   Existe, está pronto, e NÃO deve ser usado nesta versão da página.
+   Motivo: o único número grande do projeto seria a nota do Google, que é da
+   gestão anterior e por isso está desligada no arquivo de dados. Animar de
+   0 até um número que a própria página decidiu não afirmar seria enfeitar
+   um dado que não se sustenta.
+   Condições para ligar: número confirmado pela pousada, inteiro, e nunca
+   preço nem contagem regressiva.
+   ------------------------------------------------------------------------ */
+
+@property --m-n {
+  syntax: '<integer>';
+  initial-value: 0;
+  inherits: false;
+}
+
+.m-numero { counter-reset: m-n var(--m-n); }
+.m-numero::after { content: counter(m-n); font-variant-numeric: tabular-nums lining-nums; }
+.js .m-numero.is-dentro { animation: m-conta 1200ms var(--ease-out) both; }
+@keyframes m-conta { to { --m-n: var(--m-alvo, 0); } }
+
+
+/* ---------------------------------------------------------------------------
+   9. LIGAÇÃO COM OS COMPONENTES QUE JÁ EXISTEM
+   Nada aqui inventa classe nova no HTML. São só os alvos que a página já
+   tem, recebendo as primitivas de cima.
+   Se a marcação da seção 10 da direção de movimento for aplicada, este bloco
+   pode encolher.
+   ------------------------------------------------------------------------ */
+
+@supports (animation-timeline: view()) {
+  .js :is(
+    .secao__cabecalho,
+    .sobre__paragrafo,
+    .localizacao__endereco,
+    .proximidades,
+    .localizacao__rota,
+    .localizacao__mapa,
+    .duvidas__cabecalho,
+    .faixa__interno,
+    .fechamento__interno,
+    .secao__nota
+  ) {
+    opacity: 0;
+    translate: 0 var(--m-y);
+    animation: m-entra var(--dur-enter) var(--ease-out) both;
+    animation-timeline: view();
+    animation-range-start: entry 5%;
+    animation-range-end: cover 28%;
+  }
+
+  /* Listas que entram em cascata, com o índice vindo do nth-child. */
+  .js :is(.destaques, .comodidades__grade, .acomodacoes__lista, .recortes, .duvidas__lista) > * {
+    opacity: 0;
+    translate: 0 var(--m-y-curto);
+    animation: m-entra-curto var(--dur-enter) var(--ease-out) both;
+    animation-timeline: view();
+    animation-range-start: entry calc(5% + var(--m-i, 0) * 3%);
+    animation-range-end: cover calc(28% + var(--m-i, 0) * 3%);
+  }
+}
+
+/* Índice para as listas acima, sem tocar no JS. */
+:is(.destaques, .comodidades__grade, .acomodacoes__lista, .recortes, .duvidas__lista) > *:nth-child(1) { --m-i: 0 }
+:is(.destaques, .comodidades__grade, .acomodacoes__lista, .recortes, .duvidas__lista) > *:nth-child(2) { --m-i: 1 }
+:is(.destaques, .comodidades__grade, .acomodacoes__lista, .recortes, .duvidas__lista) > *:nth-child(3) { --m-i: 2 }
+:is(.destaques, .comodidades__grade, .acomodacoes__lista, .recortes, .duvidas__lista) > *:nth-child(4) { --m-i: 3 }
+:is(.destaques, .comodidades__grade, .acomodacoes__lista, .recortes, .duvidas__lista) > *:nth-child(5) { --m-i: 4 }
+:is(.destaques, .comodidades__grade, .acomodacoes__lista, .recortes, .duvidas__lista) > *:nth-child(6) { --m-i: 5 }
+:is(.destaques, .comodidades__grade, .acomodacoes__lista, .recortes, .duvidas__lista) > *:nth-child(7) { --m-i: 6 }
+:is(.destaques, .comodidades__grade, .acomodacoes__lista, .recortes, .duvidas__lista) > *:nth-child(n + 8) { --m-i: 7 }
+
+/* O mosaico da galeria é a primeira coisa depois do hero. Ele NÃO entra em
+   cascata: cinco fotos chegando uma a uma logo abaixo da dobra transforma a
+   abertura da página num carrossel. A célula principal se revela com a
+   limpeza editorial; as de apoio só aparecem. */
+@supports (animation-timeline: view()) {
+  .js .mosaico__celula--apoio,
+  .js .mosaico__celula--apoio.is-dentro {
+    opacity: 0;
+    animation: m-aparece var(--dur-enter) var(--ease-standard) both;
+    animation-timeline: view();
+    animation-range-start: entry 5%;
+    animation-range-end: cover 25%;
+  }
+}
+
+
+/* ---------------------------------------------------------------------------
+   10. MOVIMENTO REDUZIDO
+   Regra dura: com movimento reduzido a página fica utilizável E bonita,
+   não quebrada. Nada de opacidade zero sobrando, nada de foto congelada num
+   enquadramento que era só o começo do parallax.
+
+   ATENÇÃO, e isto é um defeito real do tokens.css v1: zerar --dur-* NÃO
+   para animação dirigida por rolagem. Numa animação com animation-timeline
+   a duração declarada é ignorada, quem manda é a barra de rolagem. O único
+   desligamento que funciona é `animation: none`.
+   ------------------------------------------------------------------------ */
+
+@media (prefers-reduced-motion: reduce) {
+
+  :root {
+    --m-dur-troca:  1ms;
+    --m-dur-abrir:  1ms;
+    --m-dur-titulo: 1ms;
+    --m-dur-revela: 1ms;
+    --m-dur-barra:  1ms;
+    --m-stagger-linha: 0ms;
+    --m-stagger-grade: 0ms;
+    --m-y:        0px;
+    --m-y-curto:  0px;
+    --m-y-linha:  0%;
+    --m-seta:     0px;
+    --m-press:    1;
+    --m-parallax-hero:  0px;
+    --m-parallax-faixa: 0px;
+    --m-kb-escala: 1;
+    --m-revela-escala: 1;
+  }
+
+  /* Mata toda animação declarada neste arquivo, inclusive as dirigidas por
+     rolagem, que ignoram duração. */
+  .js .m-entra,
+  .js .m-cascata > *,
+  .js .m-revela,
+  .js .m-revela > *,
+  .js .m-kenburns,
+  .js .m-numero,
+  .js .m-foto,
+  .hero__imagem,
+  .hero__fundo,
+  .faixa__fundo,
+  .fechamento__fundo,
+  .hero__apoio,
+  .hero__local,
+  .hero__selo,
+  .hero__busca,
+  .faixa__imagem,
+  .fechamento__imagem,
+  .cabecalho::after,
+  .m-titulo .m-linha > span,
+  .menu-mobile .nav__lista--empilhada > li,
+  .campo.is-invalido .campo__gatilho,
+  .lightbox__imagem,
+  .lightbox-overlay.is-aberto .lightbox,
+  .js :is(.secao__cabecalho, .sobre__paragrafo, .localizacao__endereco,
+          .proximidades, .localizacao__rota, .localizacao__mapa,
+          .duvidas__cabecalho, .faixa__interno, .fechamento__interno,
+          .secao__nota, .mosaico__celula--apoio) > *,
+  .js :is(.secao__cabecalho, .sobre__paragrafo, .localizacao__endereco,
+          .proximidades, .localizacao__rota, .localizacao__mapa,
+          .duvidas__cabecalho, .faixa__interno, .fechamento__interno,
+          .secao__nota, .mosaico__celula--apoio),
+  .js :is(.destaques, .comodidades__grade, .acomodacoes__lista,
+          .recortes, .duvidas__lista) > *,
+  .js .m-cascata.is-dentro .comodidade::after {
+    animation: none !important;
+    animation-timeline: none !important;
+    opacity: 1 !important;
+    translate: none !important;
+    scale: none !important;
+    clip-path: none !important;
+    will-change: auto !important;
+  }
+
+  /* O detalhe que quase ninguém faz: sem este reset a foto do hero fica
+     congelada no PRIMEIRO quadro do parallax, que é um enquadramento
+     diferente do que o diretor de arte escolheu. Aqui ela volta para o
+     enquadramento neutro. */
+  .hero__fundo,
+  .faixa__fundo,
+  .fechamento__fundo {
+    top: 0;
+    height: 100%;
+  }
+
+  /* O que SOBREVIVE, e sobrevive de propósito:
+     - mudança de cor no hover e no foco (cor não é movimento, e tirar
+       destruiria a pista de que o elemento é clicável)
+     - o + virando - no FAQ (é estado, precisa continuar legível)
+     - o anel de foco
+     Só a duração cai para instantânea, o que os tokens já fazem. */
+  /* A régua de progresso SOME com movimento reduzido, e some por honestidade,
+     não por estética: sem timeline viva ela ficaria travada em 100% já no
+     alto da página, informando o contrário do que acontece. Uma barra de
+     progresso errada é pior que barra de progresso nenhuma. */
+  .cabecalho::after { display: none; }
+
+  .duvida__resposta { transition: none; }
+  .cabecalho::before { transition: none; translate: 0 0; }
+  .cabecalho:not(.is-solido)::before { opacity: 0; }
+  .cabecalho.is-solido::before { opacity: 1; }
+  .barra-fixa { transition: none; }
+}
+
+
+/* ---------------------------------------------------------------------------
+   11. AJUSTES DE DESEMPENHO
+   ------------------------------------------------------------------------ */
+
+/* will-change só onde há animação CONTÍNUA, e em no máximo quatro
+   elementos por página. Em elemento que anima uma vez, will-change segura
+   uma camada de composição para sempre e piora o consumo de memória em
+   celular fraco. */
+@supports (animation-timeline: view()) {
+  .m-revela,
+  .m-entra,
+  .m-cascata > * { will-change: auto; }
+}
+
+/* Conexão econômica: sem parallax, sem Ken Burns, sem limpeza editorial.
+   Quem está no 4G do quarto de hotel quer a foto, não o efeito. */
+@media (prefers-reduced-data: reduce) {
+  .hero__imagem,
+  .hero__fundo,
+  .faixa__fundo,
+  .fechamento__fundo,
+  .faixa__imagem,
+  .fechamento__imagem,
+  .m-kenburns { animation: none !important; }
+  .hero__fundo,
+  .faixa__fundo,
+  .fechamento__fundo { top: 0; height: 100%; }
+  .js .m-revela { clip-path: none; }
+}

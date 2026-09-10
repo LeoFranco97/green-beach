@@ -1,0 +1,10 @@
+node_modules
+dist
+.env
+.DS_Store
+
+# Capturas sao geradas por script, nao precisam de versao
+capturas/
+
+# Originais pesados de drone: ficam em green-decor/fotos itapema
+assets-raw/instagram/

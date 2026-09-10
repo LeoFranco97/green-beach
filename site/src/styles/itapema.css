@@ -1,0 +1,122 @@
+/* ==================== SEÇÃO ITAPEMA E FAIXAS DE FOTO ===================== */
+
+.itapema {
+  background: var(--bg);
+  color: var(--text);
+}
+
+.itapema__cabecalho { max-width: 46rem; }
+.itapema .secao__titulo { color: var(--text-strong); max-width: 20ch; }
+.itapema .secao__apoio { color: var(--text-soft); }
+
+.recortes {
+  display: grid;
+  gap: var(--space-lg);
+  margin-top: var(--space-2xl);
+}
+
+.recorte { display: grid; gap: var(--space-sm); }
+
+.recorte__foto {
+  display: block;
+  width: 100%;
+  overflow: hidden;
+  border-radius: var(--radius-image);
+  background: var(--surface-sunken);
+  aspect-ratio: var(--ratio-portrait);
+  cursor: zoom-in;
+}
+
+.recorte__foto img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.recorte__titulo {
+  font-size: var(--fs-h3);
+  line-height: var(--lh-h3);
+  color: var(--text-strong);
+}
+
+.recorte__apoio {
+  margin-top: 0.35rem;
+  font-size: var(--fs-body-s);
+  line-height: var(--lh-body-s);
+  color: var(--text-soft);
+  max-width: var(--measure-card);
+}
+
+@media (min-width: 40em) {
+  .recortes { grid-template-columns: 1fr 1fr; gap: var(--space-lg) var(--space-md); }
+}
+
+@media (min-width: 62em) {
+  .recortes { grid-template-columns: repeat(4, 1fr); gap: var(--space-md); }
+  /* Alterna a altura dos cartões para a fileira não virar uma régua. */
+  .recorte:nth-child(odd) .recorte__foto { aspect-ratio: 3 / 4; }
+  .recorte:nth-child(even) { padding-top: var(--space-xl); }
+}
+
+/* ------------------------------------------------------- faixa sangrada */
+
+.faixa {
+  position: relative;
+  display: grid;
+  align-items: end;
+  overflow: hidden;
+  color: var(--text-inverse);
+}
+
+.faixa--baixa { min-height: clamp(20rem, 42svh, 30rem); }
+.faixa--alta { min-height: clamp(28rem, 68svh, 44rem); }
+
+.faixa__fundo { position: absolute; inset: 0; z-index: 0; }
+
+.faixa__imagem {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: var(--img-focal-default);
+}
+
+.faixa__veu { position: absolute; inset: 0; }
+
+.faixa__veu--padrao { background: var(--overlay-band); }
+
+/* Foto que já é escura não aguenta o véu cheio: o gradiente aqui só garante
+   o contraste do texto no rodapé da faixa e deixa o resto da imagem viver. */
+.faixa__veu--leve {
+  background: linear-gradient(
+    180deg,
+    rgb(var(--veil-rgb) / 0.10) 0%,
+    rgb(var(--veil-rgb) / 0) 30%,
+    rgb(var(--veil-rgb) / 0.35) 72%,
+    rgb(var(--veil-rgb) / 0.70) 100%
+  );
+}
+
+.faixa__interno {
+  position: relative;
+  z-index: 1;
+  width: min(100% - 2 * var(--gutter), var(--container));
+  margin-inline: auto;
+  padding-block: var(--space-xl);
+}
+
+.faixa__frase {
+  font-family: var(--font-display);
+  font-weight: var(--fw-display);
+  font-size: var(--fs-h2);
+  line-height: var(--lh-h2);
+  letter-spacing: var(--ls-h2);
+  max-width: 20ch;
+  text-wrap: balance;
+}
+
+.faixa__apoio {
+  margin-top: var(--space-sm);
+  max-width: var(--measure-lead);
+  font-size: var(--fs-body-s);
+  color: rgb(255 255 255 / 0.82);
+}
