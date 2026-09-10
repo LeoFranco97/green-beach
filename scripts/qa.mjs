@@ -501,8 +501,9 @@ async function main() {
       visitados,
       enquadramentos: enquadramentos.size,
       tituloSvg: document.querySelector('.mapa__svg').getAttribute('aria-label'),
-      semIframe: !document.querySelector('#localizacao iframe'),
+      mapaDeRua: !!document.querySelector('#localizacao iframe'),
       temRever: !!document.querySelector('.mapa__rever'),
+      rotulo: document.querySelector('.alfinete__rotulo').textContent.trim(),
       ehSegunda: [...document.querySelectorAll('main > section')][1]?.id === 'mapa',
       medidas: 'alfinete ' + Math.round(rAlf.left) + '-' + Math.round(rAlf.right) + ' palco ' + Math.round(rPalco.left) + '-' + Math.round(rPalco.right),
     };
@@ -510,7 +511,9 @@ async function main() {
 
   checar('mapa existe', mapa.existe)
   checar('mapa é a segunda seção da página', mapa.ehSegunda)
-  checar('a seção não tem mais iframe do Google', mapa.semIframe)
+  // Os dois mapas coexistem de propósito e fazem trabalhos diferentes: o
+  // animado responde "onde fica Itapema", o de rua responde "qual é a rua".
+  checar('seção de chegada tem o mapa de rua', mapa.mapaDeRua)
   checar('viagem chega ao fim sozinha', /is-final/.test(mapa.classes || ''), mapa.classes)
   checar('contorno de Santa Catarina terminou de se desenhar', mapa.contornoDesenhado === '0px', mapa.contornoDesenhado)
   checar('alfinete aparece', mapa.alfineteVisivel)
@@ -522,6 +525,7 @@ async function main() {
     (mapa.visitados || []).join(' > '))
   checar('cada etapa tem enquadramento próprio', mapa.enquadramentos === 3, `${mapa.enquadramentos} enquadramentos`)
   checar('existe botão para rever a viagem', mapa.temRever)
+  checar('alfinete nomeia o lugar, não a pousada', mapa.rotulo === 'ITAPEMA', mapa.rotulo)
   checar('svg do mapa tem descrição', /Itapema/.test(mapa.tituloSvg || ''), mapa.tituloSvg)
 
   // O defeito que motivou este teste: a viagem disparava por tempo, acontecia

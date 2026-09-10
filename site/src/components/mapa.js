@@ -102,7 +102,7 @@ export const criarMapa = () => {
       <path class="alfinete__forma" d="M0 2c0-6.9 5.6-12.5 12.5-12.5S25-4.9 25 2c0 8.6-12.5 21-12.5 21S0 10.6 0 2Z" transform="translate(-12.5,-23)"/>
       <circle class="alfinete__miolo" cx="0" cy="-21" r="4.6"/>
     </g>
-    <text class="alfinete__rotulo" x="0" y="13">GREEN BEACH</text>
+    <text class="alfinete__rotulo" x="0" y="13">ITAPEMA</text>
   `
   qs('.mapa__alfinete', svg).append(alfinete)
 

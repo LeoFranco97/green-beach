@@ -8,7 +8,7 @@ import { icone } from '../lib/icones.js'
 import { pousada } from '../data/pousada.js'
 import { apenasReais, prepararFotos } from '../lib/imagens.js'
 import { abrirLightbox } from './lightbox.js'
-import { mapDirectionsUrl } from '../config.js'
+import { mapEmbedUrl, mapDirectionsUrl } from '../config.js'
 import { rastrear, EVENTOS } from '../lib/analytics.js'
 
 /* ------------------------------------------------------------- A pousada */
@@ -169,6 +169,20 @@ export const criarLocalizacao = () => {
     el('span', { class: 'botao__seta', 'aria-hidden': 'true', html: icone('seta') }),
   ])
 
+  // Mapa de rua, e nao o mapa animado do topo: os dois fazem trabalhos
+  // diferentes. La em cima a pergunta e "onde fica Itapema"; aqui e "qual e
+  // a rua e como eu chego".
+  const mapa = el('div', { class: 'localizacao__mapa' }, [
+    el('iframe', {
+      class: 'localizacao__iframe',
+      src: mapEmbedUrl(),
+      title: `Mapa de rua com a localização da ${pousada.nome}`,
+      loading: 'lazy',
+      referrerpolicy: 'no-referrer-when-downgrade',
+      allowfullscreen: true,
+    }),
+  ])
+
   const listaProximos = proximidades.length
     ? el('ul', { class: 'proximidades' },
         proximidades.map((p) =>
@@ -206,6 +220,7 @@ export const criarLocalizacao = () => {
           : null,
         rota,
       ]),
+      mapa,
     ].filter(Boolean)),
   ])
 }

@@ -1,8 +1,8 @@
 # Relatório de QA
 
-Pousada & Hotel Green Beach. Verificação de 10/09/2026, com o mapa como segunda seção da página.
+Pousada & Hotel Green Beach. Verificação de 10/09/2026, com os dois mapas: o animado no topo e o de rua na chegada.
 
-**129 de 129 verificações passaram. Nenhuma falha em aberto.**
+**130 de 130 verificações passaram. Nenhuma falha em aberto.**
 
 Os testes não são checklist escrito à mão: são um script que sobe o Chrome, navega na página de verdade, clica no calendário, mexe no seletor de hóspedes, tenta enviar formulário inválido e lê a URL do WhatsApp que sai no fim. Roda com o site no ar:
 
@@ -155,7 +155,7 @@ Validação e WhatsApp
 Mapa, do Brasil até a pousada
   ok   mapa existe
   ok   mapa é a segunda seção da página
-  ok   a seção não tem mais iframe do Google
+  ok   seção de chegada tem o mapa de rua
   ok   viagem chega ao fim sozinha
   ok   contorno de Santa Catarina terminou de se desenhar
   ok   alfinete aparece
@@ -164,6 +164,7 @@ Mapa, do Brasil até a pousada
   ok   as três etapas são Brasil, estado e cidade
   ok   cada etapa tem enquadramento próprio
   ok   existe botão para rever a viagem
+  ok   alfinete nomeia o lugar, não a pousada
   ok   svg do mapa tem descrição
   ok   viagem não toca sozinha com o visitante no topo
 Lightbox

@@ -155,6 +155,8 @@ A segunda seção da página traz um mapa que faz uma viagem: começa no Brasil 
 
 No canto do mapa há dois controles: um anda de etapa e fica onde parou, o outro, redondo, refaz a viagem. São dois de propósito: quando o mesmo botão fazia as duas coisas, voltar ao Brasil disparava o zoom automático e o Brasil sumia em um segundo.
 
+A página tem **dois mapas, e eles não se repetem**. O animado, no topo, responde "onde fica Itapema", e por isso o alfinete dele diz ITAPEMA e não o nome da pousada. O de rua, embutido do Google na seção de chegada, responde "qual é a rua e como eu chego". Um serve a quem ainda está escolhendo o destino, o outro a quem já reservou.
+
 A geometria é gerada:
 
 ```bash
