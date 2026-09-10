@@ -1,4 +1,14 @@
 {
+  "cafe-da-manha": {
+    "larguras": [
+      800,
+      1280,
+      1920
+    ],
+    "w": 4480,
+    "h": 6720,
+    "proporcao": 0.6667
+  },
   "fachada-green-beach": {
     "larguras": [
       800

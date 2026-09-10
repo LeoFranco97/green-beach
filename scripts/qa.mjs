@@ -458,44 +458,58 @@ async function main() {
     const esperar = (ms) => new Promise(r => setTimeout(r, ms));
     const palco = document.querySelector('.mapa__palco');
     if (!palco) return { existe: false };
-    document.querySelector('#localizacao').scrollIntoView({ block: 'center', behavior: 'instant' });
-    // A viagem leva cerca de 6,2s do primeiro traço ao alfinete parado.
+    document.querySelector('#mapa').scrollIntoView({ block: 'center', behavior: 'instant' });
+    // A viagem leva cerca de 5s do primeiro traço ao alfinete parado, e só
+    // começa quando metade do mapa está de fato na tela.
     await window.__ate(() => palco.classList.contains('is-final'), 11000);
     await esperar(300);
 
+    // Mede o fim da viagem ANTES de mexer no botão: o último clique reinicia
+    // tudo de propósito, e medir depois dele acusa falha onde só havia
+    // uma segunda viagem começando.
     const alf = document.querySelector('.alfinete');
     const rAlf = alf.getBoundingClientRect();
     const rPalco = palco.getBoundingClientRect();
-
-    // Percorre as três etapas pelo botão e confere que a câmera anda.
-    const badge = document.querySelector('.mapa__badge');
-    const botao = document.querySelector('.mapa__botao');
-    const visitados = [];
-    const enquadramentos = new Set();
-    for (let i = 0; i < 3; i++) {
-      visitados.push(badge.textContent.trim());
-      enquadramentos.add(document.querySelector('.mapa__cam').getAttribute('transform'));
-      botao.click();
-      await esperar(1900);
-    }
-
-    return {
-      existe: true,
+    const fim = {
       classes: palco.className,
       alfineteVisivel: Number(getComputedStyle(alf).opacity) > 0.9,
       alfineteDentro: rAlf.left >= rPalco.left - 1 && rAlf.right <= rPalco.right + 1
         && rAlf.top >= rPalco.top - 1 && rAlf.bottom <= rPalco.bottom + 1,
       alfineteNaTela: Math.round(rAlf.height),
       contornoDesenhado: getComputedStyle(document.querySelector('.mapa__contorno')).strokeDashoffset,
+    };
+
+    // Volta ao Brasil e percorre as etapas pelo botão, conferindo que cada
+    // uma tem enquadramento próprio.
+    const badge = document.querySelector('.mapa__badge');
+    const botao = document.querySelector('.mapa__botao');
+    // O botão de etapa anda e fica: quem refaz a viagem é o botão de rever,
+    // que é outro. Então dá para percorrer as três sem correr contra o tempo.
+    botao.click();               // do fim volta ao Brasil
+    await esperar(1900);
+    const visitados = [];
+    const enquadramentos = new Set();
+    for (let i = 0; i < 3; i++) {
+      visitados.push(badge.textContent.trim());
+      enquadramentos.add(document.querySelector('.mapa__cam').getAttribute('transform'));
+      if (i < 2) { botao.click(); await esperar(1900); }
+    }
+
+    return {
+      existe: true,
+      ...fim,
       visitados,
       enquadramentos: enquadramentos.size,
       tituloSvg: document.querySelector('.mapa__svg').getAttribute('aria-label'),
       semIframe: !document.querySelector('#localizacao iframe'),
+      temRever: !!document.querySelector('.mapa__rever'),
+      ehSegunda: [...document.querySelectorAll('main > section')][1]?.id === 'mapa',
       medidas: 'alfinete ' + Math.round(rAlf.left) + '-' + Math.round(rAlf.right) + ' palco ' + Math.round(rPalco.left) + '-' + Math.round(rPalco.right),
     };
   })()`, { awaitPromise: true })
 
-  checar('mapa existe dentro da seção de localização', mapa.existe)
+  checar('mapa existe', mapa.existe)
+  checar('mapa é a segunda seção da página', mapa.ehSegunda)
   checar('a seção não tem mais iframe do Google', mapa.semIframe)
   checar('viagem chega ao fim sozinha', /is-final/.test(mapa.classes || ''), mapa.classes)
   checar('contorno de Santa Catarina terminou de se desenhar', mapa.contornoDesenhado === '0px', mapa.contornoDesenhado)
@@ -507,7 +521,22 @@ async function main() {
     || (mapa.visitados || []).length === 3,
     (mapa.visitados || []).join(' > '))
   checar('cada etapa tem enquadramento próprio', mapa.enquadramentos === 3, `${mapa.enquadramentos} enquadramentos`)
+  checar('existe botão para rever a viagem', mapa.temRever)
   checar('svg do mapa tem descrição', /Itapema/.test(mapa.tituloSvg || ''), mapa.tituloSvg)
+
+  // O defeito que motivou este teste: a viagem disparava por tempo, acontecia
+  // inteira com o visitante ainda no topo da página, e quando ele chegava o
+  // mapa já estava parado no fim.
+  await ir(cdp, aba, URL_ALVO)
+  await forcarQuadro(cdp, aba)
+  const espera = await avaliar(cdp, aba, `(async () => {
+    await new Promise(r => setTimeout(r, 7000));
+    const p = document.querySelector('.mapa__palco');
+    return { classes: p.className, badge: document.querySelector('.mapa__badge').textContent.trim() };
+  })()`, { awaitPromise: true })
+  checar('viagem não toca sozinha com o visitante no topo',
+    !/is-final/.test(espera.classes) && espera.badge === 'Brasil',
+    `${espera.badge} | ${espera.classes}`)
 
   /* -------------------------------------------------------- lightbox */
   grupo('Lightbox')

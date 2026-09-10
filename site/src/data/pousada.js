@@ -148,9 +148,12 @@ export const pousada = {
    * scripts/preparar-fotos.py. Para acrescentar uma foto: coloque o original
    * em assets-raw/originais, rode o script e adicione o item aqui.
    *
-   * tipo separa o que e da pousada do que e da cidade. Isso importa: as fotos
-   * aereas sao de Itapema, nao da Green Beach, e as legendas dizem isso. Nunca
-   * marque como 'pousada' uma foto que nao mostra a pousada.
+   * tipo separa tres coisas:
+   *   'pousada'    mostra a pousada de verdade
+   *   'destino'    mostra Itapema, e a legenda diz isso
+   *   'ilustracao' foto de banco de imagem, entra so onde e decoracao e fica
+   *                FORA do lightbox e do Schema.org
+   * Nunca marque como 'pousada' uma foto que nao mostra a pousada.
    *
    * Os papéis dizem onde a foto já aparece, e servem para o mosaico da galeria
    * não repetir uma imagem que a pessoa acabou de ver:
@@ -229,36 +232,27 @@ export const pousada = {
       legenda: 'A baía inteira, do centro até a ponta.',
       foco: '50% 48%',
     },
-    /**
-     * A FOTO DESTA SEÇÃO DEVERIA SER O CAFÉ DA MANHÃ.
-     *
-     * A seção se chama "o que a pousada oferece" e a primeira coisa da lista
-     * é café da manhã incluso. Ilustrar isso com uma foto aérea da cidade é
-     * uma contradição que o hóspede sente sem saber nomear.
-     *
-     * Não existe nenhuma foto do café da manhã da Green Beach, e usar foto de
-     * banco de imagem aqui seria mostrar um café que não é o deles. Enquanto
-     * a foto real não chega, fica a aérea da Praia Grossa.
-     *
-     * Para trocar, quando a foto chegar:
-     *   1. salve o arquivo em assets-raw/originais/cafe-da-manha.jpg
-     *   2. rode  python3 scripts/preparar-fotos.py
-     *   3. tire  comodidades: true  da Praia Grossa, logo abaixo
-     *   4. acrescente o item, com os campos deste modelo:
-     *
-     *      {
-     *        arquivo: 'cafe-da-manha',
-     *        tipo: 'pousada',
-     *        comodidades: true,
-     *        alt: 'Descreva o que se vê: a mesa posta, o que é servido, a luz',
-     *        categoria: 'Café da manhã',
-     *        legenda: 'Uma frase curta e verdadeira sobre o café.',
-     *        foco: '50% 50%',
-     *      },
-     */
+    {
+      arquivo: 'cafe-da-manha',
+      /**
+       * ATENÇÃO: foto de banco de imagem, não é o café da manhã da Green
+       * Beach. Entrou porque a pousada anuncia café incluso e não existe
+       * nenhuma foto do café real. Trocar assim que a foto de verdade chegar:
+       * salve em assets-raw/originais/cafe-da-manha.jpg e rode
+       * scripts/preparar-fotos.py, que o resto continua igual.
+       *
+       * Por isso o tipo é 'ilustracao' e não 'pousada': ela não entra no
+       * lightbox junto com as fotos reais nem no Schema.org.
+       */
+      tipo: 'ilustracao',
+      comodidades: true,
+      alt: 'Duas xícaras de café com creme, em pires azuis, ao lado de dois croissants sobre uma mesa de madeira',
+      categoria: 'Café da manhã',
+      legenda: 'O café da manhã está incluso na diária.',
+      foco: '50% 50%',
+    },
     {
       arquivo: 'itapema-praia-grossa',
-      comodidades: true,
       tipo: 'destino',
       alt: 'A península verde da Praia Grossa, com mata fechada até a beira e o mar claro batendo nas pedras',
       categoria: 'Praia Grossa',

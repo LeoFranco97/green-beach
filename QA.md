@@ -1,8 +1,8 @@
 # Relatório de QA
 
-Pousada & Hotel Green Beach. Verificação de 10/09/2026, com o mapa fazendo a viagem do Brasil até a rua da pousada.
+Pousada & Hotel Green Beach. Verificação de 10/09/2026, com o mapa como segunda seção da página.
 
-**126 de 126 verificações passaram. Nenhuma falha em aberto.**
+**129 de 129 verificações passaram. Nenhuma falha em aberto.**
 
 Os testes não são checklist escrito à mão: são um script que sobe o Chrome, navega na página de verdade, clica no calendário, mexe no seletor de hóspedes, tenta enviar formulário inválido e lê a URL do WhatsApp que sai no fim. Roda com o site no ar:
 
@@ -29,6 +29,10 @@ Sai com código 1 se algo falhar, então serve para travar um deploy quebrado. N
 **As setas de mês do calendário estavam empilhadas.** Faltaram as classes modificadoras no JavaScript, então os dois botões caíram no mesmo ponto e o "próximo mês" cobria o "mês anterior". Na prática dava para avançar mas não para voltar. O teste de teclado não pegou, porque usa PageUp e PageDown; foi preciso um teste que clica nas setas e confere que elas estão em lados opostos da tela. Esse teste agora faz parte da suíte.
 
 **O lightbox estourava a altura da tela.** O `align-items: center` no meio do lightbox fazia a linha crescer até caber a foto inteira, e aí a imagem passava por cima da legenda. Virou `stretch`, com o palco recebendo a altura real da linha. Foi preciso um teste que compara a posição da foto com a da legenda, porque olhar o `object-fit` não pegava isso.
+
+**A viagem do mapa acontecia sem plateia.** O gatilho tinha rede de segurança por tempo, herdada do resto do sistema de movimento. Numa animação que revela conteúdo isso é o certo: melhor mostrar sem animar do que deixar o bloco invisível. Aqui era o contrário, porque o estado inicial já é um mapa completo e legível. O que acontecia: passados alguns segundos a viagem disparava sozinha com o visitante ainda no topo da página, e quando ele chegava no mapa já estava tudo parado no fim. Agora o gatilho é só visibilidade medida, com metade do mapa na tela, e existe um teste que fica sete segundos parado no topo e exige que nada tenha acontecido.
+
+**"Ver o Brasil" mostrava o Brasil por um segundo e ia embora.** O mesmo botão andava de etapa e refazia a viagem, então voltar ao Brasil disparava o zoom automático de novo. Virou dois controles, como no mapa da SPS: um que anda de etapa e fica, e outro, redondo, que refaz a viagem.
 
 **Grau no eixo x, radiano no eixo y.** A primeira versão do mapa do Brasil saiu esmagada numa faixa horizontal. Mercator só preserva forma se os dois eixos estiverem na mesma unidade, e um radiano vale 57,3 graus: aplicar a mesma escala a graus no x e a radianos no y achata um eixo exatamente nessa proporção. Os dois eixos passaram a ser radiano.
 
@@ -149,7 +153,8 @@ Validação e WhatsApp
   ok   hóspedes da URL respeitados
   ok   UTMs entram na mensagem
 Mapa, do Brasil até a pousada
-  ok   mapa existe dentro da seção de localização
+  ok   mapa existe
+  ok   mapa é a segunda seção da página
   ok   a seção não tem mais iframe do Google
   ok   viagem chega ao fim sozinha
   ok   contorno de Santa Catarina terminou de se desenhar
@@ -158,7 +163,9 @@ Mapa, do Brasil até a pousada
   ok   alfinete tem tamanho de alvo, e não de ponto
   ok   as três etapas são Brasil, estado e cidade
   ok   cada etapa tem enquadramento próprio
+  ok   existe botão para rever a viagem
   ok   svg do mapa tem descrição
+  ok   viagem não toca sozinha com o visitante no topo
 Lightbox
   ok   lightbox abre pela foto da pousada
   ok   lightbox é um dialog modal

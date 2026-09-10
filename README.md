@@ -141,6 +141,8 @@ Cada foto declara onde aparece, e é isso que impede a mesma imagem de surgir du
 | `comodidades` | a foto alta que sangra na seção de estrutura |
 | `recorte` | um dos quatro cartões da seção Itapema |
 | `comodidades` | a foto alta da seção de estrutura |
+
+O campo `tipo` separa três coisas: `pousada` mostra a pousada de verdade, `destino` mostra Itapema e a legenda diz isso, e `ilustracao` é foto de banco de imagem. Ilustração entra só onde é decoração, e fica **fora do lightbox e do Schema.org**: lá dentro só vai acervo real.
 | `fechamento` | fundo do CTA final |
 
 O lightbox continua mostrando o acervo inteiro, independente dos papéis. Uma foto sem papel nenhum aparece só no lightbox, que é aberto pela foto da pousada, pela foto das comodidades e pelos quatro recortes de Itapema.
@@ -149,7 +151,9 @@ O campo `foco` define o recorte no formato `"x% y%"`. Serve para a parte importa
 
 ### Mapa
 
-A seção de localização traz um mapa que faz uma viagem: começa no Brasil inteiro, fecha em Santa Catarina, fecha de novo em Itapema e larga o alfinete em cima da pousada. É uma câmera só, andando num espaço de coordenadas só, sem corte entre as etapas. O botão no canto percorre as três etapas na mão.
+A segunda seção da página traz um mapa que faz uma viagem: começa no Brasil inteiro, fecha em Santa Catarina, fecha de novo em Itapema e larga o alfinete em cima da pousada. É uma câmera só, andando num espaço de coordenadas só, sem corte entre as etapas.
+
+No canto do mapa há dois controles: um anda de etapa e fica onde parou, o outro, redondo, refaz a viagem. São dois de propósito: quando o mesmo botão fazia as duas coisas, voltar ao Brasil disparava o zoom automático e o Brasil sumia em um segundo.
 
 A geometria é gerada:
 
@@ -166,6 +170,7 @@ Três regras do componente que não são opcionais:
 1. **Os dois eixos em radiano.** Mercator só preserva forma assim. Grau no x com radiano no y esmaga o mapa numa faixa horizontal, e o erro é silencioso.
 2. **O alfinete vive dentro da câmera**, então herda o movimento dela e não tem como sair do lugar.
 3. **A escala do alfinete é compensada pelo inverso do zoom.** Ele é marcador de interface e tem tamanho fixo na tela, não cresce junto com o mapa.
+4. **A viagem só toca quando metade do mapa está de fato na tela**, e não tem gatilho por tempo. O resto do sistema de movimento tem rede de segurança por tempo porque lá o risco é deixar conteúdo invisível. Aqui o estado inicial já é um mapa completo, então o risco é o oposto: a viagem acontecer sem ninguém olhando.
 
 ### Cantos
 

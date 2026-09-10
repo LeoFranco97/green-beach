@@ -4,6 +4,37 @@
    escreveria tinta escura sobre fundo escuro.
    ======================================================================== */
 
+.mapa { background: var(--bg); color: var(--text); }
+
+.mapa__grade-mestre { display: grid; gap: var(--space-xl); align-items: center; }
+
+.mapa__texto { max-width: var(--measure-body); }
+.mapa .secao__titulo { color: var(--text-strong); max-width: 16ch; }
+
+.mapa__apoio {
+  margin-top: var(--space-md);
+  max-width: 46ch;
+  font-size: var(--fs-lead);
+  line-height: var(--lh-lead);
+  color: var(--text-soft);
+}
+
+.mapa__endereco {
+  margin-top: var(--space-lg);
+  padding-top: var(--space-md);
+  border-top: 1px solid var(--border-hairline);
+  font-family: var(--font-display);
+  font-size: var(--fs-h3);
+  color: var(--text-strong);
+}
+
+@media (min-width: 62em) {
+  .mapa__grade-mestre {
+    grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+    gap: var(--space-3xl);
+  }
+}
+
 /* -------------------------------------------------------------- palco */
 
 /* O palco é sempre escuro, esteja a seção clara ou escura. Por isso ele tem
@@ -181,8 +212,11 @@
   pointer-events: none;
 }
 
+.mapa__ctrls { display: flex; align-items: center; gap: var(--space-2xs); pointer-events: auto; }
+
 .mapa__badge,
-.mapa__botao {
+.mapa__botao,
+.mapa__rever {
   pointer-events: auto;
   padding: 0.55rem 0.95rem;
   border-radius: var(--radius-pill);
@@ -198,7 +232,8 @@
   color: var(--mapa-tinta);
 }
 
-.mapa__botao {
+.mapa__botao,
+.mapa__rever {
   min-height: var(--tap-min);
   background: rgb(244 239 230 / 0.14);
   border: 1px solid rgb(244 239 230 / 0.34);
@@ -206,7 +241,24 @@
   cursor: pointer;
   transition: background-color var(--dur-fast) var(--ease-standard), border-color var(--dur-fast) var(--ease-standard);
 }
-.mapa__botao:hover { background: rgb(244 239 230 / 0.22); border-color: rgb(244 239 230 / 0.55); }
+.mapa__botao:hover,
+.mapa__rever:hover { background: rgb(244 239 230 / 0.22); border-color: rgb(244 239 230 / 0.55); }
+
+.mapa__rever {
+  display: grid;
+  place-items: center;
+  width: var(--tap-min);
+  padding: 0;
+}
+.mapa__rever svg {
+  width: 1rem;
+  height: 1rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
 
 @media (min-width: 62em) {
   .mapa__palco { aspect-ratio: 1 / 1; }

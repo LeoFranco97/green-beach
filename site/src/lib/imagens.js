@@ -65,6 +65,9 @@ export const fotoExiste = (nome) => Boolean(manifesto[nome])
  * para renderizar, descartando em silencio o que ainda nao tem arquivo.
  * Assim a pagina nunca aponta para uma imagem que nao existe.
  */
+/** Só o acervo real: fora ilustração de banco de imagem. */
+export const apenasReais = (fotos = []) => fotos.filter((f) => f.tipo !== 'ilustracao')
+
 export const prepararFotos = (lista = [], sizes = '100vw') =>
   lista
     .filter((foto) => foto && fotoExiste(foto.arquivo))

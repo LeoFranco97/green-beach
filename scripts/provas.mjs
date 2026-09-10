@@ -62,8 +62,10 @@ async function main() {
   await ir(cdp, aba, URL_ALVO, 1900)
   await tela('01-desktop-hero')
 
-  await rolarAte('.faixa', 40)
-  await tela('02-desktop-faixa')
+  await rolarAte('#mapa', 60)
+  // A viagem leva cerca de 5s, e so comeca quando metade do mapa esta na tela.
+  await espera(6000)
+  await tela('02-desktop-mapa')
 
   await avaliar(cdp, aba, `(async () => {
     window.scrollTo({ top: 0, behavior: 'instant' });
@@ -106,10 +108,9 @@ async function main() {
     await new Promise(r => setTimeout(r, 400));
   })()`, { awaitPromise: true })
 
-  await rolarAte('.localizacao')
-  // A viagem do mapa leva cerca de 6,2s do primeiro traco ao alfinete parado.
-  await espera(7200)
-  await tela('07-desktop-mapa')
+  await rolarAte('.comodidades')
+  await espera(900)
+  await tela('07-desktop-comodidades')
 
   await rolarAte('.fechamento', 60)
   await tela('08-desktop-cta-final')

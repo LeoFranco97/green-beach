@@ -200,6 +200,8 @@
   cursor: zoom-in;
 }
 .comodidades__foto img { width: 100%; height: 100%; object-fit: cover; }
+/* Ilustração não amplia, então também não finge que é clicável. */
+.comodidades__foto--fixa { cursor: default; }
 
 @media (min-width: 34em) {
   .comodidades__grade { grid-template-columns: 1fr 1fr; }

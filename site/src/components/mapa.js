@@ -24,11 +24,11 @@ const ALFINETE_NA_TELA = 2.3
 
 /** Ritmo da viagem, em milissegundos a partir do início. */
 const ROTEIRO = [
-  { em: 60, faz: 'desenhar' },
-  { em: 1100, faz: 'estado' },
-  { em: 3000, faz: 'cidade' },
-  { em: 4400, faz: 'alfinete' },
-  { em: 6200, faz: 'fim' },
+  { em: 40, faz: 'desenhar' },
+  { em: 900, faz: 'estado' },
+  { em: 2500, faz: 'cidade' },
+  { em: 3800, faz: 'alfinete' },
+  { em: 5000, faz: 'fim' },
 ]
 
 /**
@@ -106,6 +106,9 @@ export const criarMapa = () => {
   `
   qs('.mapa__alfinete', svg).append(alfinete)
 
+  /** Relogios da coreografia, para poder cancelar e tocar de novo. */
+  let relogios = []
+
   /* -------------------------------------------------------------- câmera */
   const aplicarVista = (v) => {
     const tx = PROJECAO.largura / 2 - v.cx * v.z
@@ -144,6 +147,9 @@ export const criarMapa = () => {
     if (deClique) rastrear(EVENTOS.MAPA_ABERTO, { etapa: atual.badge })
   }
 
+  // Dois controles, e nao um. Juntar "andar de etapa" com "rever a viagem" no
+  // mesmo botao fazia o Brasil aparecer por um segundo e ir embora sozinho,
+  // que e o oposto do que a pessoa pediu ao clicar.
   const botao = el('button', {
     type: 'button',
     class: 'mapa__botao',
@@ -151,28 +157,98 @@ export const criarMapa = () => {
     onclick: () => irPara(etapa + 1, true),
   })
 
-  palco.append(el('div', { class: 'mapa__hud' }, [badge, botao]))
+  const rever = el('button', {
+    type: 'button',
+    class: 'mapa__rever',
+    'aria-label': 'Rever a viagem do mapa, do Brasil até a pousada',
+    html: '<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M13.5 8a5.5 5.5 0 1 1-1.9-4.2M13.5 1.5V5H10"/></svg>',
+    onclick: () => {
+      rastrear(EVENTOS.MAPA_ABERTO, { etapa: 'rever' })
+      tocar()
+    },
+  })
+
+  palco.append(el('div', { class: 'mapa__hud' }, [badge, el('div', { class: 'mapa__ctrls' }, [botao, rever])]))
 
   /* --------------------------------------------------------- coreografia */
+
+  /**
+   * Toca a viagem.
+   *
+   * Reinicia do zero toda vez, para o botao poder pedir de novo.
+   */
   const tocar = () => {
-    // O comprimento real do traço vira a base do stroke-dasharray, senão a
-    // linha "desenhando" começa e termina em lugares arbitrários.
+    for (const t of relogios) window.clearTimeout(t)
+    relogios = []
+
+    palco.classList.remove('is-desenhado', 'is-marcado', 'is-final')
+    irPara(0)
+    // O comprimento real do traco vira a base do stroke-dasharray, senao a
+    // linha "desenhando" comeca e termina em lugares arbitrarios.
     contorno.style.setProperty('--traco', contorno.getTotalLength())
     void palco.offsetWidth
     palco.classList.add('is-pronto')
 
     for (const passo of ROTEIRO) {
-      window.setTimeout(() => {
+      relogios.push(window.setTimeout(() => {
         if (passo.faz === 'desenhar') palco.classList.add('is-desenhado')
         if (passo.faz === 'estado') irPara(1)
         if (passo.faz === 'cidade') irPara(2)
         if (passo.faz === 'alfinete') palco.classList.add('is-marcado')
-        // Rede de segurança: se a animação do alfinete não rodar, por aba em
-        // segundo plano ou navegador que parou de compor, ele ficaria
-        // invisível. Esta classe entra por tempo.
         if (passo.faz === 'fim') palco.classList.add('is-final')
-      }, passo.em)
+      }, passo.em))
     }
+  }
+
+  /**
+   * Espera o mapa estar DE FATO na tela para tocar.
+   *
+   * Aqui nao existe rede de seguranca por tempo, e e de proposito. Numa
+   * animacao que revela conteudo, disparar por tempo e o certo: melhor mostrar
+   * sem animar do que deixar o bloco invisivel. Aqui e o contrario: o estado
+   * inicial ja e um mapa completo e legivel, do Brasil. Se a viagem disparar
+   * por tempo enquanto o visitante ainda esta no topo da pagina, ela acontece
+   * inteira sem plateia, e quando ele finalmente chega o mapa ja esta parado
+   * no fim. Foi exatamente esse o defeito relatado.
+   *
+   * Por isso: metade do mapa visivel, medida de verdade, e so entao toca.
+   */
+  const esperarPalco = () => {
+    let tocou = false
+    const visivel = () => {
+      const r = palco.getBoundingClientRect()
+      const altura = window.innerHeight || document.documentElement.clientHeight
+      const dentro = Math.min(r.bottom, altura) - Math.max(r.top, 0)
+      return dentro > 0 && dentro >= Math.min(r.height, altura) * 0.45
+    }
+    const conferir = () => {
+      if (tocou || !visivel()) return
+      tocou = true
+      limpar()
+      tocar()
+    }
+
+    let agendado = false
+    const aoRolar = () => {
+      if (agendado) return
+      agendado = true
+      requestAnimationFrame(() => { agendado = false; conferir() })
+    }
+
+    let obs = null
+    const limpar = () => {
+      window.removeEventListener('scroll', aoRolar)
+      window.removeEventListener('resize', aoRolar)
+      if (obs) obs.disconnect()
+    }
+
+    if ('IntersectionObserver' in window) {
+      obs = new IntersectionObserver(conferir, { threshold: [0, 0.25, 0.45, 0.7] })
+      obs.observe(palco)
+    }
+    window.addEventListener('scroll', aoRolar, { passive: true })
+    window.addEventListener('resize', aoRolar, { passive: true })
+    conferir()
   }
 
   if (menosMovimento()) {
@@ -180,8 +256,41 @@ export const criarMapa = () => {
     palco.classList.add('is-desenhado', 'is-marcado', 'is-final')
   } else {
     irPara(0)
-    aoAparecer(palco, tocar, '-8%')
+    palco.classList.add('is-pronto')
+    esperarPalco()
   }
 
   return palco
+}
+
+/**
+ * Seção que embrulha o mapa.
+ *
+ * Fica logo depois do hero: quem chega numa pousada que nunca ouviu falar
+ * precisa saber onde isso fica antes de qualquer outra coisa.
+ */
+export const criarSecaoMapa = () => {
+  const palco = criarMapa()
+  if (!palco) return null
+
+  const texto = el('div', { class: 'mapa__texto' }, [
+    el('p', { class: 'olho', text: 'Onde fica' }),
+    el('h2', { class: 'secao__titulo', text: 'Itapema, no litoral norte de Santa Catarina' }),
+    el('p', {
+      class: 'mapa__apoio',
+      text: 'Entre Balneário Camboriú e Porto Belo, na faixa de praia mais movimentada do estado. A pousada fica no centro, a poucos passos da areia.',
+    }),
+    el('p', {
+      class: 'mapa__endereco',
+      text: pousada.endereco.linhaUnica,
+    }),
+  ])
+
+  return el('section', {
+    class: 'secao mapa gb-dark tem-fundo',
+    id: 'mapa',
+    dataset: { surface: 'dark' },
+  }, [
+    el('div', { class: 'secao__interno mapa__grade-mestre' }, [texto, palco]),
+  ])
 }

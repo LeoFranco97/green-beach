@@ -14,6 +14,7 @@ import { criarHero } from './components/hero.js'
 import { criarSobre, criarComodidades, criarLocalizacao, criarAvaliacoes } from './components/secoes.js'
 import { criarAcomodacoes } from './components/acomodacoes.js'
 import { criarItapema } from './components/itapema.js'
+import { criarSecaoMapa } from './components/mapa.js'
 import { criarFaixa } from './components/faixa.js'
 import { criarDuvidas } from './components/duvidas.js'
 import { criarFechamento, criarBarraFixa, criarRodape } from './components/fechamento.js'
@@ -35,6 +36,9 @@ const montar = () => {
   principal.append(
     ...[
       criarHero(),
+      // O mapa vem logo depois do hero: antes de qualquer outra coisa, quem
+      // nunca ouviu falar da pousada precisa saber onde isso fica.
+      criarSecaoMapa(),
       criarSobre(),
       criarFaixa({
         arquivo: 'itapema-nascer-do-sol',

@@ -11,7 +11,7 @@
  */
 import { el } from '../lib/dom.js'
 import { pousada } from '../data/pousada.js'
-import { prepararFotos } from '../lib/imagens.js'
+import { apenasReais, prepararFotos } from '../lib/imagens.js'
 import { abrirLightbox } from './lightbox.js'
 import { rastrear, EVENTOS } from '../lib/analytics.js'
 
@@ -24,7 +24,7 @@ const RECORTES = [
 ]
 
 export const criarItapema = () => {
-  const todas = prepararFotos(pousada.fotos, '(min-width: 62em) 25vw, 80vw')
+  const todas = prepararFotos(apenasReais(pousada.fotos), '(min-width: 62em) 25vw, 80vw')
   const porArquivo = new Map(todas.map((f) => [f.arquivo, f]))
 
   const cartoes = RECORTES.map((recorte, indice) => {

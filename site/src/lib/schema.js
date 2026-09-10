@@ -5,7 +5,7 @@
  * penalidade do Google e frustracao do hospede.
  */
 import { pousada } from '../data/pousada.js'
-import { prepararFotos } from './imagens.js'
+import { apenasReais, prepararFotos } from './imagens.js'
 import { config } from '../config.js'
 import { montarDuvidas } from '../components/duvidas.js'
 
@@ -32,7 +32,7 @@ export const montarSchema = () => {
     priceRange: '$$',
   }
 
-  const fotosProntas = prepararFotos(fotos)
+  const fotosProntas = prepararFotos(apenasReais(fotos))
   if (fotosProntas.length) {
     negocio.image = fotosProntas.slice(0, 6).map((f) => `${config.siteUrl}${f.src}`)
   }

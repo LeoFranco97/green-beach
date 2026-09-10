@@ -6,10 +6,9 @@
 import { el } from '../lib/dom.js'
 import { icone } from '../lib/icones.js'
 import { pousada } from '../data/pousada.js'
-import { prepararFotos } from '../lib/imagens.js'
+import { apenasReais, prepararFotos } from '../lib/imagens.js'
 import { abrirLightbox } from './lightbox.js'
 import { mapDirectionsUrl } from '../config.js'
-import { criarMapa } from './mapa.js'
 import { rastrear, EVENTOS } from '../lib/analytics.js'
 
 /* ------------------------------------------------------------- A pousada */
@@ -17,7 +16,7 @@ export const criarSobre = () => {
   const { sobre, destaques } = pousada
   if (!sobre.confirmado && destaques.length === 0) return null
 
-  const todas = prepararFotos(pousada.fotos, '(min-width: 62em) 40vw, 90vw')
+  const todas = prepararFotos(apenasReais(pousada.fotos), '(min-width: 62em) 40vw, 90vw')
   const retrato = todas.find((f) => f.sobre) || todas.find((f) => f.tipo === 'pousada')
 
   const coluna = el('div', { class: 'sobre__texto' }, [
@@ -87,8 +86,13 @@ export const criarComodidades = () => {
   // dez itens miúdos em cinco colunas, fundo liso e um vazio embaixo.
   const todas = prepararFotos(pousada.fotos, '(min-width: 62em) 42vw, 92vw')
   const vertical = todas.find((f) => f.comodidades) || todas.find((f) => f.tipo === 'destino')
+  // Ilustração não abre o lightbox: lá dentro fica o acervo real, e misturar
+  // banco de imagem com foto da casa é o começo do fim da confiança.
+  const ampliavel = vertical && vertical.tipo !== 'ilustracao'
 
-  const foto = vertical
+  const foto = !vertical
+    ? null
+    : ampliavel
     ? el('button', {
         type: 'button',
         class: 'comodidades__foto',
@@ -110,7 +114,19 @@ export const criarComodidades = () => {
           style: `background-image:url(${vertical.mini});background-size:cover;background-position:${vertical.foco};object-position:${vertical.foco}`,
         }),
       ])
-    : null
+    : el('div', { class: 'comodidades__foto comodidades__foto--fixa' }, [
+        el('img', {
+          src: vertical.src,
+          srcset: vertical.srcset,
+          sizes: vertical.sizes,
+          alt: vertical.alt,
+          loading: 'lazy',
+          decoding: 'async',
+          width: String(vertical.largura),
+          height: String(vertical.altura),
+          style: `background-image:url(${vertical.mini});background-size:cover;background-position:${vertical.foco};object-position:${vertical.foco}`,
+        }),
+      ])
 
   return el('section', { class: 'secao comodidades', id: 'comodidades' }, [
     el('div', { class: 'secao__interno comodidades__grade-mestre' }, [
@@ -153,11 +169,6 @@ export const criarLocalizacao = () => {
     el('span', { class: 'botao__seta', 'aria-hidden': 'true', html: icone('seta') }),
   ])
 
-  // Mapa próprio, que viaja do Brasil até a rua, no lugar do iframe do Google.
-  // O botão de rota logo abaixo continua levando ao Google para quem quer
-  // navegação de verdade: aqui o trabalho é dar contexto, não guiar o carro.
-  const mapa = criarMapa()
-
   const listaProximos = proximidades.length
     ? el('ul', { class: 'proximidades' },
         proximidades.map((p) =>
@@ -195,7 +206,6 @@ export const criarLocalizacao = () => {
           : null,
         rota,
       ]),
-      mapa,
     ].filter(Boolean)),
   ])
 }
