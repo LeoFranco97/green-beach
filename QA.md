@@ -1,8 +1,8 @@
 # Relatório de QA
 
-Pousada & Hotel Green Beach. Verificação de 10/09/2026, depois do mapa animado entrar no lugar da galeria.
+Pousada & Hotel Green Beach. Verificação de 10/09/2026, com o mapa fazendo a viagem do Brasil até a rua da pousada.
 
-**125 de 125 verificações passaram. Nenhuma falha em aberto.**
+**126 de 126 verificações passaram. Nenhuma falha em aberto.**
 
 Os testes não são checklist escrito à mão: são um script que sobe o Chrome, navega na página de verdade, clica no calendário, mexe no seletor de hóspedes, tenta enviar formulário inválido e lê a URL do WhatsApp que sai no fim. Roda com o site no ar:
 
@@ -29,6 +29,10 @@ Sai com código 1 se algo falhar, então serve para travar um deploy quebrado. N
 **As setas de mês do calendário estavam empilhadas.** Faltaram as classes modificadoras no JavaScript, então os dois botões caíram no mesmo ponto e o "próximo mês" cobria o "mês anterior". Na prática dava para avançar mas não para voltar. O teste de teclado não pegou, porque usa PageUp e PageDown; foi preciso um teste que clica nas setas e confere que elas estão em lados opostos da tela. Esse teste agora faz parte da suíte.
 
 **O lightbox estourava a altura da tela.** O `align-items: center` no meio do lightbox fazia a linha crescer até caber a foto inteira, e aí a imagem passava por cima da legenda. Virou `stretch`, com o palco recebendo a altura real da linha. Foi preciso um teste que compara a posição da foto com a da legenda, porque olhar o `object-fit` não pegava isso.
+
+**Grau no eixo x, radiano no eixo y.** A primeira versão do mapa do Brasil saiu esmagada numa faixa horizontal. Mercator só preserva forma se os dois eixos estiverem na mesma unidade, e um radiano vale 57,3 graus: aplicar a mesma escala a graus no x e a radianos no y achata um eixo exatamente nessa proporção. Os dois eixos passaram a ser radiano.
+
+**Colisão de variável no gerador.** O `x0` da projeção do país era sobrescrito pelo `x0` da caixa de Santa Catarina, calculada depois no mesmo escopo. O arquivo gerado saía com a fórmula documentada errada, apontando 490,81 onde o valor real era -1,29. Cada coisa ganhou nome próprio.
 
 **O mapa nunca animava quando o navegador parava de compor quadros.** Mesmo defeito de sempre, em lugar novo: o gatilho de entrada do mapa era um `IntersectionObserver` puro. Ele ganhou a mesma rede de segurança de três níveis do resto do sistema, agora dentro do próprio `aoAparecer`, o que conserta de uma vez qualquer coisa que passe a usar esse gatilho.
 
@@ -144,15 +148,16 @@ Validação e WhatsApp
   ok   link com datas na URL já chega preenchido
   ok   hóspedes da URL respeitados
   ok   UTMs entram na mensagem
-Mapa de Itapema
-  ok   seção do mapa existe
-  ok   coreografia chega ao fim
-  ok   contorno do estado terminou de se desenhar
+Mapa, do Brasil até a pousada
+  ok   mapa existe dentro da seção de localização
+  ok   a seção não tem mais iframe do Google
+  ok   viagem chega ao fim sozinha
+  ok   contorno de Santa Catarina terminou de se desenhar
   ok   alfinete aparece
   ok   alfinete fica dentro do palco
   ok   alfinete tem tamanho de alvo, e não de ponto
-  ok   botão alterna o enquadramento
-  ok   botão diz para onde vai
+  ok   as três etapas são Brasil, estado e cidade
+  ok   cada etapa tem enquadramento próprio
   ok   svg do mapa tem descrição
 Lightbox
   ok   lightbox abre pela foto da pousada

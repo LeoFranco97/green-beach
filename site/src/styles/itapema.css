@@ -86,6 +86,25 @@
 
 /* Foto que já é escura não aguenta o véu cheio: o gradiente aqui só garante
    o contraste do texto no rodapé da faixa e deixa o resto da imagem viver. */
+/* Faixa CLARA. Existe porque o véu padrão é escuro, e foto de amanhecer
+   coberta de véu escuro deixa de ser amanhecer: a medição na página mostrava
+   o fundo em luminância 0,026, ou seja, quase preto, numa foto cuja média é
+   183 de 255.
+   Aqui o véu é de areia, não de sombra, e a tinta vira escura. */
+.faixa--clara { color: var(--text-strong); }
+
+.faixa--clara .faixa__veu {
+  background: linear-gradient(
+    180deg,
+    rgb(251 248 244 / 0) 24%,
+    rgb(251 248 244 / 0.50) 52%,
+    rgb(251 248 244 / 0.84) 78%,
+    rgb(251 248 244 / 0.92) 100%
+  );
+}
+
+.faixa--clara .faixa__apoio { color: var(--text); }
+
 .faixa__veu--leve {
   background: linear-gradient(
     180deg,

@@ -17,12 +17,16 @@ import { prepararFotos } from '../lib/imagens.js'
  * @param {'alta'|'baixa'} [opcoes.altura]
  * @param {'padrao'|'leve'} [opcoes.veu]  Use 'leve' em foto já escura, como
  *   a orla à noite: o véu padrão em cima de uma noturna some com a foto.
+ * @param {'escura'|'clara'} [opcoes.tinta]  'clara' inverte a faixa: véu de
+ *   areia e texto escuro. É o que uma foto de amanhecer pede, porque véu
+ *   escuro em cima de amanhecer mata justamente a luz que é o assunto.
  */
-export const criarFaixa = ({ arquivo, frase, apoio = '', altura = 'baixa', veu = 'padrao' }) => {
+export const criarFaixa = ({ arquivo, frase, apoio = '', altura = 'baixa', veu = 'padrao', tinta = 'escura' }) => {
   const [foto] = prepararFotos(pousada.fotos.filter((f) => f.arquivo === arquivo), '100vw')
   if (!foto) return null
 
-  return el('section', { class: `faixa faixa--${altura} tem-fundo`, 'aria-label': frase }, [
+  const variante = tinta === 'clara' ? ' faixa--clara' : ''
+  return el('section', { class: `faixa faixa--${altura}${variante} tem-fundo`, 'aria-label': frase }, [
     el('div', { class: 'faixa__fundo' }, [
       el('img', {
         class: 'faixa__imagem',

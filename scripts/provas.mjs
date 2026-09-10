@@ -62,11 +62,8 @@ async function main() {
   await ir(cdp, aba, URL_ALVO, 1900)
   await tela('01-desktop-hero')
 
-  await rolarAte('.mapa')
-  // A coreografia do mapa leva cerca de 4,6s: capturar antes disso pega o
-  // contorno pela metade e nenhum alfinete.
-  await espera(5200)
-  await tela('02-desktop-mapa')
+  await rolarAte('.faixa', 40)
+  await tela('02-desktop-faixa')
 
   await avaliar(cdp, aba, `(async () => {
     window.scrollTo({ top: 0, behavior: 'instant' });
@@ -110,7 +107,8 @@ async function main() {
   })()`, { awaitPromise: true })
 
   await rolarAte('.localizacao')
-  await espera(3200) // o iframe do mapa e carregado sob demanda
+  // A viagem do mapa leva cerca de 6,2s do primeiro traco ao alfinete parado.
+  await espera(7200)
   await tela('07-desktop-mapa')
 
   await rolarAte('.fechamento', 60)

@@ -1,31 +1,8 @@
-/* ============================ MAPA DE ITAPEMA ============================= */
-
-.mapa { background: var(--bg); color: var(--text); }
-
-.mapa__grade-mestre { display: grid; gap: var(--space-xl); align-items: center; }
-
-.mapa__texto { max-width: var(--measure-body); }
-.mapa .secao__titulo { color: var(--text-strong); max-width: 16ch; }
-
-.mapa__apoio {
-  margin-top: var(--space-md);
-  max-width: 46ch;
-  font-size: var(--fs-lead);
-  line-height: var(--lh-lead);
-  color: var(--text-soft);
-}
-
-.mapa__endereco {
-  margin-top: var(--space-lg);
-  padding-top: var(--space-md);
-  border-top: 1px solid var(--border-hairline);
-  font-style: normal;
-  font-family: var(--font-display);
-  font-size: var(--fs-h3);
-  color: var(--text-strong);
-}
-
-.mapa__rota { margin-top: var(--space-lg); }
+/* ====================== MAPA, DO BRASIL ATE A POUSADA =====================
+   O palco é sempre escuro, esteja a seção clara ou escura. Por isso tem tinta
+   própria: usar --text-inverse aqui pegaria o valor invertido do contexto e
+   escreveria tinta escura sobre fundo escuro.
+   ======================================================================== */
 
 /* -------------------------------------------------------------- palco */
 
@@ -46,6 +23,7 @@
     radial-gradient(ellipse 62% 58% at 60% 42%, rgb(58 69 43 / 0.55), transparent 68%),
     linear-gradient(160deg, #182016, #0d1209 74%);
   aspect-ratio: 4 / 3;
+  width: 100%;
 }
 
 /* Malha discreta, só para o fundo não ser um vazio chapado. */
@@ -68,12 +46,33 @@
 
 /* --------------------------------------------------------- camadas */
 
+/* O país inteiro, discreto: ele é o ponto de partida da viagem e some de
+   vista assim que a câmera fecha em Santa Catarina. */
+.mapa__brasil {
+  fill: #39452c;
+  stroke: rgb(244 239 230 / 0.22);
+  stroke-width: 0.8;
+  vector-effect: non-scaling-stroke;
+  opacity: 0;
+  transition: opacity 0.8s ease 0.2s;
+}
+.mapa__palco.is-desenhado .mapa__brasil { opacity: 1; }
+
+/* Santa Catarina aparece junto com o Brasil, num verde mais claro. É o
+   "você está aqui" da primeira etapa: sem isso a viagem começa sem destino
+   à vista e o zoom parece aleatório. */
 .mapa__terra {
   fill: url(#gbTerra);
-  stroke: none;
+  stroke: var(--accent);
+  stroke-width: 1.2;
+  vector-effect: non-scaling-stroke;
   opacity: 0;
-  transition: opacity 0.9s ease 0.35s;
+  transition: opacity 0.9s ease 0.3s, stroke-opacity 0.6s ease;
 }
+.mapa__palco.is-desenhado .mapa__terra { opacity: 1; }
+/* Chegando no estado, o contorno dourado passa a ser desenhado pelo traço
+   de cima, e este aqui sai de cena para não dobrar a linha. */
+.mapa__palco.is-perto .mapa__terra { stroke-opacity: 0; }
 
 .mapa__divisas {
   fill: none;
@@ -81,7 +80,7 @@
   stroke-width: 0.8;
   vector-effect: non-scaling-stroke;
   opacity: 0;
-  transition: opacity 1s ease 0.8s, stroke 0.6s ease;
+  transition: opacity 0.9s ease, stroke 0.6s ease;
 }
 
 .mapa__cidade {
@@ -106,14 +105,17 @@
   stroke-dashoffset: var(--traco);
 }
 
-.mapa__palco.is-desenhado .mapa__contorno {
-  transition: stroke-dashoffset 1.9s cubic-bezier(0.65, 0, 0.35, 1);
+.mapa__palco.is-perto .mapa__divisas { opacity: 1; }
+.mapa__palco.is-cidade .mapa__cidade { opacity: 0.94; }
+.mapa__palco.is-cidade .mapa__divisas { stroke: rgb(244 239 230 / 0.3); }
+
+/* O contorno de SC só se desenha quando a câmera chega no estado: desenhar
+   um traço que a pessoa nem consegue ver, na vista do Brasil, é gastar o
+   único gesto do bloco onde ninguém olha. */
+.mapa__palco.is-perto .mapa__contorno {
+  transition: stroke-dashoffset 1.6s cubic-bezier(0.65, 0, 0.35, 1);
   stroke-dashoffset: 0;
 }
-.mapa__palco.is-desenhado .mapa__terra,
-.mapa__palco.is-desenhado .mapa__divisas { opacity: 1; }
-.mapa__palco.is-perto .mapa__cidade { opacity: 0.92; }
-.mapa__palco.is-perto .mapa__divisas { stroke: rgb(244 239 230 / 0.28); }
 
 /* -------------------------------------------------------- alfinete */
 
@@ -165,6 +167,7 @@
   transition: opacity 0.4s ease;
 }
 .mapa__palco.is-marcado .alfinete__rotulo { opacity: 1; }
+.mapa__palco:not(.is-cidade) .alfinete { opacity: 0; animation: none; }
 
 /* -------------------------------------------------------------- hud */
 
@@ -206,11 +209,7 @@
 .mapa__botao:hover { background: rgb(244 239 230 / 0.22); border-color: rgb(244 239 230 / 0.55); }
 
 @media (min-width: 62em) {
-  .mapa__grade-mestre {
-    grid-template-columns: minmax(0, 0.82fr) minmax(0, 1.18fr);
-    gap: var(--space-3xl);
-  }
-  .mapa__palco { aspect-ratio: 5 / 4; }
+  .mapa__palco { aspect-ratio: 1 / 1; }
   .mapa__hud { inset: auto var(--space-md) var(--space-md) var(--space-md); }
 }
 

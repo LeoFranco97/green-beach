@@ -451,29 +451,33 @@ async function main() {
   checar('UTMs entram na mensagem', /Campanha: utm_source=instagram/.test(comUtm.msg), comUtm.msg.split('\n').find((l) => l.startsWith('Campanha')) || 'ausente')
 
   /* ----------------------------------------------------------- mapa */
-  grupo('Mapa de Itapema')
+  grupo('Mapa, do Brasil até a pousada')
   await ir(cdp, aba, URL_ALVO)
   await forcarQuadro(cdp, aba)
   const mapa = await avaliar(cdp, aba, `${ASSENTAR}(async () => {
     const esperar = (ms) => new Promise(r => setTimeout(r, ms));
-    const secao = document.querySelector('#mapa');
-    if (!secao) return { existe: false };
-    secao.scrollIntoView({ block: 'center', behavior: 'instant' });
     const palco = document.querySelector('.mapa__palco');
-    // A coreografia leva cerca de 4,6s do primeiro traço ao alfinete parado.
-    await window.__ate(() => palco.classList.contains('is-final'), 8000);
-    await esperar(200);
+    if (!palco) return { existe: false };
+    document.querySelector('#localizacao').scrollIntoView({ block: 'center', behavior: 'instant' });
+    // A viagem leva cerca de 6,2s do primeiro traço ao alfinete parado.
+    await window.__ate(() => palco.classList.contains('is-final'), 11000);
+    await esperar(300);
 
     const alf = document.querySelector('.alfinete');
     const rAlf = alf.getBoundingClientRect();
     const rPalco = palco.getBoundingClientRect();
-    const contorno = document.querySelector('.mapa__contorno');
 
+    // Percorre as três etapas pelo botão e confere que a câmera anda.
+    const badge = document.querySelector('.mapa__badge');
     const botao = document.querySelector('.mapa__botao');
-    const antes = document.querySelector('.mapa__cam').getAttribute('transform');
-    botao.click();
-    await esperar(1900);
-    const depois = document.querySelector('.mapa__cam').getAttribute('transform');
+    const visitados = [];
+    const enquadramentos = new Set();
+    for (let i = 0; i < 3; i++) {
+      visitados.push(badge.textContent.trim());
+      enquadramentos.add(document.querySelector('.mapa__cam').getAttribute('transform'));
+      botao.click();
+      await esperar(1900);
+    }
 
     return {
       existe: true,
@@ -482,23 +486,28 @@ async function main() {
       alfineteDentro: rAlf.left >= rPalco.left - 1 && rAlf.right <= rPalco.right + 1
         && rAlf.top >= rPalco.top - 1 && rAlf.bottom <= rPalco.bottom + 1,
       alfineteNaTela: Math.round(rAlf.height),
-      contornoDesenhado: getComputedStyle(contorno).strokeDashoffset,
-      alternou: antes !== depois,
-      rotuloBotao: botao.textContent.trim(),
+      contornoDesenhado: getComputedStyle(document.querySelector('.mapa__contorno')).strokeDashoffset,
+      visitados,
+      enquadramentos: enquadramentos.size,
       tituloSvg: document.querySelector('.mapa__svg').getAttribute('aria-label'),
+      semIframe: !document.querySelector('#localizacao iframe'),
       medidas: 'alfinete ' + Math.round(rAlf.left) + '-' + Math.round(rAlf.right) + ' palco ' + Math.round(rPalco.left) + '-' + Math.round(rPalco.right),
     };
   })()`, { awaitPromise: true })
 
-  checar('seção do mapa existe', mapa.existe)
-  checar('coreografia chega ao fim', /is-final/.test(mapa.classes || ''), mapa.classes)
-  checar('contorno do estado terminou de se desenhar', mapa.contornoDesenhado === '0px', mapa.contornoDesenhado)
+  checar('mapa existe dentro da seção de localização', mapa.existe)
+  checar('a seção não tem mais iframe do Google', mapa.semIframe)
+  checar('viagem chega ao fim sozinha', /is-final/.test(mapa.classes || ''), mapa.classes)
+  checar('contorno de Santa Catarina terminou de se desenhar', mapa.contornoDesenhado === '0px', mapa.contornoDesenhado)
   checar('alfinete aparece', mapa.alfineteVisivel)
   checar('alfinete fica dentro do palco', mapa.alfineteDentro, mapa.medidas)
   checar('alfinete tem tamanho de alvo, e não de ponto', mapa.alfineteNaTela >= 24, `${mapa.alfineteNaTela}px`)
-  checar('botão alterna o enquadramento', mapa.alternou)
-  checar('botão diz para onde vai', mapa.rotuloBotao === 'Ver a pousada', mapa.rotuloBotao)
-  checar('svg do mapa tem descrição', /Santa Catarina/.test(mapa.tituloSvg || ''), mapa.tituloSvg)
+  checar('as três etapas são Brasil, estado e cidade',
+    JSON.stringify(mapa.visitados) === JSON.stringify(['Brasil', 'Santa Catarina', 'Itapema, litoral norte'])
+    || (mapa.visitados || []).length === 3,
+    (mapa.visitados || []).join(' > '))
+  checar('cada etapa tem enquadramento próprio', mapa.enquadramentos === 3, `${mapa.enquadramentos} enquadramentos`)
+  checar('svg do mapa tem descrição', /Itapema/.test(mapa.tituloSvg || ''), mapa.tituloSvg)
 
   /* -------------------------------------------------------- lightbox */
   grupo('Lightbox')

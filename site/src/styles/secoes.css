@@ -281,23 +281,12 @@
 
 .localizacao__rota { margin-top: var(--space-lg); }
 
-/* Sem borda, sem sombra, sem fundo branco: retângulo branco com sombra em
-   volta de um mapa é moldura, e moldura é o vício que faz a página parecer
-   template. O mapa sangra até a borda direita da tela. */
-.localizacao__mapa {
-  overflow: hidden;
-  border-radius: var(--radius-image);
-  aspect-ratio: 4 / 3;
-  background: var(--bg-alt);
-}
-.localizacao__iframe { width: 100%; height: 100%; border: 0; }
+/* O mapa da localização é o componente próprio, não mais um iframe. Ele traz
+   o próprio palco e o próprio raio, então aqui não sobra nada para estilizar. */
 
 @media (min-width: 62em) {
   .localizacao__grade { grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: var(--space-3xl); align-items: start; }
-  .localizacao__mapa {
-    aspect-ratio: 1 / 1;
-    border-radius: var(--radius-image);
-  }
+
 }
 
 /* ---------------------------------------------------------- avaliacoes */

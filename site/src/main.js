@@ -11,7 +11,6 @@ import { pousada } from './data/pousada.js'
 
 import { criarCabecalho } from './components/cabecalho.js'
 import { criarHero } from './components/hero.js'
-import { criarMapa } from './components/mapa.js'
 import { criarSobre, criarComodidades, criarLocalizacao, criarAvaliacoes } from './components/secoes.js'
 import { criarAcomodacoes } from './components/acomodacoes.js'
 import { criarItapema } from './components/itapema.js'
@@ -36,13 +35,13 @@ const montar = () => {
   principal.append(
     ...[
       criarHero(),
-      criarMapa(),
       criarSobre(),
       criarFaixa({
         arquivo: 'itapema-nascer-do-sol',
         frase: 'De manhã cedo, a praia ainda é de quem acorda primeiro.',
         apoio: 'O amanhecer em Itapema, visto do alto.',
         altura: 'alta',
+        tinta: 'clara',
       }),
       criarAcomodacoes(),
       criarComodidades(),

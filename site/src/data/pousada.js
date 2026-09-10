@@ -229,6 +229,33 @@ export const pousada = {
       legenda: 'A baía inteira, do centro até a ponta.',
       foco: '50% 48%',
     },
+    /**
+     * A FOTO DESTA SEÇÃO DEVERIA SER O CAFÉ DA MANHÃ.
+     *
+     * A seção se chama "o que a pousada oferece" e a primeira coisa da lista
+     * é café da manhã incluso. Ilustrar isso com uma foto aérea da cidade é
+     * uma contradição que o hóspede sente sem saber nomear.
+     *
+     * Não existe nenhuma foto do café da manhã da Green Beach, e usar foto de
+     * banco de imagem aqui seria mostrar um café que não é o deles. Enquanto
+     * a foto real não chega, fica a aérea da Praia Grossa.
+     *
+     * Para trocar, quando a foto chegar:
+     *   1. salve o arquivo em assets-raw/originais/cafe-da-manha.jpg
+     *   2. rode  python3 scripts/preparar-fotos.py
+     *   3. tire  comodidades: true  da Praia Grossa, logo abaixo
+     *   4. acrescente o item, com os campos deste modelo:
+     *
+     *      {
+     *        arquivo: 'cafe-da-manha',
+     *        tipo: 'pousada',
+     *        comodidades: true,
+     *        alt: 'Descreva o que se vê: a mesa posta, o que é servido, a luz',
+     *        categoria: 'Café da manhã',
+     *        legenda: 'Uma frase curta e verdadeira sobre o café.',
+     *        foco: '50% 50%',
+     *      },
+     */
     {
       arquivo: 'itapema-praia-grossa',
       comodidades: true,

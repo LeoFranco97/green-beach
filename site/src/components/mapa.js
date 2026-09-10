@@ -1,53 +1,50 @@
 /**
- * Mapa de Santa Catarina com a pousada marcada.
+ * Mapa da localização.
  *
- * A ideia é dar contexto de destino para quem não é de Santa Catarina: onde
- * fica Itapema, e onde no meio de Itapema fica a pousada. O contorno do
- * estado se desenha, a câmera fecha no litoral e o alfinete cai.
+ * Faz uma viagem: começa no Brasil inteiro, fecha em Santa Catarina, fecha de
+ * novo em Itapema e larga o alfinete em cima da pousada. É uma câmera só,
+ * andando num espaço de coordenadas só, sem corte entre as etapas.
+ *
+ * Serve a quem não é da região, que é justamente quem precisa decidir o
+ * destino antes de decidir a cama.
  *
  * Regras que valem para tudo aqui:
  *   - O alfinete vive DENTRO da câmera. A posição vem do mesmo transform do
  *     mapa, então não existe como ele sair do lugar. Só a escala é
  *     compensada, para o tamanho na tela ficar constante em qualquer zoom.
- *   - Com movimento reduzido, o mapa nasce no estado final. Nada de ficar
- *     esperando uma animação que não vai rodar.
+ *   - Com movimento reduzido, o mapa nasce no estado final.
  */
 import { el, qs, aoAparecer, menosMovimento } from '../lib/dom.js'
-import { SC } from '../data/mapa-sc.js'
+import { MAPA, PROJECAO, VISTAS } from '../data/mapa-sc.js'
 import { pousada } from '../data/pousada.js'
 import { rastrear, EVENTOS } from '../lib/analytics.js'
 
-const NS = 'http://www.w3.org/2000/svg'
-
-/**
- * Enquadramentos da câmera, em coordenadas do viewBox 1000x640.
- * ALFINETE_NA_TELA é o tamanho aparente do alfinete: ele é marcador de
- * interface, então não cresce junto com o zoom.
- */
+/** Tamanho aparente do alfinete: ele é marcador de interface, não cresce. */
 const ALFINETE_NA_TELA = 2.3
 
-const VISTA_ESTADO = { cx: 500, cy: 320, z: 1 }
-// Aberto o bastante para a linha da costa e os municipios vizinhos
-// aparecerem. Fechar demais tira justamente a informacao que o mapa da:
-// onde no litoral isso fica.
-const VISTA_POUSADA = { cx: 897, cy: 205, z: 5.2 }
+/** Ritmo da viagem, em milissegundos a partir do início. */
+const ROTEIRO = [
+  { em: 60, faz: 'desenhar' },
+  { em: 1100, faz: 'estado' },
+  { em: 3000, faz: 'cidade' },
+  { em: 4400, faz: 'alfinete' },
+  { em: 6200, faz: 'fim' },
+]
 
 /**
  * Converte latitude e longitude para o viewBox do mapa.
- * A projeção foi ajustada contra cinco pontos conhecidos, com erro abaixo de
- * 0,05px. Ver o cabeçalho de data/mapa-sc.js.
+ * Os parâmetros vêm do arquivo gerado, então mudar a projeção lá muda aqui
+ * junto e não existe número solto para desencontrar.
  */
-export const projetar = (lat, lng) => ({
-  x: 162.340287 * lng + 8796.882037,
-  y: -9312.759979 * Math.log(Math.tan(Math.PI / 4 + (lat * Math.PI) / 360)) - 4364.821223,
-})
-
-const svgEl = (tag, attrs = {}) => {
-  const node = document.createElementNS(NS, tag)
-  for (const [chave, valor] of Object.entries(attrs)) {
-    if (valor !== null && valor !== undefined) node.setAttribute(chave, String(valor))
+export const projetar = (lat, lng) => {
+  // Os dois eixos em radiano. Grau no x com radiano no y esmaga o mapa numa
+  // faixa horizontal, porque um radiano vale 57,3 graus.
+  const mx = (lng * Math.PI) / 180
+  const my = Math.log(Math.tan(Math.PI / 4 + (lat * Math.PI) / 360))
+  return {
+    x: PROJECAO.offsetX + (mx - PROJECAO.mercMinX) * PROJECAO.escala,
+    y: PROJECAO.offsetY + (PROJECAO.mercMax - my) * PROJECAO.escala,
   }
-  return node
 }
 
 export const criarMapa = () => {
@@ -56,13 +53,14 @@ export const criarMapa = () => {
 
   const ponto = projetar(lat, lng)
 
-  /* ----------------------------------------------------------------- svg */
-  const svg = svgEl('svg', {
-    class: 'mapa__svg',
-    viewBox: '0 0 1000 640',
-    role: 'img',
-    'aria-label': `Mapa de Santa Catarina com a ${pousada.nome} marcada em Itapema, no litoral norte`,
-  })
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
+  svg.setAttribute('class', 'mapa__svg')
+  svg.setAttribute('viewBox', `0 0 ${PROJECAO.largura} ${PROJECAO.altura}`)
+  svg.setAttribute('role', 'img')
+  svg.setAttribute(
+    'aria-label',
+    `Mapa do Brasil que se aproxima até Itapema, em Santa Catarina, onde fica a ${pousada.nome}`,
+  )
 
   svg.innerHTML = `
     <defs>
@@ -76,7 +74,7 @@ export const criarMapa = () => {
         <stop offset="1" stop-color="#c79a35"/>
       </linearGradient>
       <filter id="gbGlow" x="-60%" y="-60%" width="220%" height="220%">
-        <feGaussianBlur stdDeviation="6" result="b"/>
+        <feGaussianBlur stdDeviation="5" result="b"/>
         <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
       </filter>
       <filter id="gbSombra" x="-70%" y="-70%" width="240%" height="240%">
@@ -84,123 +82,106 @@ export const criarMapa = () => {
       </filter>
     </defs>
     <g class="mapa__cam">
-      <path class="mapa__terra" d="${SC.estado}"/>
-      <path class="mapa__divisas" d="${SC.municipios}"/>
-      <path class="mapa__cidade" d="${SC.itapema}"/>
-      <path class="mapa__contorno" d="${SC.estado}"/>
+      <path class="mapa__brasil" d="${MAPA.brasil}"/>
+      <path class="mapa__terra" d="${MAPA.estado}"/>
+      <path class="mapa__divisas" d="${MAPA.municipios}"/>
+      <path class="mapa__cidade" d="${MAPA.itapema}"/>
+      <path class="mapa__contorno" d="${MAPA.estado}"/>
       <g class="mapa__alfinete"></g>
     </g>
   `
 
   const cam = qs('.mapa__cam', svg)
   const contorno = qs('.mapa__contorno', svg)
-  const grupoAlfinete = qs('.mapa__alfinete', svg)
 
-  /* ------------------------------------------------------------ alfinete */
-  // O desenho vive em coordenadas próprias e é levado ao ponto por transform,
-  // para o transform carregar posição e escala sem misturar com a animação.
-  const alfinete = svgEl('g', { class: 'alfinete' })
+  const alfinete = document.createElementNS('http://www.w3.org/2000/svg', 'g')
+  alfinete.setAttribute('class', 'alfinete')
   alfinete.innerHTML = `
     <circle class="alfinete__eco" cx="0" cy="0" r="9"/>
     <g class="alfinete__corpo">
       <path class="alfinete__forma" d="M0 2c0-6.9 5.6-12.5 12.5-12.5S25-4.9 25 2c0 8.6-12.5 21-12.5 21S0 10.6 0 2Z" transform="translate(-12.5,-23)"/>
       <circle class="alfinete__miolo" cx="0" cy="-21" r="4.6"/>
     </g>
-    <text class="alfinete__rotulo" x="0" y="12">GREEN BEACH</text>
+    <text class="alfinete__rotulo" x="0" y="13">GREEN BEACH</text>
   `
-  grupoAlfinete.append(alfinete)
+  qs('.mapa__alfinete', svg).append(alfinete)
 
   /* -------------------------------------------------------------- câmera */
-  let vista = VISTA_ESTADO
-
-  /**
-   * Aponta a câmera. O alfinete recebe a escala inversa no mesmo quadro, para
-   * não crescer junto com o zoom: no mapa ele é um marcador de interface, e
-   * marcador de interface tem tamanho fixo na tela.
-   */
   const aplicarVista = (v) => {
-    vista = v
-    const tx = 500 - v.cx * v.z
-    const ty = 320 - v.cy * v.z
+    const tx = PROJECAO.largura / 2 - v.cx * v.z
+    const ty = PROJECAO.altura / 2 - v.cy * v.z
     cam.setAttribute('transform', `translate(${tx.toFixed(2)},${ty.toFixed(2)}) scale(${v.z})`)
-    alfinete.setAttribute('transform', `translate(${ponto.x},${ponto.y}) scale(${(ALFINETE_NA_TELA / v.z).toFixed(4)})`)
+    alfinete.setAttribute(
+      'transform',
+      `translate(${ponto.x},${ponto.y}) scale(${(ALFINETE_NA_TELA / v.z).toFixed(4)})`,
+    )
   }
 
-  /* ------------------------------------------------------------- palco */
+  /* --------------------------------------------------------------- palco */
   const palco = el('div', { class: 'mapa__palco' }, [
     el('div', { class: 'mapa__grade', 'aria-hidden': 'true' }),
   ])
   palco.append(svg)
 
-  const badge = el('span', { class: 'mapa__badge', text: 'Santa Catarina' })
-  const botaoVista = el('button', {
+  const badge = el('span', { class: 'mapa__badge', text: 'Brasil' })
+
+  /** Etapas que o botão percorre, na ordem em que a viagem acontece. */
+  const ETAPAS = [
+    { vista: VISTAS.brasil, badge: 'Brasil', proximo: 'Aproximar' },
+    { vista: VISTAS.estado, badge: 'Santa Catarina', proximo: 'Aproximar' },
+    { vista: VISTAS.cidade, badge: 'Itapema, litoral norte', proximo: 'Ver o Brasil' },
+  ]
+  let etapa = 0
+
+  const irPara = (indice, deClique = false) => {
+    etapa = (indice + ETAPAS.length) % ETAPAS.length
+    const atual = ETAPAS[etapa]
+    aplicarVista(atual.vista)
+    badge.textContent = atual.badge
+    botao.textContent = atual.proximo
+    palco.classList.toggle('is-perto', etapa >= 1)
+    palco.classList.toggle('is-cidade', etapa === 2)
+    if (deClique) rastrear(EVENTOS.MAPA_ABERTO, { etapa: atual.badge })
+  }
+
+  const botao = el('button', {
     type: 'button',
     class: 'mapa__botao',
-    text: 'Ver o estado',
-    onclick: () => {
-      const noEstado = palco.classList.toggle('is-aberto')
-      aplicarVista(noEstado ? VISTA_ESTADO : VISTA_POUSADA)
-      botaoVista.textContent = noEstado ? 'Ver a pousada' : 'Ver o estado'
-      badge.textContent = noEstado ? 'Santa Catarina' : 'Itapema, litoral norte'
-      rastrear(EVENTOS.MAPA_ABERTO, { destino: noEstado ? 'estado' : 'pousada' })
-    },
+    text: 'Aproximar',
+    onclick: () => irPara(etapa + 1, true),
   })
 
-  palco.append(el('div', { class: 'mapa__hud' }, [badge, botaoVista]))
+  palco.append(el('div', { class: 'mapa__hud' }, [badge, botao]))
 
-  /* ------------------------------------------------------------- coluna */
-  // Sem endereço nem botão de rota aqui: isso é trabalho da seção de chegada,
-  // mais abaixo. Este bloco responde só "onde fica Itapema".
-  const texto = el('div', { class: 'mapa__texto' }, [
-    el('p', { class: 'olho', text: 'Onde fica' }),
-    el('h2', { class: 'secao__titulo', text: 'Itapema, no litoral norte de Santa Catarina' }),
-    el('p', {
-      class: 'mapa__apoio',
-      text: 'Entre Balneário Camboriú e Porto Belo, na faixa de praia mais movimentada do estado. A pousada fica no centro, a poucos passos da areia.',
-    }),
-  ])
-
-  const raiz = el('section', {
-    class: 'secao mapa gb-dark tem-fundo',
-    id: 'mapa',
-    dataset: { surface: 'dark' },
-  }, [
-    el('div', { class: 'secao__interno mapa__grade-mestre' }, [texto, palco]),
-  ])
-
-  /* ------------------------------------------------------ coreografia */
+  /* --------------------------------------------------------- coreografia */
   const tocar = () => {
     // O comprimento real do traço vira a base do stroke-dasharray, senão a
     // linha "desenhando" começa e termina em lugares arbitrários.
-    const comprimento = contorno.getTotalLength()
-    contorno.style.setProperty('--traco', comprimento)
-
-    aplicarVista(VISTA_ESTADO)
-    // Força um quadro antes de ligar as transições, para o contorno não
-    // aparecer desenhado de uma vez.
+    contorno.style.setProperty('--traco', contorno.getTotalLength())
     void palco.offsetWidth
     palco.classList.add('is-pronto')
 
-    window.setTimeout(() => palco.classList.add('is-desenhado'), 60)
-    window.setTimeout(() => {
-      aplicarVista(VISTA_POUSADA)
-      palco.classList.add('is-perto')
-      badge.textContent = 'Itapema, litoral norte'
-    }, 1500)
-    window.setTimeout(() => palco.classList.add('is-marcado'), 2900)
-    // Rede de segurança: se a animação do alfinete não rodar, por aba em
-    // segundo plano ou navegador que parou de compor, ele fica invisível.
-    window.setTimeout(() => palco.classList.add('is-final'), 4600)
+    for (const passo of ROTEIRO) {
+      window.setTimeout(() => {
+        if (passo.faz === 'desenhar') palco.classList.add('is-desenhado')
+        if (passo.faz === 'estado') irPara(1)
+        if (passo.faz === 'cidade') irPara(2)
+        if (passo.faz === 'alfinete') palco.classList.add('is-marcado')
+        // Rede de segurança: se a animação do alfinete não rodar, por aba em
+        // segundo plano ou navegador que parou de compor, ele ficaria
+        // invisível. Esta classe entra por tempo.
+        if (passo.faz === 'fim') palco.classList.add('is-final')
+      }, passo.em)
+    }
   }
 
   if (menosMovimento()) {
-    aplicarVista(VISTA_POUSADA)
-    palco.classList.add('is-desenhado', 'is-perto', 'is-marcado', 'is-final')
-    badge.textContent = 'Itapema, litoral norte'
+    irPara(2)
+    palco.classList.add('is-desenhado', 'is-marcado', 'is-final')
   } else {
-    aplicarVista(VISTA_ESTADO)
-    aoAparecer(raiz, tocar, '-10%')
+    irPara(0)
+    aoAparecer(palco, tocar, '-8%')
   }
 
-  return raiz
+  return palco
 }

@@ -8,7 +8,8 @@ import { icone } from '../lib/icones.js'
 import { pousada } from '../data/pousada.js'
 import { prepararFotos } from '../lib/imagens.js'
 import { abrirLightbox } from './lightbox.js'
-import { mapEmbedUrl, mapDirectionsUrl } from '../config.js'
+import { mapDirectionsUrl } from '../config.js'
+import { criarMapa } from './mapa.js'
 import { rastrear, EVENTOS } from '../lib/analytics.js'
 
 /* ------------------------------------------------------------- A pousada */
@@ -152,16 +153,10 @@ export const criarLocalizacao = () => {
     el('span', { class: 'botao__seta', 'aria-hidden': 'true', html: icone('seta') }),
   ])
 
-  const mapa = el('div', { class: 'localizacao__mapa' }, [
-    el('iframe', {
-      class: 'localizacao__iframe',
-      src: mapEmbedUrl(),
-      title: `Mapa com a localização da ${pousada.nome}`,
-      loading: 'lazy',
-      referrerpolicy: 'no-referrer-when-downgrade',
-      allowfullscreen: true,
-    }),
-  ])
+  // Mapa próprio, que viaja do Brasil até a rua, no lugar do iframe do Google.
+  // O botão de rota logo abaixo continua levando ao Google para quem quer
+  // navegação de verdade: aqui o trabalho é dar contexto, não guiar o carro.
+  const mapa = criarMapa()
 
   const listaProximos = proximidades.length
     ? el('ul', { class: 'proximidades' },
@@ -201,7 +196,7 @@ export const criarLocalizacao = () => {
         rota,
       ]),
       mapa,
-    ]),
+    ].filter(Boolean)),
   ])
 }
 

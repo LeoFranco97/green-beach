@@ -149,18 +149,23 @@ O campo `foco` define o recorte no formato `"x% y%"`. Serve para a parte importa
 
 ### Mapa
 
-A seção "Onde fica" desenha o contorno de Santa Catarina, fecha a câmera no litoral norte e larga um alfinete em cima da pousada.
+A seção de localização traz um mapa que faz uma viagem: começa no Brasil inteiro, fecha em Santa Catarina, fecha de novo em Itapema e larga o alfinete em cima da pousada. É uma câmera só, andando num espaço de coordenadas só, sem corte entre as etapas. O botão no canto percorre as três etapas na mão.
 
-A geometria é a malha municipal do IBGE 2024, em projeção Mercator, no arquivo gerado `site/src/data/mapa-sc.js`. A conversão de coordenada para o mapa está em `projetar()`, dentro de `components/mapa.js`, e foi ajustada contra cinco pontos de coordenada conhecida com erro abaixo de 0,05px:
+A geometria é gerada:
 
+```bash
+python3 scripts/gerar-mapa.py
 ```
-x = 162.340287 * longitude + 8796.882037
-y = -9312.759979 * ln(tan(PI/4 + latitude/2)) - 4364.821223
-```
 
-Se o endereço mudar, é só trocar `coordenadas` no arquivo de conteúdo: o alfinete se reposiciona sozinho.
+O script baixa a malha por unidade da federação da API do IBGE, reprojeta a malha municipal de Santa Catarina para o mesmo espaço, simplifica cada camada de acordo com o zoom em que ela é vista e escreve `site/src/data/mapa-sc.js`. Sem a simplificação o arquivo passa de 260 KB; com ela fica em 93 KB, ou 32 KB compactado.
 
-Duas regras do componente que não são opcionais: o alfinete vive dentro da câmera, então herda o movimento dela e não tem como sair do lugar, e a escala dele é compensada pelo inverso do zoom, para ele ser marcador de interface e não crescer junto com o mapa.
+A conversão de coordenada para o mapa está em `projetar()`, dentro de `components/mapa.js`, e usa os parâmetros do próprio arquivo gerado, então não existe número solto para desencontrar. Se o endereço mudar, é só trocar `coordenadas` no arquivo de conteúdo: o alfinete se reposiciona sozinho.
+
+Três regras do componente que não são opcionais:
+
+1. **Os dois eixos em radiano.** Mercator só preserva forma assim. Grau no x com radiano no y esmaga o mapa numa faixa horizontal, e o erro é silencioso.
+2. **O alfinete vive dentro da câmera**, então herda o movimento dela e não tem como sair do lugar.
+3. **A escala do alfinete é compensada pelo inverso do zoom.** Ele é marcador de interface e tem tamanho fixo na tela, não cresce junto com o mapa.
 
 ### Cantos
 
