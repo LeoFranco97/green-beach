@@ -136,16 +136,35 @@ Cada foto declara onde aparece, e é isso que impede a mesma imagem de surgir du
 | Papel | Onde aparece |
 |---|---|
 | `destaque` | fundo do hero |
-| `mosaico: 1..6` | posição na grade da galeria, que mistura três proporções de propósito |
 | `sobre` | a foto vertical da seção "A pousada" |
 | `faixa` | a faixa sangrada entre seções |
 | `comodidades` | a foto alta que sangra na seção de estrutura |
 | `recorte` | um dos quatro cartões da seção Itapema |
+| `comodidades` | a foto alta da seção de estrutura |
 | `fechamento` | fundo do CTA final |
 
-O lightbox continua mostrando o acervo inteiro, independente dos papéis. Uma foto sem papel nenhum aparece só no lightbox.
+O lightbox continua mostrando o acervo inteiro, independente dos papéis. Uma foto sem papel nenhum aparece só no lightbox, que é aberto pela foto da pousada, pela foto das comodidades e pelos quatro recortes de Itapema.
 
 O campo `foco` define o recorte no formato `"x% y%"`. Serve para a parte importante da foto não ser cortada quando o espaço muda de forma, e é por foto, não por CSS, porque depende do que cada imagem mostra.
+
+### Mapa
+
+A seção "Onde fica" desenha o contorno de Santa Catarina, fecha a câmera no litoral norte e larga um alfinete em cima da pousada.
+
+A geometria é a malha municipal do IBGE 2024, em projeção Mercator, no arquivo gerado `site/src/data/mapa-sc.js`. A conversão de coordenada para o mapa está em `projetar()`, dentro de `components/mapa.js`, e foi ajustada contra cinco pontos de coordenada conhecida com erro abaixo de 0,05px:
+
+```
+x = 162.340287 * longitude + 8796.882037
+y = -9312.759979 * ln(tan(PI/4 + latitude/2)) - 4364.821223
+```
+
+Se o endereço mudar, é só trocar `coordenadas` no arquivo de conteúdo: o alfinete se reposiciona sozinho.
+
+Duas regras do componente que não são opcionais: o alfinete vive dentro da câmera, então herda o movimento dela e não tem como sair do lugar, e a escala dele é compensada pelo inverso do zoom, para ele ser marcador de interface e não crescer junto com o mapa.
+
+### Cantos
+
+Toda seção que tem fundo próprio, cor ou foto, leva a classe `tem-fundo` e vira uma laje de canto macio. O raio é fluido em `--radius-secao`, e uma laje entra por baixo da outra pelo tanto do raio, para não sobrar filete de fundo entre elas. O `overflow` recortado é parte da regra: sem ele, foto que sangra passa por cima do canto e o corte reto volta.
 
 ### Movimento
 

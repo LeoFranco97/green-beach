@@ -1,8 +1,8 @@
 # Relatório de QA
 
-Pousada & Hotel Green Beach. Verificação de 10/09/2026, depois da entrada do acervo de drone e do sistema de movimento.
+Pousada & Hotel Green Beach. Verificação de 10/09/2026, depois do mapa animado entrar no lugar da galeria.
 
-**116 de 116 verificações passaram. Nenhuma falha em aberto.**
+**125 de 125 verificações passaram. Nenhuma falha em aberto.**
 
 Os testes não são checklist escrito à mão: são um script que sobe o Chrome, navega na página de verdade, clica no calendário, mexe no seletor de hóspedes, tenta enviar formulário inválido e lê a URL do WhatsApp que sai no fim. Roda com o site no ar:
 
@@ -29,6 +29,12 @@ Sai com código 1 se algo falhar, então serve para travar um deploy quebrado. N
 **As setas de mês do calendário estavam empilhadas.** Faltaram as classes modificadoras no JavaScript, então os dois botões caíram no mesmo ponto e o "próximo mês" cobria o "mês anterior". Na prática dava para avançar mas não para voltar. O teste de teclado não pegou, porque usa PageUp e PageDown; foi preciso um teste que clica nas setas e confere que elas estão em lados opostos da tela. Esse teste agora faz parte da suíte.
 
 **O lightbox estourava a altura da tela.** O `align-items: center` no meio do lightbox fazia a linha crescer até caber a foto inteira, e aí a imagem passava por cima da legenda. Virou `stretch`, com o palco recebendo a altura real da linha. Foi preciso um teste que compara a posição da foto com a da legenda, porque olhar o `object-fit` não pegava isso.
+
+**O mapa nunca animava quando o navegador parava de compor quadros.** Mesmo defeito de sempre, em lugar novo: o gatilho de entrada do mapa era um `IntersectionObserver` puro. Ele ganhou a mesma rede de segurança de três níveis do resto do sistema, agora dentro do próprio `aoAparecer`, o que conserta de uma vez qualquer coisa que passe a usar esse gatilho.
+
+**O contexto escuro invertia as cores dentro do mapa.** A seção usa a classe `.gb-dark`, que troca `--text-inverse` para tinta escura. O rótulo do alfinete e os botões do mapa herdavam isso e escreviam escuro sobre escuro, ou seja, sumiam. O palco do mapa passou a ter tinta própria, porque ele é sempre escuro independente de a seção estar clara ou não.
+
+**O alfinete ficava pequeno demais.** A compensação de escala usava `1 / zoom`, o que mantém o tamanho aparente constante, mas constante em 15px. Marcador de interface precisa de alvo, não de ponto: virou `2,3 / zoom`, que dá 33px na tela em qualquer enquadramento.
 
 **As fotos não apareciam quando o observador não disparava.** O CSS esconde cada bloco até ele entrar na tela, e quem devolve a visibilidade é o `IntersectionObserver`. Existe mais de uma situação real em que ele não dispara: aba em segundo plano, navegador que para de compor quadros, extensão que mexe na rolagem. Nessas, a página ficava em branco. Agora a fonte da verdade é uma medição direta de posição, feita a cada rolagem, e o observador é só o atalho eficiente. Tem ainda um terceiro nível: passados oito segundos, o que sobrou aparece de qualquer jeito. Perder a animação de um bloco é melhor que perder o bloco.
 
@@ -138,8 +144,18 @@ Validação e WhatsApp
   ok   link com datas na URL já chega preenchido
   ok   hóspedes da URL respeitados
   ok   UTMs entram na mensagem
-Galeria
-  ok   lightbox abre pelo botão de fotos
+Mapa de Itapema
+  ok   seção do mapa existe
+  ok   coreografia chega ao fim
+  ok   contorno do estado terminou de se desenhar
+  ok   alfinete aparece
+  ok   alfinete fica dentro do palco
+  ok   alfinete tem tamanho de alvo, e não de ponto
+  ok   botão alterna o enquadramento
+  ok   botão diz para onde vai
+  ok   svg do mapa tem descrição
+Lightbox
+  ok   lightbox abre pela foto da pousada
   ok   lightbox é um dialog modal
   ok   lightbox mostra contador
   ok   seta direita troca a foto
