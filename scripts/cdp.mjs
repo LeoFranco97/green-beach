@@ -120,17 +120,21 @@ export async function avaliar(cdp, sessionId, expressao, { awaitPromise = false 
 
 /**
  * Navega e espera a pagina assentar.
+ *
  * Nao depende de Page.loadEventFired: navegar para a mesma URL nem sempre
  * dispara o evento, e ai o teste inteiro travava. Aqui a espera e por
- * readyState, que e observavel sempre.
+ * readyState mais a presenca de conteudo montado, que e observavel sempre.
+ *
+ * O seletor padrao cobre os dois sites do projeto: o v1, que monta em
+ * #app, e o v2, que monta em #root.
  */
-export async function ir(cdp, sessionId, url, respiro = 350) {
+export async function ir(cdp, sessionId, url, respiro = 350, seletorPronto = '#app main, #root > *') {
   await cdp.enviar('Page.navigate', { url }, sessionId)
 
   const limite = Date.now() + 45000
   for (;;) {
     try {
-      const pronto = await avaliar(cdp, sessionId, 'document.readyState === "complete" && !!document.querySelector("#app main")')
+      const pronto = await avaliar(cdp, sessionId, `document.readyState === "complete" && !!document.querySelector(${JSON.stringify(seletorPronto)})`)
       if (pronto) break
     } catch {
       // A navegacao derruba o contexto de execucao por um instante.

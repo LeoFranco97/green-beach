@@ -1,0 +1,64 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Helvetica Neue Light', Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* --------------------------------------------------------------------------
+   Entrada
+   A barra desce, o conteúdo do hero sobe. Escalonado, para a página chegar
+   como um gesto e não como uma lista de coisas aparecendo.
+   ----------------------------------------------------------------------- */
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fade-down {
+  from { opacity: 0; transform: translateY(-12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Deriva lenta da foto do hero. No lugar de vídeo: o acervo da pousada é de
+   fotografia aérea, e um zoom de 1,5% em 32 segundos dá a mesma sensação de
+   imagem viva sem pesar dois megabytes nem depender de CDN de terceiro. */
+@keyframes deriva {
+  from { transform: scale(1); }
+  to   { transform: scale(1.055); }
+}
+
+.animate-fade-up   { animation: fade-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.animate-fade-down { animation: fade-down 0.7s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.animate-deriva    { animation: deriva 32s linear both; }
+
+.stagger-1 { animation-delay: 0ms; }
+.stagger-2 { animation-delay: 120ms; }
+.stagger-3 { animation-delay: 240ms; }
+.stagger-4 { animation-delay: 360ms; }
+.stagger-5 { animation-delay: 480ms; }
+.stagger-6 { animation-delay: 600ms; }
+
+/* Quem pediu menos movimento recebe a página inteira, parada e legível. */
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-up,
+  .animate-fade-down,
+  .animate-deriva {
+    animation: none;
+  }
+  html { scroll-behavior: auto; }
+}
