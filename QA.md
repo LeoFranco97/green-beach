@@ -24,7 +24,7 @@ Sai com código 1 se algo falhar, então serve para travar um deploy quebrado. N
 
 **O título do hero quebrava em cinco linhas.** O bloco de texto limitava o `h1` junto com o parágrafo. Título e parágrafo passaram a ter medidas de leitura separadas.
 
-**A logo não cabia no cabeçalho.** Medindo o arquivo oficial, o lockup é quase quadrado e só fica legível acima de 135px de altura. A solução que ficou no ar respeita o manual: o lockup inteiro aparece grande sobre a foto do hero e, depois do scroll, o cabeçalho passa a mostrar só a rosácea. Pedir uma versão horizontal ao designer da marca está em `PENDENCIAS.md`.
+**A logo não cabia no cabeçalho.** Medindo o arquivo oficial, o lockup é quase quadrado e só fica legível acima de 135px de altura. A solução que ficou no ar respeita o manual: o lockup inteiro aparece grande sobre a foto do hero e, depois do scroll, o cabeçalho passa a mostrar só a rosácea. Pedir uma versão horizontal ao designer da marca está na lista de pendências, que fica fora deste repositório.
 
 **As setas de mês do calendário estavam empilhadas.** Faltaram as classes modificadoras no JavaScript, então os dois botões caíram no mesmo ponto e o "próximo mês" cobria o "mês anterior". Na prática dava para avançar mas não para voltar. O teste de teclado não pegou, porque usa PageUp e PageDown; foi preciso um teste que clica nas setas e confere que elas estão em lados opostos da tela. Esse teste agora faz parte da suíte.
 

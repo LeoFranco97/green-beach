@@ -19,11 +19,10 @@ green-beach/
 │       └── marca/           logo em WebP nas três versões
 ├── assets-raw/originais/    fotos originais, entram por aqui (não versionadas)
 ├── scripts/                 preparar fotos, gerar OG, capturar telas, QA
-├── pesquisa/                dossiê com as fontes de cada dado
 ├── direcao-de-arte.md       o sistema visual explicado
 ├── direcao-de-movimento.md  o sistema de movimento explicado
-├── QA.md                    relatório dos testes
-└── PENDENCIAS.md            o que ainda precisa vir do cliente
+└── QA.md                    relatório dos testes
+
 ```
 
 ## Rodar
@@ -203,52 +202,52 @@ O mesmo vale para blocos inteiros: `acomodacoes: []` esconde a seção de acomod
 
 ## Publicar
 
-O build gera arquivos estáticos em `site/dist`, que rodam em qualquer hospedagem. O caminho escolhido é a Netlify, porque ela publica repositório privado de graça e refaz o site a cada `git push`.
+Está no ar pelo GitHub Pages.
 
-O `netlify.toml` na raiz já traz tudo: pasta base, comando, diretório de saída, versão do Node, cache e cabeçalhos de segurança. Não há nada para configurar no painel.
+O site não é HTML solto, precisa passar pelo Vite, então o Pages não serve a `main` direto. Ele serve a branch `gh-pages`, que tem só o resultado do build. Código fonte e site publicado nunca se misturam no mesmo histórico.
 
-### Passo 1: conectar o repositório
+Para republicar depois de mudar qualquer coisa:
 
-Na Netlify, **Add new site**, **Import an existing project**, GitHub, `LeoFranco97/green-beach`. Ela lê o `netlify.toml` e publica sozinha num endereço provisório do tipo `nome-qualquer.netlify.app`. Guarde esse endereço, ele entra no DNS.
+```bash
+bash scripts/publicar.sh
+```
 
-### Passo 2: registrar o domínio no painel
+O script constrói, troca o conteúdo da `gh-pages` inteiro (arquivo que você apagou do site some do ar, em vez de ficar órfão) e envia. Leva uns 30 segundos, e o Pages publica em mais um minuto.
 
-Em **Domain management**, **Add a domain**, digite `greenbeach.com.br`. A Netlify adiciona o `www` junto e pergunta qual é o principal. **O principal é o apex, `greenbeach.com.br`**, para bater com a URL canônica do site. O `www` fica como redirecionamento.
+### Domínio
 
-### Passo 3: apontar o DNS na Hostinger
+O endereço é `greenbeach.com.br`, no apex, sem `www`. Quem digitar `www` é redirecionado.
 
-O domínio é da Hostinger e usa os servidores de nome dela (`athena.dns-parking.com` e `apollo.dns-parking.com`), então a zona se edita no hPanel, em **Domínios**, **Zona DNS**.
+O arquivo `site/public/CNAME` é o que informa o domínio ao Pages. Ele vai para a raiz do `dist` porque tudo em `public/` é copiado sem transformação. **Se você apagar esse arquivo, o site volta para o endereço `github.io` no próximo deploy.**
+
+O DNS fica na Hostinger, em Domínios, Zona DNS:
 
 | Tipo | Nome | Valor | TTL |
 | --- | --- | --- | --- |
-| `A` | `@` | `75.2.60.5` | `3600` |
-| `CNAME` | `www` | `nome-qualquer.netlify.app` | `3600` |
+| `A` | `@` | `185.199.108.153` | `3600` |
+| `A` | `@` | `185.199.109.153` | `3600` |
+| `A` | `@` | `185.199.110.153` | `3600` |
+| `A` | `@` | `185.199.111.153` | `3600` |
+| `CNAME` | `www` | `leofranco97.github.io` | `3600` |
 
-O `75.2.60.5` é o balanceador da Netlify e é fixo. O valor do `CNAME` é o endereço provisório do passo 1.
+Os quatro `A` são os servidores do Pages e existem para redundância: se um cair, os outros respondem. São quatro registros com o mesmo nome `@`, e isso é correto, não é duplicação.
 
-Se a Hostinger já tiver criado registros `A` em `@` ou `CNAME` em `www` apontando para a página de estacionamento dela, apague antes. Dois registros concorrentes para o mesmo nome fazem o site responder de forma intermitente, e isso é difícil de diagnosticar depois. Não mexa em `MX`, `TXT` ou `NS`.
-
-A ordem importa: primeiro o domínio no painel da Netlify, depois o DNS. Invertido, a emissão do certificado falha e o site fica marcado como não seguro até você pedir de novo em **HTTPS**, **Verify DNS configuration**.
-
-### Passo 4: conferir
+Conferir depois que propagar:
 
 ```bash
-dig +short A greenbeach.com.br        # tem que responder 75.2.60.5
-curl -sI https://greenbeach.com.br    # tem que dar 200 e certificado válido
-node scripts/qa.mjs https://greenbeach.com.br
+dig +short A greenbeach.com.br
+curl -sI https://greenbeach.com.br | head -1
 ```
 
-A propagação leva de minutos a algumas horas. Com TTL de 3600, um erro custa no máximo uma hora para corrigir, e por isso o valor está baixo. Depois que o site estiver no ar e estável, pode subir para `14400`.
+O certificado é emitido pelo próprio GitHub e leva alguns minutos depois que o DNS responde. Enquanto isso o site pode aparecer como não seguro. Se demorar, em **Settings**, **Pages**, desmarque e marque de novo **Enforce HTTPS**.
 
 ### Outros caminhos
 
-**Vercel**: funciona igual, mas o `CNAME` do `www` é único por projeto e só aparece depois que você cria o domínio lá, então não dá para adiantar o valor. O `netlify.toml` é ignorado: configure base `site`, comando `npm run build`, saída `dist`.
+**Hospedagem comum por FTP**, inclusive a da Hostinger: `npm run build` e suba o conteúdo de `site/dist` para `public_html`. Não mexe no DNS, mas perde a publicação automática.
 
-**Hospedagem comum por FTP**, inclusive a da própria Hostinger: suba o conteúdo de `site/dist` para `public_html`. Não precisa mexer no DNS, porque o domínio já aponta para lá. Em compensação você perde a publicação automática a cada commit e o CDN.
+**Netlify ou Vercel**: base `site`, comando `npm run build`, saída `dist`. As variáveis `VITE_*` entram no painel do serviço.
 
-**GitHub Pages**: só com repositório público, e em subpasta (`usuario.github.io/repositorio`) é preciso ajustar `base` em `site/vite.config.js` para `'/repositorio/'`. Em domínio próprio, deixe `'/'`.
-
-Antes de publicar, confira `PENDENCIAS.md`.
+A lista do que ainda precisa vir do cliente, e o dossiê com a fonte de cada dado do site, ficam fora deste repositório porque ele é público. Estão na pasta local do projeto, em `PENDENCIAS.md` e `pesquisa/`.
 
 ## Verificar
 
