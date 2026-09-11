@@ -17,7 +17,7 @@ green-beach/
 │   └── public/
 │       ├── fotos/           fotos otimizadas, geradas por script
 │       └── marca/           logo em WebP nas três versões
-├── assets-raw/originais/    fotos originais, entram por aqui
+├── assets-raw/originais/    fotos originais, entram por aqui (não versionadas)
 ├── scripts/                 preparar fotos, gerar OG, capturar telas, QA
 ├── pesquisa/                dossiê com as fontes de cada dado
 ├── direcao-de-arte.md       o sistema visual explicado
@@ -101,7 +101,7 @@ Não precisa de chave de API. O `Place ID` faz o botão de rota cair no pino cer
 
 As fotos otimizadas são geradas, não commitadas à mão.
 
-1. Coloque o arquivo original em `assets-raw/originais/` com nome semântico: `piscina.jpg`, `apartamento-casal.jpg`, `cafe-da-manha.jpg`
+1. Coloque o arquivo original em `assets-raw/originais/` com nome semântico: `piscina.jpg`, `apartamento-casal.jpg`, `cafe-da-manha.jpg`. Essa pasta não é versionada, porque as originais pesam quase 90 MB. As versões otimizadas que o site usa são, então clonar e rodar funciona sem baixar nada. Detalhes em `assets-raw/LEIA-ME.md`.
 2. Rode o script:
 
 ```bash
