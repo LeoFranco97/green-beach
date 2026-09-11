@@ -6,5 +6,9 @@ dist
 # Capturas sao geradas por script, nao precisam de versao
 capturas/
 
-# Originais pesados de drone: ficam em green-decor/fotos itapema
+# Originais pesados: 85 MB de aereas de drone mais a foto do cafe.
+# O acervo completo fica em green-decor/fotos itapema, e as versoes
+# otimizadas que o site usa estao versionadas em site/public/fotos.
+assets-raw/originais/
 assets-raw/instagram/
+assets-raw/brasil-uf.json
