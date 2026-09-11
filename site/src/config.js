@@ -26,9 +26,10 @@ export const config = {
 
   /**
    * Dominio final, sem barra no fim. Usado em canonical, OG e sitemap.
-   * PENDENTE: o dominio ainda nao foi registrado. Ver README.
+   * Registrado em 11/09/2026 no registro.br, no CNPJ do grupo, com DNS na
+   * Hostinger. O apex e o endereco canonico: www redireciona para ele.
    */
-  siteUrl: read('VITE_SITE_URL', 'https://www.pousadagreenbeach.com.br'),
+  siteUrl: read('VITE_SITE_URL', 'https://greenbeach.com.br'),
 
   /** ID de medicao do Google Analytics 4 (G-XXXXXXXXXX). Vazio desliga o GA. */
   gaMeasurementId: read('VITE_GA_MEASUREMENT_ID', ''),

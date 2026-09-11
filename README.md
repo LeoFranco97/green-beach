@@ -56,7 +56,7 @@ Formato E.164 sem espaço, parêntese ou traço: `55` + DDD + número. O número
 ### Domínio
 
 ```
-VITE_SITE_URL=https://www.pousadagreenbeach.com.br
+VITE_SITE_URL=https://greenbeach.com.br
 ```
 
 Sem barra no fim. Ele alimenta a URL canônica, o Open Graph, o `sitemap.xml` e os dados estruturados. Depois de definir o domínio real, atualize também:
@@ -65,7 +65,7 @@ Sem barra no fim. Ele alimenta a URL canônica, o Open Graph, o `sitemap.xml` e 
 - `site/public/sitemap.xml`
 - `site/public/robots.txt`
 
-O domínio ainda não foi registrado. Ver `PENDENCIAS.md`.
+O domínio `greenbeach.com.br` foi registrado em 11/09/2026 no registro.br, no CNPJ do grupo, com DNS na Hostinger. O endereço canônico é o apex, sem `www`: quem digitar `www.greenbeach.com.br` é redirecionado.
 
 ### Analytics
 
@@ -203,20 +203,57 @@ O mesmo vale para blocos inteiros: `acomodacoes: []` esconde a seção de acomod
 
 ## Publicar
 
-O build gera arquivos estáticos em `site/dist`. Serve em qualquer hospedagem.
+O build gera arquivos estáticos em `site/dist`, que rodam em qualquer hospedagem. O caminho escolhido é a Netlify, porque ela publica repositório privado de graça e refaz o site a cada `git push`.
 
-**Netlify ou Vercel**: apontar para a pasta `site`, comando `npm run build`, diretório de publicação `dist`. As variáveis `VITE_*` entram no painel do serviço.
+O `netlify.toml` na raiz já traz tudo: pasta base, comando, diretório de saída, versão do Node, cache e cabeçalhos de segurança. Não há nada para configurar no painel.
 
-**GitHub Pages**: se publicar em subpasta (`usuario.github.io/repositorio`), ajuste `base` em `site/vite.config.js` para `'/repositorio/'`. Em domínio próprio, deixe `'/'`.
+### Passo 1: conectar o repositório
 
-**Hospedagem comum por FTP**: suba o conteúdo de `site/dist` para a raiz do site.
+Na Netlify, **Add new site**, **Import an existing project**, GitHub, `LeoFranco97/green-beach`. Ela lê o `netlify.toml` e publica sozinha num endereço provisório do tipo `nome-qualquer.netlify.app`. Guarde esse endereço, ele entra no DNS.
+
+### Passo 2: registrar o domínio no painel
+
+Em **Domain management**, **Add a domain**, digite `greenbeach.com.br`. A Netlify adiciona o `www` junto e pergunta qual é o principal. **O principal é o apex, `greenbeach.com.br`**, para bater com a URL canônica do site. O `www` fica como redirecionamento.
+
+### Passo 3: apontar o DNS na Hostinger
+
+O domínio é da Hostinger e usa os servidores de nome dela (`athena.dns-parking.com` e `apollo.dns-parking.com`), então a zona se edita no hPanel, em **Domínios**, **Zona DNS**.
+
+| Tipo | Nome | Valor | TTL |
+| --- | --- | --- | --- |
+| `A` | `@` | `75.2.60.5` | `3600` |
+| `CNAME` | `www` | `nome-qualquer.netlify.app` | `3600` |
+
+O `75.2.60.5` é o balanceador da Netlify e é fixo. O valor do `CNAME` é o endereço provisório do passo 1.
+
+Se a Hostinger já tiver criado registros `A` em `@` ou `CNAME` em `www` apontando para a página de estacionamento dela, apague antes. Dois registros concorrentes para o mesmo nome fazem o site responder de forma intermitente, e isso é difícil de diagnosticar depois. Não mexa em `MX`, `TXT` ou `NS`.
+
+A ordem importa: primeiro o domínio no painel da Netlify, depois o DNS. Invertido, a emissão do certificado falha e o site fica marcado como não seguro até você pedir de novo em **HTTPS**, **Verify DNS configuration**.
+
+### Passo 4: conferir
+
+```bash
+dig +short A greenbeach.com.br        # tem que responder 75.2.60.5
+curl -sI https://greenbeach.com.br    # tem que dar 200 e certificado válido
+node scripts/qa.mjs https://greenbeach.com.br
+```
+
+A propagação leva de minutos a algumas horas. Com TTL de 3600, um erro custa no máximo uma hora para corrigir, e por isso o valor está baixo. Depois que o site estiver no ar e estável, pode subir para `14400`.
+
+### Outros caminhos
+
+**Vercel**: funciona igual, mas o `CNAME` do `www` é único por projeto e só aparece depois que você cria o domínio lá, então não dá para adiantar o valor. O `netlify.toml` é ignorado: configure base `site`, comando `npm run build`, saída `dist`.
+
+**Hospedagem comum por FTP**, inclusive a da própria Hostinger: suba o conteúdo de `site/dist` para `public_html`. Não precisa mexer no DNS, porque o domínio já aponta para lá. Em compensação você perde a publicação automática a cada commit e o CDN.
+
+**GitHub Pages**: só com repositório público, e em subpasta (`usuario.github.io/repositorio`) é preciso ajustar `base` em `site/vite.config.js` para `'/repositorio/'`. Em domínio próprio, deixe `'/'`.
 
 Antes de publicar, confira `PENDENCIAS.md`.
 
 ## Verificar
 
 ```bash
-node scripts/qa.mjs          # 116 verificações no fluxo de reserva, com o site rodando
+node scripts/qa.mjs          # 130 verificações no fluxo de reserva, com o site rodando
 node scripts/capturar.mjs    # a página inteira em 5 larguras, em ./capturas
 node scripts/provas.mjs      # os estados interativos, em ./capturas/provas
 ```

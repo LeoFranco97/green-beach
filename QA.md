@@ -226,7 +226,7 @@ node scripts/qa.mjs
 Para apontar para outra URL, por exemplo o site já publicado:
 
 ```bash
-node scripts/qa.mjs https://www.pousadagreenbeach.com.br
+node scripts/qa.mjs https://greenbeach.com.br
 ```
 
 Para gerar as capturas em cinco larguras:
