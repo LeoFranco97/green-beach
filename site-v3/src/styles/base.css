@@ -1,0 +1,264 @@
+/* ==========================================================================
+   BASE
+   Reset, primitivas de layout e tipografia padrão.
+   Tudo aqui lê token e não declara cor nem corpo próprio.
+   ========================================================================== */
+
+*,
+*::before,
+*::after { box-sizing: border-box; }
+
+* { margin: 0; }
+
+/* O navegador aplica display:none no [hidden], mas qualquer regra de
+   componente com display vence por especificidade. Na v1 isso custou uma
+   barra fixa que nunca escondia. */
+[hidden] { display: none !important; }
+
+html {
+  /* clip e não hidden. hidden transforma o body em contêiner de rolagem, e
+     aí animation-timeline: view() passa a medir algo que nunca rola. Foi o
+     bug que apagou todo o movimento da v1 por uma tarde inteira. */
+  overflow-x: clip;
+  scroll-behavior: smooth;
+  /* Compensa o cabeçalho fixo quando o link de âncora rola até a seção. */
+  scroll-padding-top: var(--altura-cabecalho-solido);
+  -webkit-text-size-adjust: 100%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}
+
+body {
+  overflow-x: clip;
+  background: var(--papel);
+  color: var(--tinta);
+  font-family: var(--fonte-texto);
+  font-size: var(--fs-corpo);
+  line-height: var(--el-corpo);
+  font-weight: var(--peso-texto);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+img,
+picture,
+svg,
+video {
+  display: block;
+  max-width: 100%;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+/* ==========================================================================
+   TIPOGRAFIA
+   ========================================================================== */
+
+h1, h2, h3 {
+  font-family: var(--fonte-display);
+  font-weight: var(--peso-display);
+  color: var(--tinta-titulo);
+  /* Serifada de contraste alto pede o desligamento da ligadura automática
+     em caixa alta, senão "ffi" cola em nome próprio. */
+  font-variant-ligatures: common-ligatures;
+  text-wrap: balance;
+}
+
+h1 {
+  font-size: var(--fs-display);
+  line-height: var(--el-display);
+  letter-spacing: var(--ee-display);
+  max-width: var(--medida-display);
+}
+
+h2 {
+  font-size: var(--fs-h2);
+  line-height: var(--el-h2);
+  letter-spacing: var(--ee-h2);
+  max-width: var(--medida-h2);
+}
+
+/* H3 é Source Sans 600, não serifada. Decisão da direção de arte: nenhuma
+   serifada aparece abaixo de 30px neste sistema, porque a Playfair tem
+   contraste de traço 4,8:1 e a haste fina some. */
+h3 {
+  font-family: var(--fonte-texto);
+  font-weight: var(--peso-forte);
+  font-size: var(--fs-h3);
+  line-height: var(--el-h3);
+  letter-spacing: var(--ee-h3);
+}
+
+p { max-width: var(--medida-corpo); }
+
+a { color: var(--bronze); }
+
+/* O olho de cada seção. Caixa alta SEMPRE com entreletra aberta: sem isso
+   a caixa alta lê como grito, com isso lê como etiqueta. */
+.olho {
+  display: block;
+  font-family: var(--fonte-texto);
+  font-size: var(--fs-olho);
+  font-weight: var(--peso-forte);
+  line-height: var(--el-olho);
+  letter-spacing: var(--ee-olho);
+  text-transform: uppercase;
+  color: var(--bronze);
+  margin-bottom: var(--respiro-titulo);
+}
+
+/* A linha itálica do display. É a assinatura da página e só aparece uma vez
+   por bloco, sempre como linha inteira, nunca como palavra solta no meio. */
+.italica {
+  display: block;
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: var(--ee-display-italico);
+  color: var(--bronze-display);
+}
+
+.lead {
+  font-size: var(--fs-lead);
+  line-height: var(--el-lead);
+  max-width: var(--medida-lead);
+  color: var(--tinta);
+}
+
+.apoio {
+  font-size: var(--fs-apoio);
+  line-height: var(--el-apoio);
+  letter-spacing: var(--ee-apoio);
+  max-width: var(--medida-apoio);
+  color: var(--tinta-suave);
+}
+
+/* ==========================================================================
+   LAYOUT
+   ========================================================================== */
+
+.envelope {
+  width: 100%;
+  max-width: var(--medida-pagina);
+  margin-inline: auto;
+  padding-inline: var(--margem-lateral);
+}
+
+/* Sangria: leva o filho até a borda da janela de dentro do envelope.
+   Margem negativa e nunca translate: translate move o desenho e deixa a
+   caixa de layout no lugar, o que estourou o documento em 840px na v1. */
+.sangra {
+  --sangria: max(var(--margem-lateral), (100vw - var(--medida-pagina)) / 2);
+  margin-inline: calc(-1 * var(--sangria));
+  width: calc(100% + 2 * var(--sangria));
+  max-width: none;
+}
+
+.secao {
+  padding-block: var(--respiro-secao);
+}
+
+/* A pausa: usada entre dois blocos de peso, para a página respirar. */
+.secao--pausa { padding-block: var(--respiro-pausa); }
+
+.secao--areia { background: var(--papel-areia); }
+
+/* A faixa de contraste, UMA na página inteira. O contexto escuro troca os
+   tokens semânticos, então nada dentro precisa saber que está no escuro. */
+.secao--verde {
+  background: var(--verde);
+}
+
+.cabeca {
+  margin-bottom: var(--respiro-bloco);
+}
+
+.cabeca > p { margin-top: var(--respiro-titulo); }
+
+/* ==========================================================================
+   CONTROLES
+   ========================================================================== */
+
+.botao {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--passo-2xs);
+  min-height: var(--alvo-toque);
+  padding: 0 var(--passo-md);
+  border: 1px solid transparent;
+  border-radius: var(--raio-botao);
+  font-family: var(--fonte-texto);
+  font-size: var(--fs-apoio);
+  font-weight: var(--peso-forte);
+  letter-spacing: var(--ee-botao);
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color var(--dur-base) var(--curva-padrao),
+              border-color var(--dur-base) var(--curva-padrao),
+              color var(--dur-base) var(--curva-padrao);
+}
+
+/* O dourado do manual como SUPERFÍCIE, com tinta escura por cima: 7,56:1.
+   Dourado como texto sobre fundo claro continua proibido, dá 1,75:1.
+
+   O alias --primario existe porque o componente de busca vem da v1 e fala
+   nesse vocabulário. Traduzir aqui é melhor que editar o componente: o CSS
+   é o lugar certo para decidir que "primário" quer dizer dourado. */
+.botao--ouro,
+.botao--primario {
+  background: var(--ouro);
+  color: var(--tinta-sobre-ouro);
+}
+.botao--ouro:hover,
+.botao--primario:hover { background: var(--ouro-hover); }
+
+.botao--vazado {
+  background: transparent;
+  border-color: currentColor;
+  color: var(--tinta-titulo);
+}
+.botao--vazado:hover { background: rgb(var(--veu-rgb) / 0.06); }
+
+/* ==========================================================================
+   ACESSO
+   ========================================================================== */
+
+:where(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline: var(--foco-espessura) solid var(--foco);
+  outline-offset: var(--foco-afastamento);
+}
+
+.pular {
+  position: absolute;
+  left: var(--margem-lateral);
+  top: 0;
+  z-index: var(--z-aviso);
+  transform: translateY(-120%);
+  background: var(--papel);
+  color: var(--tinta-titulo);
+  padding: var(--passo-xs) var(--passo-md);
+  border-radius: 0 0 var(--raio-botao) var(--raio-botao);
+  text-decoration: none;
+  font-weight: var(--peso-forte);
+  transition: transform var(--dur-base) var(--curva-padrao);
+}
+.pular:focus-visible { transform: translateY(0); }
+
+.so-leitor {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}

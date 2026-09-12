@@ -1,0 +1,178 @@
+/* ==========================================================================
+   HERO
+   Anatomia do Woolmers, com uma troca: onde ele tem dois botões que levam
+   para a bilheteria, aqui vive o formulário inteiro. Não existe motor de
+   reserva, então o formulário é o herói e não um atalho para ele.
+   ========================================================================== */
+
+.hero {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  align-items: flex-end;
+  min-height: var(--altura-hero);
+  /* Não é tela cheia, e isso é deliberado: 820px no Woolmers. Hero de 100vh
+     esconde que existe página embaixo, e aqui a página é o argumento. */
+  color: var(--papel);
+}
+
+/* --------------------------------------------------------------------------
+   A foto e os três véus
+   -------------------------------------------------------------------------- */
+
+.hero__fundo {
+  position: absolute;
+  inset: 0;
+  z-index: var(--z-midia);
+  overflow: hidden;
+}
+
+.hero__fundo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* Recorte à esquerda. A escolha não é estética: leva a água funda para
+     debaixo da coluna de texto, e é ela que carrega o contraste sem véu
+     pesado. Ver a nota do véu em tokens.css. */
+  object-position: 0% 50%;
+  /* Nenhum filter. Foto com brightness() por cima denuncia o truque e foi
+     exatamente a reclamação que matou a primeira versão desta faixa. */
+}
+
+.hero__veu {
+  position: absolute;
+  inset: 0;
+  z-index: var(--z-veu);
+  pointer-events: none;
+}
+
+.hero__veu--lateral { background: var(--veu-hero-lateral); }
+.hero__veu--topo    { background: var(--veu-hero-topo); }
+.hero__veu--base    { background: var(--veu-hero-base); }
+
+/* --------------------------------------------------------------------------
+   O conteúdo
+   -------------------------------------------------------------------------- */
+
+.hero__interior {
+  position: relative;
+  z-index: var(--z-conteudo);
+  width: 100%;
+  padding-block: var(--altura-cabecalho) var(--passo-3xl);
+}
+
+.hero__conteudo {
+  /* 57% e não 60%: é a largura que "A praia de Itapema" exige em Playfair
+     a 80px, e foi nela que o véu foi calibrado. Mexer aqui invalida a
+     medição de contraste. */
+  max-width: min(57%, 46rem);
+}
+
+.hero .olho { color: var(--papel); opacity: 0.92; }
+
+.hero h1 {
+  color: var(--papel);
+  max-width: none;
+  margin-bottom: var(--respiro-titulo);
+  /* A quebra vem do dado, então o balanceamento automático não tem o que
+     fazer aqui e só atrapalha se a linha encostar na borda. */
+  text-wrap: nowrap;
+}
+
+/* Cada linha é um bloco. Sem isso os spans correm em sequência e "Itapema"
+   cola em "e uma casa", que foi exatamente o que apareceu na primeira
+   captura. */
+.hero__linha { display: block; }
+
+/* A terceira linha. No Woolmers é Playfair itálico bronze sobre Libre
+   Baskerville romana branca. Aqui as duas são Playfair, então o itálico e a
+   cor é que fazem todo o trabalho de separar. */
+.hero h1 .italica { color: var(--bronze-sobre-foto); }
+
+.hero__lead {
+  color: var(--papel);
+  opacity: 0.88;
+  margin-bottom: var(--passo-xl);
+}
+
+.hero__chamada {
+  display: block;
+  font-size: var(--fs-apoio);
+  font-weight: var(--peso-forte);
+  letter-spacing: var(--ee-olho);
+  text-transform: uppercase;
+  color: var(--papel);
+  opacity: 0.78;
+  margin-bottom: var(--passo-sm);
+}
+
+/* --------------------------------------------------------------------------
+   Movimento
+   Um fade up, uma vez, no carregamento. É o único movimento do hero, e é
+   o que o Woolmers faz: 0,6s ease-out e acabou.
+   -------------------------------------------------------------------------- */
+
+.js .hero__entra {
+  opacity: 0;
+  transform: translateY(var(--deslocamento-entrada));
+}
+
+.js .hero.is-pronto .hero__entra {
+  opacity: 1;
+  transform: none;
+  transition: opacity var(--dur-entrada) var(--curva-saida),
+              transform var(--dur-entrada) var(--curva-saida);
+}
+
+/* A escada: o olho entra, depois o título, depois o apoio, depois o
+   formulário. Quatro degraus, o teto declarado na direção de arte. */
+.js .hero.is-pronto .hero__entra:nth-child(2) { transition-delay: calc(var(--atraso-escada) * 1); }
+.js .hero.is-pronto .hero__entra:nth-child(3) { transition-delay: calc(var(--atraso-escada) * 2); }
+.js .hero.is-pronto .hero__entra:nth-child(4) { transition-delay: calc(var(--atraso-escada) * 3); }
+
+@media (prefers-reduced-motion: reduce) {
+  .js .hero__entra { opacity: 1; transform: none; }
+  .js .hero.is-pronto .hero__entra { transition: none; }
+}
+
+/* --------------------------------------------------------------------------
+   Celular: muda de estrutura, não só de tamanho.
+   No pior pixel da melhor aérea, texto sobre foto dá 1,87:1 na zona onde o
+   hero escreve. No desktop o véu resolve. Num retângulo de 375px, véu mais
+   formulário mais título empilhados viram papa, então as camadas se separam:
+   foto em cima, texto e formulário embaixo sobre areia.
+   -------------------------------------------------------------------------- */
+
+@media (max-width: 47.99em) {
+  .hero {
+    display: block;
+    min-height: 0;
+    color: var(--tinta);
+    background: var(--papel-areia);
+  }
+
+  .hero__fundo {
+    position: relative;
+    inset: auto;
+    aspect-ratio: var(--prop-hero-mobile);
+  }
+
+  /* Sem coluna de texto por cima, o véu lateral perde a função. Só ficam o
+     de topo, contra céu estourado, e um de base bem fraco, para a foto
+     encostar no bloco de texto sem corte duro. */
+  .hero__veu--lateral { display: none; }
+
+  .hero__interior {
+    padding-block: var(--passo-xl) var(--passo-2xl);
+  }
+
+  .hero__conteudo { max-width: none; }
+
+  .hero .olho,
+  .hero h1 { color: var(--tinta-titulo); }
+  .hero .olho { color: var(--bronze); opacity: 1; }
+  .hero h1 .italica { color: var(--bronze-display); }
+
+  .hero__lead,
+  .hero__chamada { color: var(--tinta); opacity: 1; }
+}

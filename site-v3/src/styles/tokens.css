@@ -1,0 +1,632 @@
+/* ============================================================================
+   POUSADA & HOTEL GREEN BEACH  |  Grupo Green
+   tokens.css  |  v3  |  set/2026
+
+   Só tokens. Nenhum seletor de componente, nenhum reset, nenhuma regra de
+   layout. Se um componente precisar de um valor que não está aqui, o valor
+   entra aqui com nome semântico. Hex solto dentro de componente é o começo
+   da morte do sistema.
+
+   Base normativa: Manual de Marca do Grupo Green (#3a452b, #242d21, #d3b9a4,
+   #e5b64e, Playfair Display + Source Sans, proibição explícita do preto).
+   Referência de layout: Woolmers Estate (woolmers.com.au).
+   As decisões e as contas estão em green-beach/direcao-de-arte-v3.md
+
+   Cada comentário aqui responde POR QUE a linha existe, não o que ela faz.
+   Todo contraste citado foi calculado em WCAG 2.1. Toda métrica de fonte foi
+   medida no Chrome com a fonte real carregada, não estimada.
+   ========================================================================= */
+
+:root {
+
+  /* =====================================================================
+     1. PRIMITIVAS
+     Não usar direto em componente. Existem só para alimentar a camada
+     semântica. Se você escrever var(--_verde-700) num botão, o sistema
+     morre, porque o contexto escuro deixa de funcionar por troca de token.
+     ================================================================== */
+
+  /* --- verdes -------------------------------------------------------- */
+  /* Os três primeiros são valores literais do manual. O -900 é extensão e
+     existe por um motivo só: o manual proíbe preto, e véu de foto precisa
+     de um escuro mais profundo que o #242d21 para não lavar a imagem. */
+  --_verde-900: #141A12;   /* EXTENSÃO: véu de foto, e nada além disso */
+  --_verde-800: #242D21;   /* MANUAL: verde quase preto */
+  --_verde-700: #3A452B;   /* MANUAL: oliva institucional */
+  --_verde-600: #4A563B;   /* EXTENSÃO: hover de superfície escura */
+  --_verde-300: #A8B199;   /* EXTENSÃO: 4,56:1 sobre o -700, borda no escuro */
+
+  /* --- papéis --------------------------------------------------------- */
+  /* Todos são tintos do MESMO matiz do #d3b9a4 do manual, hsl(26,8 / 34,8%
+     / 73,5%). Derivar em vez de inventar é o que faz creme, areia e nude
+     pertencerem à mesma família sem extrapolar o manual. */
+  --_papel-000: #FFFFFF;   /* só campo de formulário. Ver --papel-campo */
+  --_papel-050: #FAF6F2;   /* L* 0,9265. Um passo mais quente que o #FAF8F5
+                              do Woolmers, porque o nosso nude é rosado */
+  --_papel-100: #F1E7DF;   /* L* 0,8118. Seção alternada */
+  --_papel-200: #E8DCCE;   /* filete decorativo. 1,26:1, não carrega texto */
+  --_papel-500: #D3B9A4;   /* MANUAL: nude. Vira TEXTO no contexto escuro */
+
+  /* --- a escada do dourado ------------------------------------------- */
+  /* Um matiz só, 41,3 graus, que é o matiz exato do #e5b64e do manual.
+     Quatro valores, cada um com um piso de contraste declarado. O bronze
+     #B89E6C do Woolmers dá 2,43:1 sobre o papel dele e reprova até no
+     critério de texto grande, que é 3:1. Estes passam. */
+  --_ouro-500: #E5B64E;    /* MANUAL. 1,75:1 sobre papel: SUPERFÍCIE no
+                              claro, TINTA no escuro. Nunca o contrário */
+  --_ouro-600: #D3A238;    /* hover do botão dourado */
+  --_ouro-700: #8B784E;    /* bronze de DISPLAY. 3,99:1 papel, 3,52:1 areia.
+                              Só de 28px para cima */
+  --_ouro-800: #75633B;    /* bronze de TEXTO. 5,42:1 papel, 4,78:1 areia.
+                              Calibrado no fundo mais escuro do contexto
+                              claro, para não quebrar ao trocar de seção */
+  --_ouro-900: #5E4F2F;    /* hover do bronze de texto, 7,2:1 sobre papel */
+
+  /* --- tintas -------------------------------------------------------- */
+  /* Derivadas do verde, nunca cinza puro, nunca preto (proibição do manual).
+     Curiosidade que fecha o argumento da paleta: a tinta marrom do Woolmers
+     (#4A3E36) tem L* 0,0517 e o oliva do manual tem L* 0,0533. Diferença de
+     3%. Trocar uma pela outra muda o matiz e não muda a leitura. */
+  --_tinta-900: #242D21;   /* MANUAL. 13,26:1 sobre papel */
+  --_tinta-700: #3A452B;   /* MANUAL. 9,45:1 sobre papel, praticamente o
+                              mesmo 9,74:1 da tinta da referência */
+  --_tinta-500: #5C6553;   /* EXTENSÃO. 5,67:1 papel, 5,01:1 areia */
+  --_tinta-borda: #7E6F5B; /* EXTENSÃO. 4,53:1 papel, 4,00:1 areia. Sobe do
+                              #8C7C64 da v1, que dava só 3,33:1 na areia */
+  --_tinta-clara: #F4EFE6; /* 8,87:1 sobre oliva, 12,45:1 sobre verde fundo */
+
+  /* --- cor de sistema ------------------------------------------------ */
+  /* EXTENSÃO: o manual não prevê cor de erro nem de acerto. Escolhi um
+     terracota e um verde mar dessaturados, os dois de FORA da paleta
+     institucional de propósito, para ninguém confundir "campo validado"
+     com "cor da marca". Vermelho puro de alerta está proibido nesta marca. */
+  --_erro-700:  #8E3324;   /* 7,37:1 papel, 6,51:1 areia */
+  --_erro-050:  #FBEDE9;
+  --_ok-700:    #26604A;   /* 6,84:1 papel, 6,04:1 areia */
+  --_ok-050:    #EAF3ED;
+
+
+  /* =====================================================================
+     2. COR SEMÂNTICA, CONTEXTO CLARO
+     Este é o padrão da página. O contexto escuro, lá embaixo, só troca
+     estes mesmos nomes, e é por isso que componente nenhum precisa de
+     variante própria.
+     ================================================================== */
+
+  --papel:            var(--_papel-050);
+  --papel-areia:      var(--_papel-100);  /* no máximo duas seções assim */
+  --papel-campo:      var(--_papel-000);  /* branco puro só aqui. A diferença
+                                             de 1,08:1 marca o campo sem
+                                             precisar de sombra */
+  --filete:           var(--_papel-200);  /* decorativo, 1px, sem informação */
+  --filete-forte:     var(--_tinta-borda);/* borda de campo e botão fantasma */
+
+  --tinta-titulo:     var(--_tinta-900);  /* 13,26:1 papel | 11,71:1 areia */
+  --tinta:            var(--_tinta-700);  /*  9,45:1 papel |  8,34:1 areia */
+  --tinta-suave:      var(--_tinta-500);  /*  5,67:1 papel |  5,01:1 areia */
+
+  --bronze:           var(--_ouro-800);   /* texto, link, olho, número */
+  --bronze-hover:     var(--_ouro-900);
+  --bronze-display:   var(--_ouro-700);   /* SÓ a linha itálica do display e
+                                             títulos de 28px para cima, e SÓ
+                                             sobre papel. Abaixo disso reprova */
+  --bronze-sobre-foto: var(--_ouro-500);  /* a MESMA linha itálica, quando ela
+                                             está sobre foto com véu, troca
+                                             para o dourado do manual. O
+                                             #8B784E sobre o véu dá 4,12:1 e
+                                             fica barrento; o #E5B64E dá
+                                             9,38:1 e é o gesto certo. Um
+                                             bronze escuro em cima de fundo
+                                             escuro é contradição */
+  --ouro:             var(--_ouro-500);   /* SUPERFÍCIE: preenchimento de
+                                             botão, fio de 1 a 2px, ícone
+                                             grande. NUNCA texto no claro */
+  --ouro-hover:       var(--_ouro-600);
+  --tinta-sobre-ouro: var(--_tinta-900);  /* 7,56:1. O rótulo do botão dourado
+                                             é escuro. Branco ali dá 1,89:1 e
+                                             é o erro clássico de site de
+                                             hotel */
+
+  --verde:            var(--_verde-700);  /* a faixa de contraste, UMA na
+                                             página inteira */
+  --verde-fundo:      var(--_verde-800);  /* o rodapé */
+  --verde-veu:        var(--_verde-900);  /* só véu de foto */
+
+  --foco:             var(--_verde-700);  /* 9,45:1 sobre papel */
+  --foco-espessura:   2px;
+  --foco-afastamento: 3px;
+
+  --erro:             var(--_erro-700);
+  --erro-fundo:       var(--_erro-050);
+  --ok:               var(--_ok-700);
+  --ok-fundo:         var(--_ok-050);
+
+  --selecao-fundo:    var(--_papel-200);
+  --selecao-tinta:    var(--_tinta-900);
+
+
+  /* =====================================================================
+     3. VÉU SOBRE FOTO
+     Medido, não estimado. Percorri as 16 fotos de site/public/fotos e
+     calculei o percentil 90 de luminância na caixa de texto do hero (48%
+     esquerdos, faixa vertical de 34% a 90%). Para --tinta-clara carregar
+     4,5:1, o fundo tem que ficar abaixo de L* 0,1537. A foto mais clara do
+     acervo (itapema-guarda-sois, p90 0,663) exige alfa 0,55.
+
+     Por isso --veu-minimo é 0,55 e não um número de gosto.
+
+     Regra que vale mais que os gradientes: a foto do HERO tem que ter p90
+     abaixo de 0,30 na caixa de texto. Acima disso o véu passa de 0,40 e a
+     foto deixa de ser foto. Candidatas medidas: itapema-canto-da-praia
+     (0,133), itapema-praia-grossa (0,169), itapema-por-do-sol (0,208).
+     ================================================================== */
+
+  --veu-rgb: 20 26 18;    /* --_verde-900 em canal separado. Véu em verde e
+                             nunca em preto: o manual proíbe preto, e o verde
+                             preserva o rosado da areia em vez de esmagar em
+                             cinza */
+  --veu-minimo: 0.55;     /* piso declarado, para conferência */
+
+  /* Lateral do hero. O texto mora no terço esquerdo e a metade direita da
+     foto fica limpa de propósito, igual ao Woolmers. Só a partir de 900px:
+     no celular o texto desce para o papel e este gradiente sai. */
+  /* CALIBRADO EM 11/09/2026 CONTRA A FOTO DO HERO, não contra o acervo
+     inteiro. Os valores antigos (lateral 0,62) foram medidos supondo que
+     qualquer aérea poderia virar hero. Não podem: a varredura de 360
+     combinações mostrou que a foto decide o véu, não o contrário.
+
+     Com `itapema-canto-da-praia` o texto cai sobre água funda, que já é
+     escura, e o véu quase não precisa trabalhar. Medido na largura de
+     coluna que o título de 80px realmente exige (57%, porque "A praia de
+     Itapema" pede 682px em Playfair): 5,89:1 no pior pixel, dourado em
+     3,36:1, preservando 50% do brilho do quadro.
+
+     A mesma leitura sobre `itapema-meia-praia-aerea` exigiria derrubar o
+     brilho para 34%, e aí a foto parece ter filtro por cima. */
+
+  --veu-hero-lateral: linear-gradient(
+      90deg,
+      rgb(var(--veu-rgb) / 0.52) 0%,
+      rgb(var(--veu-rgb) / 0.25) 55%,
+      rgb(var(--veu-rgb) / 0) 88%);
+
+  /* Vertical do topo. Existe por um motivo só: proteger a assinatura contra
+     céu estourado. Não é para escurecer a foto inteira. */
+  --veu-hero-topo: linear-gradient(
+      180deg,
+      rgb(var(--veu-rgb) / 0.50) 0%,
+      rgb(var(--veu-rgb) / 0) 22%);
+
+  /* O véu que faltava no sistema, e que é a razão de o Woolmers conseguir
+     texto legível sem apagar a foto: um vertical que sobe DA BASE. O
+     lateral sozinho não cobre a linha de botões, que senta embaixo.
+     Fraco de propósito. Se precisar passar de 0,20 aqui, o problema é a
+     escolha da foto, não o véu. */
+  --veu-hero-base: linear-gradient(
+      0deg,
+      rgb(var(--veu-rgb) / 0.18) 0%,
+      rgb(var(--veu-rgb) / 0.08) 45%,
+      rgb(var(--veu-rgb) / 0) 100%);
+
+  /* Os três se somam por composição, não por soma: o alfa efetivo é
+     1 - (1-lateral)(1-topo)(1-base). No canto inferior esquerdo, onde os
+     três valem mais, dá 1 - 0,48 x 0,50 x 0,82 = 0,80. */
+
+  /* Regra que saiu da medição: o hero só aceita foto cujo pior pixel na
+     caixa de texto, DEPOIS dos três véus, dê 4,5:1 contra --papel, e cujo
+     brilho médio não caia abaixo de 48% do original. Medir antes de trocar
+     a foto do hero, nunca depois: o script está em
+     scripts/medir-hero.py. */
+
+  /* Faixa de leitura garantida: usar atrás de bloco de texto sobre foto
+     quando não dá para controlar a imagem. */
+  --veu-faixa: linear-gradient(
+      180deg,
+      rgb(var(--veu-rgb) / 0) 0%,
+      rgb(var(--veu-rgb) / 0.72) 40%,
+      rgb(var(--veu-rgb) / 0.88) 100%);
+
+  --veu-hover:  rgb(var(--veu-rgb) / 0.16);  /* foto clicável */
+  --veu-modal:  rgb(var(--veu-rgb) / 0.74);  /* fundo de modal e menu mobile */
+
+
+  /* =====================================================================
+     4. TIPOGRAFIA
+     Duas famílias, as duas do manual. Libre Baskerville, que é a display do
+     Woolmers, ficou de fora por medição: o contraste de traço dela é 2,33:1
+     e o da Playfair é 4,80:1, e o lettering da logo da Green mede 3,7:1.
+     Playfair está mais perto. Além disso Playfair é 13% mais estreita por
+     caractere (0,474em contra 0,544em), que é exatamente o que o português
+     cobra.
+
+     A única vantagem real da Libre Baskerville é aguentar corpo pequeno. Em
+     vez de trazer uma terceira família, eliminei o caso: NENHUMA SERIFADA
+     APARECE ABAIXO DE 30PX neste sistema. O traço fino da Playfair mede
+     0,42px a 20px e vira borrão em tela 1x; a 30px mede 0,63px e desenha.
+     ================================================================== */
+
+  /* Carregar exatamente cinco arquivos: Playfair 400 e 400 itálico,
+     Source Sans 3 400, 400 itálico e 600. Nada além disso.
+     O script de "Beach" pertence à LOGO. Reproduzir aquilo em fonte de
+     script é falsificação de assinatura. */
+  --fonte-display: "Playfair Display", "Iowan Old Style", "Palatino Linotype",
+                   Palatino, Georgia, "Times New Roman", serif;
+  --fonte-texto:   "Source Sans 3", "Source Sans Pro", -apple-system,
+                   BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue",
+                   Arial, sans-serif;
+
+  --peso-display:  400;   /* Playfair em 700 fica gorda e perde o contraste
+                             fino que é o que conecta com o lettering da logo */
+  --peso-texto:    400;
+  --peso-forte:    600;
+
+  /* --- escala --------------------------------------------------------
+     Fluida entre 380px e 1280px de viewport. Acima de 1280 a tipografia
+     PARA de crescer, porque o container também para. Página editorial não
+     aumenta o corpo num monitor de 27 polegadas, ela ganha margem.
+
+     O display termina em 80px e não nos 72px do Woolmers por medição: a
+     altura de maiúscula da Playfair é 70,8/100em e a da Libre Baskerville é
+     77,0/100em. Playfair a 80px dá maiúscula de 56,6px; Libre a 72px dá
+     55,4px. Diferença de 2%. 80px de Playfair TEM a presença de 72px de
+     Libre Baskerville, e ainda é 3,3% mais estreita por caractere.
+     ------------------------------------------------------------------ */
+  --fs-display: clamp(2.5rem,    1.444rem + 4.444vw, 5rem);      /* 40 -> 80 */
+  --fs-h2:      clamp(1.875rem,  1.400rem + 2.000vw, 3rem);      /* 30 -> 48 */
+  --fs-h3:      clamp(1.3125rem, 1.181rem + 0.556vw, 1.625rem);  /* 21 -> 26 */
+  --fs-lead:    clamp(1.125rem,  1.019rem + 0.444vw, 1.375rem);  /* 18 -> 22 */
+  --fs-corpo:   clamp(1.0625rem, 1.010rem + 0.222vw, 1.1875rem); /* 17 -> 19 */
+  --fs-apoio:   clamp(0.9375rem, 0.911rem + 0.111vw, 1rem);      /* 15 -> 16 */
+  --fs-olho:    clamp(0.75rem,   0.724rem + 0.111vw, 0.8125rem); /* 12 -> 13 */
+
+  /* --fs-h3 é SOURCE SANS 600, não Playfair. 26px de serifada de alto
+     contraste é justamente onde a Playfair começa a sumir. */
+
+  /* --- entrelinha ----------------------------------------------------
+     O 1,06 do display é o token mais discutível deste arquivo, então aqui
+     está a conta. Medi na Playfair, por 100px de corpo: H sobe 70,8, mas
+     É e Í sobem 93,9, ou seja, o acento numa maiúscula sobe 32,6% acima da
+     altura de maiúscula. Descendente de g desce 18,8.
+
+     Em inglês, o pior caso (maiúscula contra descendente) deixa
+     (1,0 - 0,708) + 0,188 = 0,480em de folga.
+     Em português, o pior caso (É contra descendente) deixa
+     (1,0 - 0,939) + 0,188 = 0,249em. O português perde 48% da folga.
+
+     Com 1,06 a folga volta para 0,309em, que a 80px são 24,7px. É o menor
+     valor que devolve respiro mantendo o gesto colado da referência.
+
+     Regra de conteúdo que acompanha: escreva o título do hero de modo que a
+     maiúscula acentuada caia na PRIMEIRA linha. Quando não der, use
+     --el-display-folgado. É para isso que ele existe.
+     ------------------------------------------------------------------ */
+  --el-display:         1.06;
+  --el-display-folgado: 1.14;  /* maiúscula acentuada fora da primeira linha */
+  --el-h2:              1.12;
+  --el-h3:              1.30;
+  --el-lead:            1.65;  /* o 20/33 do Woolmers é exatamente 1,65 */
+  --el-corpo:           1.62;
+  --el-apoio:           1.50;
+  --el-olho:            1.20;
+
+  /* --- entreletra ---------------------------------------------------- */
+  /* Negativa no display porque a Playfair a 80px foi desenhada com
+     espacejamento de corpo de texto: sem isso ela fica frouxa e amadora.
+     O itálico leva menos negativa porque já é mais fechado por desenho. */
+  --ee-display:         -0.018em;
+  --ee-display-italico: -0.012em;
+  --ee-h2:              -0.012em;
+  --ee-h3:              -0.004em;
+  --ee-corpo:            0;
+  --ee-apoio:            0.004em;
+  --ee-olho:             0.180em;  /* caixa alta SEMPRE com entreletra aberta.
+                                      É a regra que mais separa peça
+                                      profissional de peça caseira */
+  --ee-botao:            0.040em;
+  /* Nunca aplicar entreletra positiva em caixa baixa corrida. */
+
+  /* --- medida --------------------------------------------------------
+     ATENÇÃO, e isto corrige um erro da v1: ch é o avanço do algarismo "0",
+     não a média do alfabeto. Medi: em Source Sans 3 o "0" vale 0,497em e a
+     média real em português vale 0,418em, então ch INFLA 1,19x. Os 66ch da
+     v1, documentados como "45 a 75 caracteres", entregavam 79.
+     Em Playfair o "0" vale 0,600em contra média de 0,485em: infla 1,24x.
+
+     Os valores abaixo já vêm corrigidos. São MAX-WIDTH, não width: aplicar
+     junto de width:100% ou dentro de uma coluna da grade, senão no celular
+     o bloco estoura a lateral.
+     ------------------------------------------------------------------ */
+  --medida-display: 18ch;  /* ~22 caracteres reais, 864px a 80px */
+  --medida-h2:      20ch;  /* ~25 caracteres reais. Existe porque sem ele o
+                              H2 quebra com uma palavra sozinha na segunda
+                              linha, que é órfã em título e é o defeito mais
+                              visível de um layout tipográfico */
+  --medida-lead:    46ch;  /* ~55 caracteres reais */
+  --medida-corpo:   58ch;  /* ~69 caracteres reais, dentro do 45 a 75 */
+  --medida-apoio:   44ch;  /* ~52 caracteres reais */
+
+  --numeral-tabular: "tnum" 1, "lnum" 1;  /* diária, telefone, data, CNPJ.
+                                             Sem isso coluna de número
+                                             desalinha */
+
+
+  /* =====================================================================
+     5. ESPAÇO E GRADE
+     ================================================================== */
+
+  /* Passo de 4px. Poucos degraus, com salto claro entre eles. Degrau
+     intermediário inventado na hora é como escala vira papa. */
+  --passo-3xs: 0.25rem;  /*   4 */
+  --passo-2xs: 0.5rem;   /*   8 */
+  --passo-xs:  0.75rem;  /*  12 */
+  --passo-sm:  1rem;     /*  16 */
+  --passo-md:  1.5rem;   /*  24 */
+  --passo-lg:  2rem;     /*  32 */
+  --passo-xl:  3rem;     /*  48 */
+  --passo-2xl: 4rem;     /*  64 */
+  --passo-3xl: 6rem;     /*  96 */
+
+  /* --- ritmo vertical ------------------------------------------------
+     O topo da escala de desktop é 112px porque é o respiro de seção medido
+     no Woolmers. O ritmo é REGULAR: se uma seção respira 112, todas
+     respiram. Espaço que aparece num lugar só e não se repete em nenhum
+     outro é buraco, não respiro, e se resolve com conteúdo, com escala ou
+     com redistribuição, nunca com ornamento.
+     ------------------------------------------------------------------ */
+  --respiro-secao:     clamp(4.5rem, 3.444rem + 4.444vw, 7rem);   /*  72 -> 112 */
+  --respiro-pausa:     clamp(6rem,   4.311rem + 7.111vw, 10rem);  /*  96 -> 160 */
+  --respiro-bloco:     clamp(2rem,   1.367rem + 2.667vw, 3.5rem); /*  32 ->  56 */
+  --respiro-titulo:    clamp(1.25rem,1.039rem + 0.889vw, 1.75rem);/*  20 ->  28 */
+  --respiro-paragrafo: clamp(1.25rem,1.144rem + 0.444vw, 1.5rem); /*  20 ->  24 */
+
+  /* --respiro-pausa é para as 2 ou 3 viradas grandes da página. Se for
+     usado em toda seção, ele deixa de significar pausa. */
+
+  /* --- grade --------------------------------------------------------- */
+  --medida-pagina: 80rem;    /* 1280px, o container do Woolmers, adotado sem
+                                alteração */
+  --medida-larga:  100rem;   /* 1600px, fila de mídia que passa do container
+                                sem sangrar inteiro */
+  --colunas: 12;
+  --medianiz:       clamp(1rem,   0.578rem + 1.778vw, 2rem);   /* 16 -> 32 */
+  --margem-lateral: clamp(1.25rem,0.722rem + 2.222vw, 2.5rem); /* 20 -> 40 */
+
+  /* A 1280 com medianiz de 32, cada coluna tem 77,3px. Pares assimétricos
+     obrigatórios: 7/5 e 8/4. Duas colunas exatamente iguais dividindo a
+     tela ao meio está proibido nesta página. */
+
+  --altura-cabecalho:         6rem;     /* 96px, transparente sobre o hero */
+  --altura-cabecalho-solido:  4.25rem;  /* 68px, sólido depois da rolagem */
+  --alvo-toque:               2.75rem;  /* 44px, mínimo de área de toque */
+
+  /* --- hero ----------------------------------------------------------
+     820px no desktop, o número da referência. NÃO é 100vh, por três
+     motivos: hero de tela cheia esconde que existe página abaixo, e a única
+     conversão desta landing é chegar no WhatsApp; 100vh no iOS pula quando
+     a barra de endereço some; e 480px num celular de 820px deixa 340px da
+     próxima seção aparecendo, o que convida a rolar sem precisar de seta
+     quicando.
+     ------------------------------------------------------------------ */
+  --altura-hero:  clamp(30rem, 21.028rem + 37.778vw, 51.25rem);  /* 480 -> 820 */
+
+  /* Faixa escura de contraste. O Woolmers tem UMA de 360px em 7996px de
+     página. Regra desta marca: no máximo duas áreas escuras na página
+     inteira, esta faixa e o rodapé. */
+  --altura-faixa: clamp(17.5rem, 15.389rem + 8.889vw, 22.5rem);  /* 280 -> 360 */
+
+
+  /* =====================================================================
+     6. RAIO
+     A mudança de superfície mais visível da v3. A v1 arredondava a quebra
+     de cada seção (20 a 36px) e cada foto (12px), e o resultado era uma
+     pilha de cartões, que é o que o cliente leu como amador. Seção e foto
+     agora têm raio ZERO. Sangrar é o gesto; arredondar mata o gesto.
+     ================================================================== */
+
+  --raio-zero:   0;      /* seção, foto, faixa, hero. O padrão da página */
+  --raio-fio:    2px;    /* barra de progresso, tag minúscula */
+  --raio-campo:  4px;    /* input, select, datepicker */
+  --raio-botao:  4px;    /* existe só para o controle não parecer recortado
+                            a faca. Não é decoração */
+  --raio-modal:  6px;
+  /* Pílula (999px) está PROIBIDA nesta marca. */
+
+
+  /* =====================================================================
+     7. SOMBRA
+     Existe para menu suspenso e calendário, e para mais nada. Foto não tem
+     sombra, seção não tem sombra, botão não tem sombra. Se um bloco precisa
+     de sombra para se destacar, o problema é de hierarquia, não de
+     profundidade.
+     Tingida de verde e nunca de preto puro: preto sobre papel quente cria
+     uma borda acinzentada suja.
+     ================================================================== */
+
+  --sombra-rgb: 36 45 33;
+  --sombra-0: none;
+  --sombra-1: 0 1px 2px rgb(var(--sombra-rgb) / 0.05),
+              0 8px 20px -12px rgb(var(--sombra-rgb) / 0.16);
+  --sombra-2: 0 2px 6px rgb(var(--sombra-rgb) / 0.06),
+              0 24px 48px -24px rgb(var(--sombra-rgb) / 0.22);
+
+
+  /* =====================================================================
+     8. FOTOGRAFIA
+     O acervo inteiro é 16:9 nativo (4032x2268, e duas em 8064x4536).
+     Qualquer recorte para longe de 16:9 joga pixel fora.
+
+     A regra que mais importa neste acervo: aérea de praia tem o assunto
+     numa LINHA HORIZONTAL, a curva da areia. Recorte 4:5 joga fora 55% da
+     largura e transforma a curva numa fatia sem assunto. Por isso o hero
+     mobile NÃO tenta ser 4:5 com texto por cima: a foto vira faixa 16:9 no
+     topo e o texto desce para o papel. Resolve recorte e véu de uma vez.
+
+     Duas exceções de resolução que mandam no layout:
+     - fachada-green-beach tem 628x910. A 2x ela só preenche 314px de
+       largura. É a ÚNICA foto real da casa. Retrato pequeno, e só.
+     - cafe-da-manha é foto de banco de imagem (declarado no arquivo de
+       dados da v1 como tipo 'ilustracao'). Recomendação: tirar da página.
+     ================================================================== */
+
+  --prop-hero:       1280 / 820;  /* 1,56:1, sangrando */
+  --prop-hero-mobile:   16 / 9;   /* a nativa. O texto vai para o papel */
+  --prop-pano:          21 / 9;   /* faixa sangrando ponta a ponta */
+  --prop-larga:          3 / 2;   /* peça grande do mosaico */
+  --prop-retrato:        4 / 5;   /* peça vertical. É aqui que a fachada
+                                     entra, e só foto de massa vertical */
+  --prop-quadrado:       1 / 1;   /* detalhe */
+
+  /* Contraste de escala, medido em vez de sentido. Num bloco com mais de uma
+     foto, a razão de ÁREA entre a maior e a menor fica entre 2:1 e 6:1.
+     Duas fotos de área parecida lado a lado são a "grade de peças iguais"
+     do jeito disfarçado: num par 7/5, uma peça 3:2 de 545x363 e uma 4:5 de
+     383x479 têm razão de área de 1,08 e leem como iguais mesmo tendo
+     larguras diferentes. Confira a área, não a largura.
+     E a peça menor NUNCA fica sozinha no vazio: ela senta contra uma
+     legenda, um bloco de texto ou a borda da coluna. */
+  --razao-escala-foto-min: 2;
+  --razao-escala-foto-max: 6;
+
+  --foco-padrao: 50% 50%;  /* sobrescrever POR FOTO no arquivo de dados,
+                              nunca no CSS. Para achar o valor sem chutar,
+                              gere a foto com uma grade numerada de 0 a 1
+                              sobreposta, abra e leia a coordenada */
+
+  --tratamento-foto: saturate(1.02) contrast(1.02);
+  /* Calor leve sem virar filtro de rede social. Sem vinheta, sem grão, sem
+     HDR. O mar de Santa Catarina é verde azulado, não turquesa de Caribe:
+     turquesa forçado é mentira visual e o hóspede percebe na chegada. */
+
+
+  /* =====================================================================
+     9. MOVIMENTO
+     O Woolmers tem um fade de 0,6s no hero, uma barra de progresso e uma
+     seta quicando. Nenhum reveal por rolagem, nenhum parallax, nenhuma
+     biblioteca. Ele é bonito por tipografia, foto e espaço.
+
+     A v3 desliga a animação dirigida por rolagem que existia na v1. Não
+     porque o código fosse ruim, mas porque reveal por rolagem faz a página
+     parecer que está tentando impressionar, e porque cada reveal é uma
+     chance de a página ficar em branco quando o observador não dispara.
+
+     Proibido: parallax, revelação por rolagem, contador animado, texto
+     aparecendo letra por letra, carrossel em autoplay, e seta quicando (o
+     hero de 820px já mostra que há página abaixo).
+     ================================================================== */
+
+  --dur-rapida:  160ms;  /* cor de link, sublinhado, ícone */
+  --dur-base:    240ms;  /* botão, campo, cabeçalho ficando sólido */
+  --dur-lenta:   400ms;  /* abrir modal, calendário, zoom de foto */
+  --dur-entrada: 600ms;  /* SÓ o fade do hero, uma vez, no carregamento */
+  --atraso-escada: 80ms; /* entre itens de uma lista, no máximo 4 itens */
+
+  --curva-padrao: cubic-bezier(0.4, 0, 0.2, 1);
+  --curva-saida:  cubic-bezier(0.22, 1, 0.36, 1);   /* entrada, expansão */
+  --curva-entrada: cubic-bezier(0.4, 0, 1, 1);      /* saída, fechar */
+
+  --deslocamento-entrada: 16px;  /* o "up" do fade up do hero */
+  --zoom-foto: 1.03;             /* hover de foto clicável, dentro de
+                                    overflow hidden */
+
+
+  /* =====================================================================
+     10. CAMADAS E PONTOS DE VIRADA
+     ================================================================== */
+
+  --z-base:     0;
+  --z-midia:    1;
+  --z-veu:      2;
+  --z-conteudo: 3;
+  --z-fixo:    10;
+  --z-cabecalho: 20;
+  --z-gaveta:  30;
+  --z-modal:   40;
+  --z-aviso:   50;
+
+  /* @media não lê var(). Escreva o valor literal na media query.
+     Estes existem para o time conferir, não para serem consumidos. */
+  --bp-sm:  480px;
+  --bp-md:  768px;
+  --bp-lg:  900px;   /* abaixo disso o hero perde o texto sobre a foto */
+  --bp-xl: 1280px;   /* onde a escala tipográfica para de crescer */
+}
+
+
+/* ============================================================================
+   CONTEXTO ESCURO
+   Aplicar a classe na SEÇÃO. Só troca token, nada mais: botão, campo, link e
+   legenda continuam com o mesmo CSS.
+
+   Uso permitido: a faixa de contraste e o rodapé. Duas áreas escuras na
+   página inteira, e ponto. A v1 alternava claro e escuro várias vezes ao
+   longo da rolagem, e é isso que pica a leitura e faz cada seção parecer um
+   bloco independente comprado de um tema.
+
+   Repare que aqui o dourado do manual VIRA TINTA. É o mesmo #E5B64E que no
+   claro só pode ser superfície: sobre o oliva ele dá 5,39:1 e sobre o verde
+   fundo dá 7,56:1. E o texto secundário é o nude #D3B9A4 do próprio manual,
+   sem nenhuma extensão. Os dois não se confundem porque são matizes
+   diferentes: o nude puxa para rosa (26,8 graus) e o dourado para amarelo
+   (41,3 graus).
+   ========================================================================= */
+
+.gb-escuro,
+[data-superficie="escuro"] {
+  --papel:        var(--_verde-700);
+  --papel-areia:  var(--_verde-800);
+  --papel-campo:  var(--_verde-800);
+
+  --filete:       rgb(244 239 230 / 0.16);
+  --filete-forte: var(--_verde-300);     /* 4,56:1 sobre o oliva */
+
+  --tinta-titulo: var(--_tinta-clara);   /*  8,87:1 sobre o oliva */
+  --tinta:        var(--_tinta-clara);   /*  8,87:1 */
+  --tinta-suave:  var(--_papel-500);     /*  5,44:1, o nude do manual */
+
+  --bronze:       var(--_ouro-500);      /*  5,39:1: aqui o dourado É texto */
+  --bronze-hover: var(--_papel-500);
+  --bronze-display: var(--_ouro-500);
+
+  --foco:         var(--_ouro-500);      /*  5,39:1 sobre o oliva */
+
+  /* Sombra não aparece sobre fundo escuro. Resolva com filete. */
+  --sombra-1: none;
+  --sombra-2: 0 24px 56px -28px rgb(0 0 0 / 0.55);
+}
+
+
+/* ============================================================================
+   MOVIMENTO REDUZIDO
+   Zera na origem. Qualquer componente que use os tokens herda o
+   comportamento sem precisar de regra própria. Duração de 1ms e não 0
+   porque transitionend precisa disparar para os componentes que dependem
+   dele para limpar estado.
+   ========================================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-rapida:  1ms;
+    --dur-base:    1ms;
+    --dur-lenta:   1ms;
+    --dur-entrada: 1ms;
+    --atraso-escada: 0ms;
+    --deslocamento-entrada: 0px;
+    --zoom-foto: 1;
+  }
+}
+
+
+/* ============================================================================
+   MODO ESCURO DO SISTEMA
+   Deliberadamente NÃO implementado por inversão automática.
+
+   Esta página é papel quente com foto de praia. Inverter isso em escuro por
+   prefers-color-scheme entregaria uma página que não foi desenhada, com véu
+   de foto errado e dourado fora de proporção. Modo claro e escuro exigem
+   paleta pensada nos dois, não inversão.
+
+   Se o modo escuro entrar um dia, ele se constrói trocando os tokens da
+   camada 2 pelos valores de .gb-escuro mais um papel próprio, e refazendo a
+   conta do véu. Não é trabalho de uma linha, e por isso não está aqui
+   fingindo estar pronto.
+   ========================================================================= */

@@ -1,0 +1,180 @@
+/* ==========================================================================
+   FORMULÁRIO DE CONSULTA
+   O componente mais importante da página: é o único caminho até a reserva.
+   Duas variantes, hero (sobre foto) e cta (sobre superfície clara), com o
+   mesmo estado, então preencher em uma preenche a outra.
+
+   Reescrito para os tokens da v3. A folha da v1 lia 18 tokens que não
+   existem aqui, e token órfão não avisa: o navegador simplesmente ignora a
+   declaração e o controle fica sem estilo nenhum.
+   ========================================================================== */
+
+.busca {
+  display: grid;
+  gap: var(--passo-sm);
+}
+
+/* Os três campos numa fila só, porque a sequência check-in, check-out,
+   hóspedes é a mesma frase que a pessoa já tem na cabeça. Empilhar quebra a
+   leitura e faz o formulário parecer mais longo do que é. */
+.busca__campos {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1px;
+  background: var(--busca-filete);
+  border: 1px solid var(--busca-filete);
+  border-radius: var(--raio-campo);
+  overflow: hidden;
+}
+
+@media (max-width: 40em) {
+  .busca__campos { grid-template-columns: 1fr; }
+}
+
+/* --------------------------------------------------------------------------
+   Campo
+   -------------------------------------------------------------------------- */
+
+.campo { position: relative; background: var(--busca-fundo); }
+
+.campo__gatilho {
+  display: grid;
+  gap: 2px;
+  width: 100%;
+  min-height: 4.25rem;
+  padding: var(--passo-xs) var(--passo-sm);
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  text-align: left;
+  cursor: pointer;
+  color: inherit;
+  transition: background-color var(--dur-rapida) var(--curva-padrao);
+}
+
+.campo__gatilho:hover { background: var(--busca-hover); }
+
+.campo__rotulo {
+  font-size: var(--fs-olho);
+  font-weight: var(--peso-forte);
+  letter-spacing: var(--ee-olho);
+  text-transform: uppercase;
+  color: var(--busca-rotulo);
+}
+
+.campo__valor {
+  font-size: var(--fs-corpo);
+  line-height: 1.3;
+  color: var(--busca-tinta);
+}
+
+/* Valor ainda não escolhido lê como convite, não como resposta.
+   A classe vem do componente, que já marcava is-vazio: usar a convenção que
+   existe em vez de inventar uma nova e mexer na lógica que funciona. */
+.campo__valor.is-vazio { color: var(--busca-dica); }
+
+.campo__erro {
+  margin: 0;
+  padding: 0 var(--passo-sm) var(--passo-xs);
+  font-size: var(--fs-olho);
+  line-height: 1.35;
+  color: var(--busca-erro);
+}
+
+.campo__erro:empty { display: none; }
+
+.campo.is-invalido { background: var(--busca-erro-fundo); }
+
+/* --------------------------------------------------------------------------
+   Ação
+   -------------------------------------------------------------------------- */
+
+.busca__acao { display: grid; gap: var(--passo-2xs); }
+
+.busca__enviar {
+  width: 100%;
+  min-height: 3.25rem;
+  gap: var(--passo-xs);
+}
+
+.botao__icone {
+  display: inline-flex;
+  width: 1.15em;
+  height: 1.15em;
+}
+.botao__icone svg { width: 100%; height: 100%; }
+
+.busca__resumo {
+  margin: 0;
+  max-width: none;
+  font-size: var(--fs-olho);
+  line-height: 1.4;
+  color: var(--busca-apoio);
+}
+
+/* --------------------------------------------------------------------------
+   Campos de texto opcionais (nome e observação), só na variante do CTA
+   -------------------------------------------------------------------------- */
+
+.busca__extras { display: grid; gap: var(--passo-sm); }
+
+.texto { display: grid; gap: var(--passo-3xs); }
+
+.texto__rotulo {
+  font-size: var(--fs-olho);
+  font-weight: var(--peso-forte);
+  letter-spacing: var(--ee-olho);
+  text-transform: uppercase;
+  color: var(--busca-rotulo);
+}
+
+.texto__input {
+  min-height: var(--alvo-toque);
+  padding: var(--passo-2xs) var(--passo-xs);
+  background: var(--busca-fundo);
+  border: 1px solid var(--busca-filete);
+  border-radius: var(--raio-campo);
+  color: var(--busca-tinta);
+}
+
+.texto__input--area { min-height: 5rem; resize: vertical; }
+
+.texto__input:focus-visible { border-color: var(--foco); }
+
+/* ==========================================================================
+   AS DUAS VARIANTES
+   O componente não sabe onde está. Quem decide a cor é o contexto, por meio
+   destes tokens locais, e é por isso que o mesmo HTML serve o hero escuro e
+   o CTA claro sem um único if no JavaScript.
+   ========================================================================== */
+
+.busca {
+  --busca-fundo:      var(--papel);
+  --busca-hover:      var(--papel-areia);
+  --busca-filete:     var(--filete);
+  --busca-tinta:      var(--tinta-titulo);
+  --busca-rotulo:     var(--tinta-suave);
+  --busca-dica:       var(--tinta-suave);
+  --busca-apoio:      var(--tinta-suave);
+  --busca-erro:       var(--erro);
+  --busca-erro-fundo: var(--erro-fundo);
+}
+
+/* Sobre a foto do hero: o campo continua claro e sólido, de propósito. Campo
+   translúcido sobre foto fica ilegível quando a foto muda, e aqui a foto já
+   trabalha no limite para o texto caber. */
+.busca--hero {
+  --busca-fundo:  var(--papel);
+  --busca-hover:  var(--papel-areia);
+  --busca-filete: rgb(var(--veu-rgb) / 0.18);
+}
+
+/* No desktop o resumo fica sobre a foto, então precisa de tinta clara.
+   No celular o hero inteiro desce para fundo areia, e aí tinta clara sobre
+   areia desaparece: 1,2:1. A regra só vale onde o hero é escuro. */
+@media (min-width: 48em) {
+  .busca--hero .busca__resumo {
+    color: var(--papel);
+    opacity: 0.82;
+  }
+}

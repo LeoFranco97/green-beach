@@ -1,0 +1,192 @@
+/* ==========================================================================
+   CABEÇALHO
+   Quase vazio, como o do Woolmers: a marca de um lado, um gatilho do outro.
+   Menu horizontal de dez itens é o que faz site de hotel parecer painel de
+   controle. Aqui a navegação inteira mora na gaveta.
+   ========================================================================== */
+
+.cabecalho {
+  position: fixed;
+  inset: 0 0 auto;
+  z-index: var(--z-cabecalho);
+  height: var(--altura-cabecalho);
+  display: flex;
+  align-items: center;
+  color: var(--papel);
+  transition: height var(--dur-base) var(--curva-padrao),
+              background-color var(--dur-base) var(--curva-padrao),
+              color var(--dur-base) var(--curva-padrao),
+              border-color var(--dur-base) var(--curva-padrao);
+  border-bottom: 1px solid transparent;
+}
+
+/* Sólido depois da primeira dobra. A troca de cor de tinta acompanha, senão
+   o logo claro fica invisível sobre o papel. */
+.cabecalho.is-solido {
+  height: var(--altura-cabecalho-solido);
+  background: var(--papel);
+  color: var(--tinta-titulo);
+  border-bottom-color: var(--filete);
+}
+
+.cabecalho__interior {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--passo-md);
+  width: 100%;
+}
+
+/* --------------------------------------------------------------------------
+   Marca
+   Texto vivo, não imagem. O lockup oficial é quase quadrado e só lê acima de
+   135px de altura: num cabeçalho de 96px ele vira borrão. A razão completa
+   está no componente.
+   -------------------------------------------------------------------------- */
+
+.cabecalho__marca {
+  display: grid;
+  gap: 1px;
+  text-decoration: none;
+  color: inherit;
+}
+
+.cabecalho__nome {
+  font-family: var(--fonte-display);
+  font-size: 1.375rem;
+  line-height: 1.1;
+  letter-spacing: 0.02em;
+}
+
+.cabecalho__lugar {
+  font-size: 0.6875rem;
+  line-height: 1.2;
+  letter-spacing: var(--ee-olho);
+  text-transform: uppercase;
+  opacity: 0.75;
+}
+
+.cabecalho.is-solido .cabecalho__nome { font-size: 1.25rem; }
+
+@media (max-width: 30em) {
+  .cabecalho__lugar { display: none; }
+}
+
+/* --------------------------------------------------------------------------
+   Ações
+   -------------------------------------------------------------------------- */
+
+.cabecalho__acoes {
+  display: flex;
+  align-items: center;
+  gap: var(--passo-sm);
+}
+
+/* O WhatsApp no cabeçalho é o atalho de quem já decidiu. Fica discreto de
+   propósito: se competir com o formulário do hero, rouba o lead com data,
+   que é o único que a recepção consegue responder de primeira. */
+.cabecalho__atalho {
+  display: none;
+  font-size: var(--fs-apoio);
+  text-decoration: none;
+  color: inherit;
+  opacity: 0.9;
+}
+.cabecalho__atalho:hover { opacity: 1; }
+
+@media (min-width: 48em) {
+  .cabecalho__atalho { display: inline-flex; align-items: center; gap: var(--passo-3xs); }
+}
+
+.cabecalho__gatilho {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--passo-2xs);
+  min-height: var(--alvo-toque);
+  min-width: var(--alvo-toque);
+  padding: 0 var(--passo-sm);
+  background: transparent;
+  border: 1px solid currentColor;
+  border-radius: var(--raio-botao);
+  color: inherit;
+  cursor: pointer;
+  font-size: var(--fs-apoio);
+  font-weight: var(--peso-forte);
+  letter-spacing: var(--ee-botao);
+}
+
+.cabecalho__barras {
+  display: grid;
+  gap: 4px;
+  width: 18px;
+}
+.cabecalho__barras span {
+  display: block;
+  height: 1.5px;
+  background: currentColor;
+  transition: transform var(--dur-base) var(--curva-padrao),
+              opacity var(--dur-rapida) var(--curva-padrao);
+}
+
+.cabecalho__gatilho[aria-expanded='true'] .cabecalho__barras span:nth-child(1) {
+  transform: translateY(5.5px) rotate(45deg);
+}
+.cabecalho__gatilho[aria-expanded='true'] .cabecalho__barras span:nth-child(2) {
+  opacity: 0;
+}
+.cabecalho__gatilho[aria-expanded='true'] .cabecalho__barras span:nth-child(3) {
+  transform: translateY(-5.5px) rotate(-45deg);
+}
+
+/* --------------------------------------------------------------------------
+   Gaveta
+   -------------------------------------------------------------------------- */
+
+.gaveta {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-gaveta);
+  display: grid;
+  place-items: center;
+  background: var(--veu-modal);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity var(--dur-lenta) var(--curva-padrao),
+              visibility var(--dur-lenta) var(--curva-padrao);
+}
+
+.gaveta.is-aberta { opacity: 1; visibility: visible; }
+
+.gaveta__lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  text-align: center;
+  display: grid;
+  gap: var(--passo-md);
+}
+
+.gaveta__lista a {
+  font-family: var(--fonte-display);
+  font-size: var(--fs-h2);
+  line-height: 1.2;
+  color: var(--papel);
+  text-decoration: none;
+}
+
+.gaveta__lista a:hover { color: var(--ouro); }
+
+.gaveta__fechar {
+  position: absolute;
+  top: var(--passo-md);
+  right: var(--margem-lateral);
+  min-height: var(--alvo-toque);
+  min-width: var(--alvo-toque);
+  background: transparent;
+  border: 0;
+  color: var(--papel);
+  cursor: pointer;
+  font-size: 1.5rem;
+  line-height: 1;
+}

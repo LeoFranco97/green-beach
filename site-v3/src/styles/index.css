@@ -1,0 +1,7 @@
+/* Ordem importa: tokens primeiro, base depois, componentes por último.
+   Nenhum componente redeclara token; todos leem. */
+@import './tokens.css';
+@import './base.css';
+@import './cabecalho.css';
+@import './hero.css';
+@import './busca.css';
