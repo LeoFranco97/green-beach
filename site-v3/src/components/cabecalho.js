@@ -6,11 +6,12 @@
  * menu horizontal cheio de item só oferece caminhos para não reservar.
  */
 import { el, qs, travarScroll, liberarScroll, prenderFoco } from '../lib/dom.js'
-import { pousada } from '../data/pousada.js'
 import { montarLinkWhatsApp } from '../lib/whatsapp.js'
+import logoClara from '../assets/green-beach-logo-clara.webp'
+import logoEscura from '../assets/green-beach-logo.webp'
 
 const SECOES = [
-  { href: '#fatos', texto: 'A pousada' },
+  { href: '#casa', texto: 'A pousada' },
   { href: '#diaria', texto: 'O que está incluso' },
   { href: '#combinar', texto: 'Antes de chegar' },
   { href: '#itapema', texto: 'Itapema' },
@@ -58,20 +59,27 @@ const criarGaveta = (aoFechar) => {
 
 export const criarCabecalho = () => {
   /*
-   * Assinatura em texto vivo, não a logo em imagem.
+   * O lockup oficial, inteiro, nos dois estados.
    *
-   * Não é preferência: o lockup oficial é quase quadrado e, medido no
-   * arquivo mestre na v1, só fica legível acima de 135px de altura. Num
-   * cabeçalho de 96px ele vira borrão. Não existe versão horizontal
-   * reduzida da marca, e pedir uma está em PENDENCIAS.
+   * Ele é vertical e quase quadrado, então pede altura. Sobre a foto o
+   * cabeçalho tem 96px e ele entra com 76; quando fica sólido o cabeçalho
+   * cresce para 84px em vez de encolher, para a marca continuar lendo. Um
+   * cabeçalho sólido baixo com a logo espremida é pior que um pouco mais
+   * alto com ela legível.
    *
-   * Enquanto ela não existe, texto na fonte da marca é honesto, lê em
-   * qualquer tamanho e é exatamente o que a referência faz. Quando a versão
-   * horizontal chegar, isto aqui vira uma <img> e mais nada muda.
+   * São dois arquivos e não um com filter: inverter a marca com filter
+   * estraga o dourado da rosácea.
    */
-  const marca = el('a', { class: 'cabecalho__marca', href: '#topo', 'aria-label': `${pousada.marca.nome}, início` }, [
-    el('span', { class: 'cabecalho__nome', text: 'Green Beach' }),
-    el('span', { class: 'cabecalho__lugar', text: 'Pousada e Hotel · Itapema, SC' }),
+  const marca = el('a', {
+    class: 'cabecalho__marca',
+    href: '#topo',
+    /* Literal, e não pousada.marca.nome: esse campo não existe no arquivo de
+       dados (marca só guarda as três imagens), então a interpolação saía
+       "undefined, ir para o topo" para quem usa leitor de tela. */
+    'aria-label': 'Pousada e Hotel Green Beach, ir para o topo',
+  }, [
+    el('img', { class: 'cabecalho__logo marca--clara', src: logoClara, alt: '', width: '350', height: '350' }),
+    el('img', { class: 'cabecalho__logo marca--escura', src: logoEscura, alt: '', width: '350', height: '350' }),
   ])
 
   const gatilho = el('button', {

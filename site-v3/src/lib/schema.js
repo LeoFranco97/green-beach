@@ -7,7 +7,6 @@
 import { pousada } from '../data/pousada.js'
 import { apenasReais, prepararFotos } from './imagens.js'
 import { config } from '../config.js'
-import { montarDuvidas } from '../components/duvidas.js'
 
 const MAPA_COMODIDADE = {
   wifi: 'Wi-Fi',
@@ -19,6 +18,33 @@ const MAPA_COMODIDADE = {
   estacionamento: 'Estacionamento',
   churrasco: 'Churrasqueira',
 }
+
+/**
+ * Perguntas frequentes, para o FAQPage.
+ *
+ * Le direto de `pousada.operacao`, e não de um componente: antes isso vinha
+ * de components/duvidas.js, que é inversão de camada (lib importando view) e
+ * quebrou quando a v3 trocou aquela seção pela "o que combinar antes".
+ *
+ * Só entra item com `confirmado: true`. Pergunta cuja resposta é "confirme
+ * pelo WhatsApp" não é resposta, e o Google desqualifica FAQPage assim.
+ */
+const PERGUNTAS = {
+  checkin: 'A partir de que horas posso fazer o check-in?',
+  checkout: 'Até que horas é o check-out?',
+  cafeDaManha: 'O café da manhã está incluso?',
+  estacionamento: 'A pousada tem estacionamento?',
+  pets: 'A pousada aceita animais de estimação?',
+  criancas: 'Qual é a regra para crianças?',
+  cancelamento: 'Qual é o prazo de cancelamento?',
+  pagamento: 'Quais são as formas de pagamento?',
+}
+
+const duvidasConfirmadas = () =>
+  Object.entries(PERGUNTAS)
+    .map(([chave, pergunta]) => ({ pergunta, campo: pousada.operacao?.[chave] }))
+    .filter(({ campo }) => Boolean(campo?.confirmado && campo.valor))
+    .map(({ pergunta, campo }) => ({ pergunta, resposta: campo.valor }))
 
 export const montarSchema = () => {
   const { endereco, contato, operacao, avaliacoes, acomodacoes, comodidades, fotos } = pousada
@@ -90,7 +116,7 @@ export const montarSchema = () => {
     })
   }
 
-  const respondidas = montarDuvidas().filter((d) => d.respondida)
+  const respondidas = duvidasConfirmadas()
   const faq = respondidas.length
     ? {
         '@type': 'FAQPage',

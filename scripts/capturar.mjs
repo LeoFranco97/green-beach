@@ -69,6 +69,20 @@ async function main() {
     // Sem isso a captura de pagina inteira sai com metade do conteudo em
     // branco, porque captureBeyondViewport nao rola, so estica o quadro.
     await avaliar(cdp, aba, `(async () => {
+      // Desliga o carregamento adiado ANTES de rolar.
+      //
+      // O Chrome decide o que carregar por intersecao, avaliada ao longo de
+      // quadros. Rolagem programatica em saltos instantaneos nao gera quadros
+      // suficientes, entao metade das fotos nunca comeca a baixar e a captura
+      // sai com o borrao de 24px no lugar da foto. Isso quase me fez cacar um
+      // bug que nao existia na pagina.
+      //
+      // No site de verdade o lazy continua e esta certo: pessoa rola em
+      // velocidade humana. Aqui ele so atrapalha a prova.
+      for (const img of document.images) {
+        img.loading = 'eager';
+        img.fetchPriority = 'high';
+      }
       const passo = Math.round(innerHeight * 0.7);
       for (let y = 0; y < document.documentElement.scrollHeight; y += passo) {
         window.scrollTo({ top: y, behavior: 'instant' });
@@ -80,6 +94,46 @@ async function main() {
       // O observador que esconde a barra de consulta e assincrono. Sem esta
       // espera, a captura pega a barra ainda visivel no topo da pagina.
       await new Promise(r => setTimeout(r, 1000));
+    })()`, { awaitPromise: true })
+
+    // Esperar por tempo nao basta: em pagina longa com muitas fotos adiadas,
+    // 2,2s no fim as vezes nao alcanca. Aqui a espera e pela condicao, com
+    // teto, e o que nao chegar e denunciado em vez de sair borrado na
+    // captura sem ninguem perceber. Foi assim que duas fotos da v3 sairam
+    // como borrao e quase viraram um bug inexistente.
+    const pendentes = await avaliar(cdp, aba, `(async () => {
+      const pronta = (i) => i.complete && i.naturalWidth > 0;
+      const limite = Date.now() + 15000;
+      let faltando = [];
+      while (Date.now() < limite) {
+        faltando = [...document.images].filter((i) => !pronta(i));
+        if (!faltando.length) break;
+        await new Promise((r) => setTimeout(r, 200));
+      }
+      return faltando.map((i) => (i.currentSrc || i.src).split('/').pop());
+    })()`, { awaitPromise: true, returnByValue: true })
+
+    const lista = pendentes?.result?.value ?? pendentes?.value ?? pendentes
+    if (Array.isArray(lista) && lista.length) {
+      console.log(`  AVISO em ${t.nome}: ${lista.length} foto(s) nao carregaram: ${lista.join(', ')}`)
+    }
+
+    // Segundo passe, lento e de verdade.
+    //
+    // `complete` quer dizer baixada e decodificada, nao pintada. O
+    // captureBeyondViewport rasteriza a pagina toda de uma vez e nem sempre
+    // pinta imagem que nunca entrou na tela: ela sai como o borrao de 24px
+    // mesmo estando carregada. Passar devagar por cada faixa obriga a pintura
+    // antes do disparo.
+    await avaliar(cdp, aba, `(async () => {
+      const passo = Math.round(innerHeight * 0.5);
+      for (let y = 0; y < document.documentElement.scrollHeight; y += passo) {
+        window.scrollTo({ top: y, behavior: 'instant' });
+        await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+        await new Promise((r) => setTimeout(r, 90));
+      }
+      window.scrollTo({ top: 0, behavior: 'instant' });
+      await new Promise((r) => setTimeout(r, 600));
     })()`, { awaitPromise: true })
 
     const { data } = await cdp.enviar('Page.captureScreenshot', {

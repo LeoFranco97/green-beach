@@ -1,0 +1,538 @@
+/* ==========================================================================
+   SEÇÕES DO MIOLO
+   6. combinar          caixa branca sobre papel, filete dourado, números duros
+   7. faixa de respiro  foto clara sangrando, tinta escura, sem gatilho
+   8. Itapema           quatro cartões de lugar, a única seção escura do miolo
+
+   Nenhuma cor, corpo ou medida solta: tudo lê token. As três propriedades
+   locais deste arquivo estão declaradas no bloco que as usa, com a conta que
+   as gerou: --veu-papel-forte e --veu-papel-fraco, que são o primeiro véu de
+   papel do sistema e pedem promoção para tokens.css, e --sangria, que repete
+   a conta de .sangra porque a sangria da fileira de cartões só vale dentro de
+   uma media query.
+   ========================================================================== */
+
+/* ==========================================================================
+   6. O QUE COMBINAR ANTES DE CHEGAR
+   A forma vem do bloco de preço da referência: número duro, borda, muito ar.
+   Como aqui não existe preço nem passeio, os números são os da operação.
+   ========================================================================== */
+
+/* A caixa é o objeto da seção, então ela não divide atenção com foto nenhuma.
+   Branco puro sobre o papel quente: 1,08:1 de diferença, que marca a
+   superfície sem precisar de sombra, exatamente como faz o campo de
+   formulário. O dourado entra como fio de 2px no topo, que é o único papel
+   que o manual dá para ele sobre fundo claro. Dourado como texto aqui daria
+   1,75:1 e está proibido. */
+.combinar__caixa {
+  background: var(--papel-campo);
+  border: 1px solid var(--filete);
+  border-top: 2px solid var(--ouro);
+  padding: var(--respiro-bloco);
+}
+
+/* Par assimétrico 7/5, como manda a grade: duas colunas iguais dividindo a
+   caixa ao meio estão proibidas nesta página. O 7 fica com o que já está
+   resolvido, que é a coluna que precisa parecer maior. */
+.combinar__colunas {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: var(--medianiz);
+}
+
+.combinar__coluna--firme { grid-column: span 7; }
+
+/* O dia em que a pousada confirmar as quatro pendências, a coluna da direita
+   deixa de existir e a caixa não pode ficar com metade vazia. */
+.combinar__coluna--firme:only-child { grid-column: 1 / -1; }
+
+/* O filete vertical é o que faz as duas colunas lerem como um instrumento só,
+   e não como duas listas que por acaso ficaram lado a lado. Ele estica com a
+   linha da grade, então acompanha a coluna mais alta sem ninguém medir. */
+.combinar__coluna--aberta {
+  grid-column: span 5;
+  border-inline-start: 1px solid var(--filete);
+  padding-inline-start: var(--medianiz);
+}
+
+.combinar__cabeca {
+  color: var(--tinta-titulo);
+  margin-bottom: var(--respiro-titulo);
+}
+
+.combinar__lista,
+.combinar__pendencias {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* As duas colunas rimam no mesmo ritmo de linha e no mesmo filete. A
+   diferença entre elas é o conteúdo da linha, não o desenho: à esquerda
+   rótulo e dado, à direita só o assunto que falta. */
+.combinar__linha,
+.combinar__pendencia {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--passo-md);
+  padding-block: var(--passo-xs);
+  border-bottom: 1px solid var(--filete);
+}
+
+.combinar__linha:last-child,
+.combinar__pendencia:last-child {
+  border-bottom: 0;
+}
+
+.combinar__rotulo {
+  font-size: var(--fs-apoio);
+  line-height: var(--el-apoio);
+  letter-spacing: var(--ee-apoio);
+  color: var(--tinta-suave);
+}
+
+/* O dado é o que a pessoa veio buscar, então ele carrega o peso. Numeral
+   tabular porque 14h e 12h precisam alinhar na coluna, que é a diferença
+   entre uma tabela de operação e uma lista de recados. */
+.combinar__dado {
+  margin: 0;
+  font-weight: var(--peso-forte);
+  color: var(--tinta-titulo);
+  font-feature-settings: var(--numeral-tabular);
+  text-align: end;
+}
+
+.combinar__pendencia {
+  color: var(--tinta);
+}
+
+/* O filete fecha a caixa por baixo e transforma a última faixa em rodapé do
+   bloco, em vez de deixar o botão solto no branco. */
+.combinar__fecho {
+  display: flex;
+  justify-content: flex-end;
+  border-top: 1px solid var(--filete);
+  margin-top: var(--respiro-bloco);
+  /* Menos ar aqui do que acima do filete, de propósito: o rodapé da caixa tem
+     um elemento só, e com o respiro de bloco inteiro ele boiaria no branco. */
+  padding-top: var(--passo-lg);
+}
+
+/* A medida vem da coluna, e não do padrão de 44ch do texto de apoio: dentro
+   de uma coluna de 5 de 12 o padrão quebraria a nota em quatro linhas curtas
+   e deixaria uma faixa de branco à direita dela. */
+.combinar__nota {
+  margin: 0;
+  margin-top: var(--respiro-titulo);
+  max-width: none;
+  color: var(--tinta);
+}
+
+/* Gatilho vazado, e nunca dourado: o dourado cheio é do botão que leva à
+   consulta com data. Este aqui sai para o WhatsApp como pergunta, então ele
+   não pode competir com o primário da página. */
+.combinar__gatilho {
+  flex: 0 0 auto;
+  border-color: var(--filete-forte);
+  color: var(--tinta-titulo);
+}
+
+@media (max-width: 47.99em) {
+  .combinar__caixa {
+    /* No celular a caixa continua caixa, mas com menos ar nas laterais: com o
+       respiro de desktop sobrariam 32px de margem de cada lado para uma
+       coluna de texto de 280px. */
+    padding: var(--passo-lg) var(--passo-md);
+  }
+
+  .combinar__colunas {
+    grid-template-columns: 1fr;
+    gap: var(--respiro-bloco);
+  }
+
+  .combinar__coluna--firme,
+  .combinar__coluna--aberta { grid-column: 1 / -1; }
+
+  /* O filete vira horizontal: empilhado, ele separa em cima e não ao lado. */
+  .combinar__coluna--aberta {
+    border-inline-start: 0;
+    padding-inline-start: 0;
+    border-top: 1px solid var(--filete);
+    padding-top: var(--respiro-bloco);
+  }
+
+  /* Rótulo em cima, dado embaixo: lado a lado numa tela de 375px o dado
+     quebraria em duas linhas e perderia o alinhamento que é o argumento
+     inteiro desta caixa. */
+  .combinar__linha {
+    display: block;
+  }
+
+  .combinar__dado {
+    text-align: start;
+    margin-top: var(--passo-3xs);
+  }
+
+  .combinar__fecho {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+/* ==========================================================================
+   7. A FAIXA DE RESPIRO
+   Depois de dois blocos densos, uma foto de ponta a ponta troca o ritmo.
+   Sem gatilho e sem link: é pausa, não é venda.
+
+   A REGRA DESTA FAIXA, e ela vale mais que qualquer preferência de layout:
+   a foto fica CLARA. O assunto dela é a luz do amanhecer, e véu escuro por
+   cima mata justamente o assunto. Por isso a tinta é escura, o véu é da cor
+   do papel, e ele cobre só o canto onde o texto senta.
+   ========================================================================== */
+
+.faixa {
+  position: relative;
+  display: grid;
+  /* Coluna travada em 1fr, e não `auto`. Com `auto`, a coluna é medida pelo
+     conteúdo, e a foto com aspect-ratio mais min-height pede largura de
+     altura x 21/9: numa janela de 900px isso vira uma coluna de 1120px e a
+     faixa inteira estoura para fora da tela. */
+  grid-template-columns: minmax(0, 1fr);
+  isolation: isolate;
+}
+
+/* Foto e legenda dividem a mesma célula. Sem posicionamento absoluto: a
+   altura da faixa continua saindo da proporção da foto, e a legenda nunca
+   escapa do quadro quando o texto cresce. */
+.faixa > * {
+  grid-area: 1 / 1;
+  min-width: 0;
+}
+
+.faixa__fundo {
+  position: relative;
+  z-index: var(--z-midia);
+  overflow: hidden;
+  /* Largura definida, e não `auto`. Com largura automática, `min-height`
+     junto com `aspect-ratio` faz o navegador RE-INFLAR a largura para manter
+     a proporção: numa janela de 900px a foto virava uma caixa de 1120px e
+     empurrava a página para fora da tela na horizontal. */
+  width: 100%;
+  max-width: 100%;
+  aspect-ratio: var(--prop-larga);
+  min-height: var(--altura-faixa);
+}
+
+.faixa__imagem {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* Nenhum filter, nem o tratamento padrão da casa: esta é a única foto de
+     baixo contraste do acervo, e contrast() em cima dela fecha os cinzas que
+     são o motivo de ela estar na página. */
+}
+
+/*
+ * O véu, medido e não estimado.
+ *
+ * Primeiro varri a foto inteira, procurando até onde o céu aguenta tinta
+ * escura por cima com o piso de 4,5:1 da WCAG. O teto muda com a faixa
+ * horizontal: 41,5% da altura no terço esquerdo, onde estão as copas do
+ * morro, e 49,4% do centro para a direita, que é só céu e água aberta. É por
+ * isso que o texto mora à DIREITA, e não à esquerda como no hero: daquele
+ * lado sobram 44,9% da altura da faixa para escrever, contra 34,5% do outro.
+ *
+ * Depois medi no render, no pior pixel da caixa de texto real, com a fonte
+ * carregada: 7,44:1 a 1512px, 6,34:1 a 1280px, 8,21:1 a 1120px e 9,01:1 a
+ * 900px. O piso é 4,5:1, então sobra margem em toda a faixa de desktop.
+ *
+ * O gradiente abaixo não escurece nada: ele é da cor do papel e CLAREIA o
+ * canto. O quadro inteiro fica com 101,4% do brilho original, e a maior
+ * diferença em qualquer canal é de 14 pontos em 255. Um véu escuro que
+ * resolvesse a mesma leitura precisaria derrubar o brilho da foto, e é
+ * exatamente essa imagem com filtro por cima que o cliente já reclamou.
+ */
+.faixa__veu {
+  /* Local, e não em tokens.css, porque o arquivo de tokens está com outro
+     agente nesta rodada. Promover para --veu-claro quando der: é o primeiro
+     véu de papel do sistema, e o hero já tem os três de verde. */
+  --veu-papel-forte: color-mix(in srgb, var(--papel) 26%, transparent);
+  --veu-papel-fraco: color-mix(in srgb, var(--papel) 14%, transparent);
+
+  position: absolute;
+  inset: 0;
+  z-index: var(--z-veu);
+  pointer-events: none;
+  background: radial-gradient(
+    120% 86% at 100% 0%,
+    var(--veu-papel-forte) 0%,
+    var(--veu-papel-fraco) 44%,
+    transparent 78%
+  );
+}
+
+.faixa__legenda {
+  z-index: var(--z-conteudo);
+  align-self: start;
+  display: grid;
+  padding-block: var(--respiro-bloco);
+}
+
+/* O bloco ocupa as colunas 6 a 12. O lado direito da foto é o lado vazio do
+   quadro, e é regra da casa que a tipografia entre no vazio que a foto
+   deixou, não em cima do assunto. O texto continua alinhado à esquerda
+   dentro do bloco: bandeira à direita em três linhas custa leitura. */
+.faixa__frase,
+.faixa__apoio {
+  grid-column: 1;
+  justify-self: end;
+  /* 44rem não é número de gosto: é a largura em que a frase fecha em DUAS
+     linhas em toda a faixa de desktop. Em três linhas o bloco desce 54px e a
+     última linha cai na altura do horizonte, onde a água escurece: medido no
+     render, 4,14:1 numa janela de 1120px, contra os 4,5:1 exigidos. Menos
+     texto no mesmo lugar sempre ganha de mais véu por cima da foto. */
+  width: min(100%, 44rem);
+  max-width: none;
+  color: var(--tinta-titulo);
+}
+
+.faixa__frase {
+  font-family: var(--fonte-display);
+  font-weight: var(--peso-display);
+  font-size: var(--fs-h2);
+  line-height: var(--el-h2);
+  letter-spacing: var(--ee-h2);
+  /* Equilibra as linhas e, de quebra, é o que impede a última linha de ficar
+     com uma palavra sozinha em cima da foto. */
+  text-wrap: balance;
+}
+
+.faixa__apoio {
+  margin-top: var(--passo-sm);
+  font-size: var(--fs-apoio);
+  line-height: var(--el-apoio);
+  letter-spacing: var(--ee-apoio);
+}
+
+/*
+ * Abaixo de 900px o texto desce para o papel, e a foto fica inteira.
+ *
+ * Não é preferência, é medição: num telefone a frase fecha em TRÊS linhas, e
+ * a terceira cai na altura da encosta, onde a foto tem pixel quase preto. O
+ * pior pixel da caixa de texto dá 1,25:1, contra os 4,5:1 exigidos, e véu
+ * claro não levanta preto: para resolver por véu seria preciso um véu ESCURO
+ * cobrindo a faixa inteira, que é justamente o que esta seção não pode ter.
+ * Entre apagar a foto e tirar o texto de cima dela, sai o texto. O hero já
+ * faz o mesmo no celular, pelo mesmo motivo, então a página fica coerente.
+ */
+@media (max-width: 56.24em) {
+  .faixa { display: block; }
+
+  .faixa__fundo {
+    /* 16:9 é a proporção nativa das aéreas. Sem texto por cima não existe
+       motivo para recortar para longe dela: 3:2 jogaria fora 16% da largura,
+       e o assunto desta foto é uma linha horizontal que atravessa o quadro
+       inteiro, do molhe à esquerda até a luz do sol à direita. */
+    aspect-ratio: var(--prop-hero-mobile);
+    min-height: 0;
+  }
+
+  /* Sem texto sobre a foto, o véu perde a função. Ele existe para leitura,
+     não para dar clima. */
+  .faixa__veu { display: none; }
+
+  .faixa__legenda {
+    display: block;
+    padding-block: var(--respiro-bloco);
+  }
+
+  .faixa__frase,
+  .faixa__apoio {
+    justify-self: stretch;
+    width: auto;
+  }
+
+  /* No papel o apoio volta: aqui ele custa 24px e diz onde a foto foi feita e
+     de onde ela foi vista, que é o que sustenta a frase de cima. */
+  .faixa__apoio { max-width: var(--medida-apoio); }
+}
+
+@media (min-width: 56.25em) {
+  .faixa__fundo {
+    aspect-ratio: var(--prop-pano);
+    /* Piso de altura para a janela de 900 a 1120px, onde 21:9 entregaria uma
+       tira baixa demais: o recorte fecharia no meio da foto e o céu, que é
+       onde o texto mora, sairia do quadro. */
+    min-height: 30rem;
+  }
+}
+
+/* ==========================================================================
+   8. ITAPEMA
+   A única seção escura do miolo, como manda o ritmo de cor: a classe
+   .gb-escuro troca os tokens e nada aqui dentro precisa saber disso.
+   ========================================================================== */
+
+.itapema__cartoes {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: var(--respiro-bloco) var(--medianiz);
+  /* Os topos das fotos de cada fileira alinham na mesma linha. A diferença de
+     altura sobra embaixo do cartão menor e vira o degrau que se repete nas
+     duas fileiras: é ritmo, não sobra. */
+  align-items: start;
+}
+
+/*
+ * Par assimétrico 8/4, alternando o lado a cada fileira.
+ *
+ * Contraste de escala conferido por ÁREA, que é a regra da direção de arte, e
+ * não por largura: a 1280px a peça grande dá 789 x 526 px (415.300 px²) e a
+ * pequena 379 x 473 px (179.250 px²). Razão 2,3:1, dentro da faixa de 2:1 a
+ * 6:1. Duas peças de área parecida lado a lado leem como iguais mesmo com
+ * larguras diferentes, e fileira de peças iguais é catálogo de estoque.
+ *
+ * A proporção de cada peça também não é gosto. As duas grandes são as fotos
+ * cujo assunto é uma linha horizontal, a curva da praia, que não sobrevive a
+ * recorte abaixo de 3:2. As duas pequenas têm massa vertical e aguentam 4:5.
+ */
+.itapema__item--grande { grid-column: span 8; }
+.itapema__item--pequena { grid-column: span 4; }
+
+.itapema__cartao {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  text-align: start;
+  cursor: pointer;
+  /* Raio zero e nenhuma sombra: aqui cartão não é superfície levantada, é
+     foto com legenda. Cartão com borda arredondada e sombra é o que tirou a
+     v1 da página editorial e jogou numa pilha de temas. */
+  border-radius: var(--raio-zero);
+}
+
+.itapema__foto {
+  display: block;
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: var(--prop-larga);
+}
+
+.itapema__item--pequena .itapema__foto {
+  aspect-ratio: var(--prop-retrato);
+}
+
+.itapema__imagem {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform var(--dur-lenta) var(--curva-saida);
+}
+
+/* Véu de foto clicável. Existe no sistema para isso e só aparece no hover,
+   porque em repouso a foto tem que estar limpa. */
+.itapema__foto::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--veu-hover);
+  opacity: 0;
+  transition: opacity var(--dur-base) var(--curva-padrao);
+}
+
+.itapema__cartao:hover .itapema__imagem,
+.itapema__cartao:focus-visible .itapema__imagem {
+  transform: scale(var(--zoom-foto));
+}
+
+.itapema__cartao:hover .itapema__foto::after,
+.itapema__cartao:focus-visible .itapema__foto::after {
+  opacity: 1;
+}
+
+/* O nome sublinha no hover. É a única pista de que o cartão abre alguma
+   coisa, e ela usa o vocabulário que todo mundo já conhece em vez de um
+   ícone inventado. */
+.itapema__cartao:hover .itapema__nome,
+.itapema__cartao:focus-visible .itapema__nome {
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
+}
+
+.itapema__nome {
+  display: block;
+  margin-top: var(--passo-md);
+  font-family: var(--fonte-texto);
+  font-weight: var(--peso-forte);
+  font-size: var(--fs-h3);
+  line-height: var(--el-h3);
+  letter-spacing: var(--ee-h3);
+  color: var(--tinta-titulo);
+}
+
+.itapema__texto {
+  display: block;
+  margin-top: var(--passo-2xs);
+  max-width: var(--medida-apoio);
+  /* Duas linhas equilibradas em vez de uma linha cheia e duas palavras
+     sobrando embaixo. */
+  text-wrap: balance;
+  font-size: var(--fs-apoio);
+  line-height: var(--el-apoio);
+  letter-spacing: var(--ee-apoio);
+  color: var(--tinta-suave);
+}
+
+@media (max-width: 56.24em) {
+  /*
+   * No celular a fileira vira rolagem lateral com um cartão e um pedaço do
+   * seguinte à mostra. É o único lugar da página onde o carrossel da
+   * referência faz sentido: aqui a foto é o conteúdo, e o corte na borda
+   * convida a arrastar em vez de esconder informação.
+   *
+   * A conta da sangria repete a de .sangra porque ela só vale nesta faixa de
+   * largura, e classe de layout não se liga e desliga por media query a
+   * partir do JavaScript.
+   */
+  .itapema__cartoes {
+    --sangria: max(var(--margem-lateral), (100vw - var(--medida-pagina)) / 2);
+
+    display: flex;
+    gap: var(--medianiz);
+    margin-inline: calc(-1 * var(--sangria));
+    width: calc(100% + 2 * var(--sangria));
+    padding-inline: var(--sangria);
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: var(--sangria);
+    overscroll-behavior-x: contain;
+  }
+
+  .itapema__item {
+    flex: 0 0 78%;
+    scroll-snap-align: start;
+  }
+
+  /* Na rolagem lateral todas as peças têm a mesma caixa: o contraste de
+     escala que vale aqui é entre a foto do cartão e a faixa sangrada logo
+     acima, não entre cartões vizinhos. E 4:5 numa tira que rola faria a
+     terceira foto ficar mais alta que a tela. */
+  .itapema__item--pequena .itapema__foto {
+    aspect-ratio: var(--prop-larga);
+  }
+}
+
+@media (max-width: 30em) {
+  .itapema__item {
+    /* Telas de 375 a 390px: 78% deixa o cartão estreito demais para a linha
+       de texto embaixo dele. */
+    flex: 0 0 84%;
+  }
+}

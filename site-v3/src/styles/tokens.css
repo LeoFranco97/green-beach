@@ -396,7 +396,11 @@
      tela ao meio está proibido nesta página. */
 
   --altura-cabecalho:         6rem;     /* 96px, transparente sobre o hero */
-  --altura-cabecalho-solido:  4.25rem;  /* 68px, sólido depois da rolagem */
+  --altura-cabecalho-solido:  5.25rem;  /* 84px. Era 68, mas o lockup da
+                                          marca é vertical e não lê espremido
+                                          nessa altura. Cabeçalho um pouco
+                                          mais alto com a marca legível é
+                                          melhor que baixo com ela em borrão. */
   --alvo-toque:               2.75rem;  /* 44px, mínimo de área de toque */
 
   /* --- hero ----------------------------------------------------------

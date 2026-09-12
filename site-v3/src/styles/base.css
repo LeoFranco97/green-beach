@@ -155,7 +155,17 @@ a { color: var(--bronze); }
    Margem negativa e nunca translate: translate move o desenho e deixa a
    caixa de layout no lugar, o que estourou o documento em 840px na v1. */
 .sangra {
-  --sangria: max(var(--margem-lateral), (100vw - var(--medida-pagina)) / 2);
+  /* A distância da borda da janela até onde o conteúdo do envelope começa é
+     a soma de duas coisas: o quanto o envelope está afastado por estar
+     centralizado, mais o padding dele. Numa janela de 1440 isso é
+     80 + 40 = 120.
+
+     Estava escrito com max() no lugar da soma, e max(40, 80) devolve 80: a
+     foto parava a 40px da borda em qualquer tela acima de 1280. Abaixo de
+     1280 o erro não aparecia, porque lá a primeira parcela é zero. */
+  --sangria: calc(
+    var(--margem-lateral) + max(0px, (100vw - var(--medida-pagina)) / 2)
+  );
   margin-inline: calc(-1 * var(--sangria));
   width: calc(100% + 2 * var(--sangria));
   max-width: none;

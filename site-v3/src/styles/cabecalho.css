@@ -45,31 +45,28 @@
    -------------------------------------------------------------------------- */
 
 .cabecalho__marca {
-  display: grid;
-  gap: 1px;
+  display: inline-flex;
+  align-items: center;
   text-decoration: none;
   color: inherit;
 }
 
-.cabecalho__nome {
-  font-family: var(--fonte-display);
-  font-size: 1.375rem;
-  line-height: 1.1;
-  letter-spacing: 0.02em;
+.cabecalho__logo {
+  height: 4.75rem;   /* 76px dentro de um cabeçalho de 96 */
+  width: auto;
+  transition: height var(--dur-base) var(--curva-padrao);
 }
 
-.cabecalho__lugar {
-  font-size: 0.6875rem;
-  line-height: 1.2;
-  letter-spacing: var(--ee-olho);
-  text-transform: uppercase;
-  opacity: 0.75;
-}
+.cabecalho.is-solido .cabecalho__logo { height: 4rem; }
 
-.cabecalho.is-solido .cabecalho__nome { font-size: 1.25rem; }
+/* A clara sobre a foto, a escura sobre o papel. */
+.marca--escura { display: none; }
+.cabecalho.is-solido .marca--clara { display: none; }
+.cabecalho.is-solido .marca--escura { display: block; }
 
 @media (max-width: 30em) {
-  .cabecalho__lugar { display: none; }
+  .cabecalho__logo { height: 3.5rem; }
+  .cabecalho.is-solido .cabecalho__logo { height: 3rem; }
 }
 
 /* --------------------------------------------------------------------------

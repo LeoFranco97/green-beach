@@ -1,0 +1,436 @@
+/* ==========================================================================
+   SEÇÕES 3, 4 e 5
+   A faixa de três fatos, a casa e a diária.
+
+   As três se revezam de propósito: a faixa não tem foto nenhuma, a casa tem a
+   única foto real da pousada em tamanho pequeno, e a diária tem a foto grande
+   sangrando na borda. Esse revezamento é o ritmo da primeira metade da página,
+   e é ele que impede que três blocos seguidos leiam como o mesmo bloco.
+
+   Grade: 12 colunas, pares assimétricos. Duas colunas iguais dividindo a tela
+   ao meio estão proibidas no sistema, e nenhuma das três seções usa isso.
+
+   Escrito mobile primeiro: a coluna única é o padrão e o desktop entra numa
+   consulta de mídia só, em 900px. 900 e não 768 porque abaixo disso a coluna
+   da fachada teria 161px de largura, que não é foto, é selo.
+   ========================================================================== */
+
+/* ==========================================================================
+   3. FAIXA DE TRÊS FATOS
+   ========================================================================== */
+
+.fatos {
+  /* Respiro de BLOCO e não de seção, e é a única exceção do ritmo vertical da
+     página. Motivo: isto é uma faixa, não uma seção. Na referência ela vive
+     dentro do hero, colada por um filete de 1px e 32px de padding. Aqui ela
+     saiu para o papel, mas continua pertencendo ao hero: com os 112px de
+     seção em cima e embaixo, ela flutuaria num vazio de 224px até o próximo
+     título, e vazio que aparece num lugar só é buraco. */
+  padding-block: var(--respiro-bloco) 0;
+  /* Embaixo, zero: o filete de fechamento encosta na borda da seção e quem
+     dá o respiro seguinte é o padding de 112px da seção 4. Assim a distância
+     do fio até o próximo olho é exatamente --respiro-secao, e a faixa não
+     inventa um degrau de espaço que não existe em nenhum outro lugar. */
+}
+
+/* Fecha a faixa e devolve ao hero o gesto do filete da referência. Carrega
+   estrutura, não decoração: é ele que diz onde a faixa termina e onde começa
+   a primeira seção de verdade. */
+.fatos__grade {
+  display: grid;
+  gap: var(--respiro-bloco);
+  padding-bottom: var(--respiro-bloco);
+  border-bottom: 1px solid var(--filete);
+}
+
+.fatos__item {
+  position: relative;
+}
+
+.fatos__titulo {
+  color: var(--tinta-titulo);
+}
+
+.fatos__apoio {
+  margin-top: var(--passo-2xs);
+  /* A medida de apoio (44ch) é mais larga que a coluna em quase toda tela.
+     Deixar o valor do token aqui manteria o texto preso a um limite que nunca
+     morde; o que manda é a coluna. */
+  max-width: none;
+}
+
+/* O filete dourado entre as colunas.
+   Desenhado como pseudo-elemento no meio da medianiz dobrada, e não como
+   border-left do item, porque border-left encostaria no texto da coluna
+   seguinte e deixaria as três colunas com larguras diferentes. Aqui as três
+   ficam idênticas e o fio cai no eixo exato do corredor.
+
+   Este é um dos quatro lugares da página inteira em que o dourado do manual
+   aparece. Os outros três: a caixa da seção 6, a linha itálica do hero e o
+   fundo do botão primário. */
+.fatos__item + .fatos__item::before {
+  content: '';
+  position: absolute;
+  inset-inline: 0;
+  top: calc(var(--respiro-bloco) / -2);
+  height: 1px;
+  background: var(--ouro);
+}
+
+@media (min-width: 48em) {
+  .fatos__grade {
+    grid-template-columns: repeat(3, 1fr);
+    /* Duas faixas horizontais: uma para os três títulos, outra para as três
+       linhas de apoio. */
+    grid-template-rows: auto auto;
+    /* Medianiz dobrada porque o fio mora no meio dela: com a medianiz simples
+       o dourado ficaria a 16px do texto dos dois lados e leria como sublinhado
+       de coluna. */
+    column-gap: calc(var(--medianiz) * 2);
+  }
+
+  /* subgrid, e o motivo é medível: entre 900 e 1200px o título mais longo
+     quebra em duas linhas e os outros dois não. Sem faixa comum, as três
+     linhas de apoio começam em alturas diferentes e a faixa lê torta. Com
+     subgrid os três títulos dividem a mesma faixa e os três apoios começam na
+     mesma linha, que é o que uma faixa de fatos promete ser.
+     Onde subgrid não existir, a declaração é ignorada e o resultado é o
+     alinhamento antigo: degrada, não quebra. */
+  .fatos__item {
+    display: grid;
+    grid-row: span 2;
+    grid-template-rows: subgrid;
+    row-gap: var(--passo-2xs);
+  }
+
+  .fatos__apoio { margin-top: 0; }
+
+  /* O mesmo fio, de pé. */
+  .fatos__item + .fatos__item::before {
+    inset-inline: auto;
+    left: calc(var(--medianiz) * -1);
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    height: auto;
+  }
+}
+
+/* ==========================================================================
+   4. A CASA
+   Par assimétrico 4/7 até 1200px e 3/8 daí para cima: a fachada ancorada na
+   margem esquerda da página e o texto ocupando o resto. A foto é pequena por
+   imposição do arquivo (628px de original) e fica presa à margem justamente
+   para não virar foto pequena solta no meio do branco, que é buraco e não
+   respiro.
+   ========================================================================== */
+
+.casa__titulo .titulo__linha,
+.diaria__titulo .titulo__linha {
+  /* A quebra do título é decisão de arte e vem do componente, igual à do
+     hero. Sem display:block os spans correm em sequência e a frase vira uma
+     linha só, quebrada onde o navegador quiser. */
+  display: block;
+}
+
+.casa__corpo {
+  display: grid;
+  gap: var(--respiro-bloco);
+}
+
+.casa__figura {
+  /* O teto de 320px é o número que o arquivo aguenta: 628px de original
+     cobrem 1,96x numa caixa de 320px. Acima disso a fachada amacia, e ela é a
+     única foto real da casa que existe. */
+  max-width: 20rem;
+  margin: 0;
+}
+
+.casa__foto {
+  width: 100%;
+  /* height:auto antes do aspect-ratio, e não é detalhe: a <img> vem com os
+     atributos width e height do manifesto (628 x 910), que valem como altura
+     especificada. Com altura especificada o aspect-ratio é ignorado e a foto
+     desenha no formato nativo, que aqui são 906px de coluna contra 430px de
+     texto ao lado, ou seja, meia seção de buraco. */
+  height: auto;
+  aspect-ratio: var(--prop-retrato);
+  object-fit: cover;
+  border-radius: var(--raio-zero);
+  filter: var(--tratamento-foto);
+}
+
+.casa__legenda {
+  margin-top: var(--passo-xs);
+}
+
+.casa__lead {
+  color: var(--tinta);
+}
+
+.casa__paragrafo {
+  margin-top: var(--respiro-paragrafo);
+}
+
+/* --------------------------------------------------------- os quatro destaques */
+
+.casa__destaques {
+  display: grid;
+  gap: var(--respiro-bloco) var(--medianiz);
+  grid-template-columns: repeat(2, 1fr);
+  margin-top: var(--respiro-bloco);
+  padding-top: var(--passo-lg);
+  border-top: 1px solid var(--filete);
+  list-style: none;
+  padding-inline: 0;
+}
+
+/* Corpo com peso forte, e não o h3 da escala. Dois motivos: mantém a seção
+   dentro dos cinco tamanhos por dobra, e diferencia esta fileira da faixa de
+   fatos, que é informação de primeira ordem e usa o h3 de verdade. Fileira de
+   apoio com o mesmo peso da faixa principal achata a hierarquia da página. */
+.casa__destaque-titulo {
+  font-size: var(--fs-corpo);
+  line-height: var(--el-corpo);
+  letter-spacing: var(--ee-corpo);
+  color: var(--tinta-titulo);
+}
+
+.casa__destaque-texto {
+  margin-top: var(--passo-3xs);
+  max-width: none;
+}
+
+@media (min-width: 56.25em) {
+  .casa__corpo {
+    grid-template-columns: repeat(var(--colunas), 1fr);
+    gap: var(--medianiz);
+    align-items: start;
+  }
+
+  /* Par 4/7 entre 900 e 1200: nessa faixa três colunas dariam 190px de
+     fachada, que não é foto, é selo. A partir de 1200 o par vira 3/8, logo
+     abaixo. */
+  .casa__figura { grid-column: 1 / span 4; }
+
+  /* Sempre uma coluna inteira de corredor entre a foto e o texto: é ela que
+     impede a legenda de colar no parágrafo. */
+  .casa__texto { grid-column: 6 / -1; }
+
+  .casa__destaques {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* ==========================================================================
+   5. A DIÁRIA
+   Par assimétrico 6/5 até 1200px e 7/4 daí para cima, com a foto sangrando na
+   borda direita e de topo a base da seção. A foto é de banco de imagem e leva
+   etiqueta.
+   ========================================================================== */
+
+.diaria {
+  /* Sangria própria, e não a do .sangra de base.css, por uma diferença de
+     conta: aquela fórmula é max(margem, (100vw - 1280) / 2), que para de
+     crescer acima de 1280px e deixa uma faixa de papel do tamanho da margem
+     entre a foto e a borda da janela. Aqui a margem SOMA com a centralização,
+     que é o que faz a foto encostar de fato no vidro. */
+  --sangria-borda: calc(var(--margem-lateral) + max(0px, (100vw - var(--medida-pagina)) / 2));
+  /* Piso da foto quando o texto encolhe. Sem ele, uma lista curta deixaria a
+     vertical virar um retângulo largo e o recorte mataria o assunto. */
+  --altura-minima-foto: 24rem;
+}
+
+.diaria__grade {
+  display: grid;
+  gap: var(--respiro-bloco);
+}
+
+.diaria__cabeca {
+  margin-bottom: var(--respiro-titulo);
+}
+
+.diaria__lista {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  gap: var(--passo-xs);
+  font-size: var(--fs-lead);
+  line-height: var(--el-lead);
+  max-width: var(--medida-lead);
+}
+
+.diaria__item {
+  position: relative;
+  padding-left: var(--passo-md);
+}
+
+/* O marcador é um quadrado de 4px, e ele já foi um fio de 12px: renderizado,
+   o fio lia como meia risca no começo de cada linha, que é exatamente o sinal
+   que este projeto não usa em lugar nenhum. O quadrado resolve e ainda combina
+   com o raio zero do sistema. Ponto padrão do navegador desalinha com a
+   serifada da página, e ícone de linha fina dentro de círculo é o visual mais
+   genérico que existe em site de hotel. */
+.diaria__item::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  /* Meia linha para baixo, menos meio quadrado: centra o marcador na altura
+     de x da primeira linha, e não na caixa inteira do item. */
+  top: calc(var(--el-lead) * 0.5em - var(--passo-3xs) / 2);
+  width: var(--passo-3xs);
+  height: var(--passo-3xs);
+  background: var(--filete-forte);
+}
+
+/* O que a casa NÃO tem, no mesmo corpo do que ela tem. Não é nota de rodapé:
+   se virasse letra miúda, diria que a pousada tem vergonha do que escreveu. */
+.diaria__ausencia {
+  margin-top: var(--respiro-bloco);
+  color: var(--tinta);
+}
+
+.diaria__gatilhos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--passo-sm);
+  margin-top: var(--respiro-bloco);
+}
+
+/* ------------------------------------------------------------- a foto */
+
+.diaria__figura {
+  /* Grade de uma célula só: a etiqueta se empilha sobre a foto sem position
+     absolute, e as duas continuam no fluxo. */
+  display: grid;
+  margin: 0;
+  min-height: var(--altura-minima-foto);
+}
+
+.diaria__foto {
+  grid-area: 1 / 1;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: var(--raio-zero);
+  filter: var(--tratamento-foto);
+}
+
+/* A etiqueta.
+   Superfície verde sólida por baixo, e não texto direto sobre a foto: o
+   contraste do rótulo não pode depender do que a imagem tem naquele canto.
+   Assim ela lê igual quando a foto trocar.
+
+   O padding da direita compensa a entreletra de 0,18em, que o navegador
+   aplica também depois da última letra e que, sem isso, desloca a palavra
+   para a esquerda dentro da própria caixa. */
+.diaria__etiqueta {
+  grid-area: 1 / 1;
+  align-self: start;
+  justify-self: start;
+  /* position mais z-index não são preciosismo: a foto leva filter, e filter
+     cria contexto de empilhamento. Sem isso a <img> passa a pintar ACIMA de
+     um irmão sem posicionamento e engole a etiqueta inteira, que foi
+     exatamente o que a primeira renderização mostrou. */
+  position: relative;
+  z-index: var(--z-conteudo);
+  background: var(--verde);
+  color: var(--papel);
+  font-family: var(--fonte-texto);
+  font-size: var(--fs-olho);
+  font-weight: var(--peso-forte);
+  line-height: var(--el-olho);
+  letter-spacing: var(--ee-olho);
+  text-transform: uppercase;
+  padding: var(--passo-2xs) calc(var(--passo-xs) + var(--ee-olho)) var(--passo-2xs) var(--passo-xs);
+  border-radius: var(--raio-zero);
+}
+
+@media (min-width: 56.25em) {
+  .diaria__grade {
+    grid-template-columns: repeat(var(--colunas), 1fr);
+    gap: var(--medianiz);
+  }
+
+  .diaria__texto {
+    grid-column: 1 / span 6;
+    align-self: start;
+  }
+
+  .diaria__figura {
+    grid-column: 8 / -1;
+    /* Sangra para fora da seção nos três lados que dão para a borda: topo e
+       base cancelam o padding da seção, a direita cancela a margem da página.
+       A foto passa a ser a lateral da seção, e não um bloco dentro dela. */
+    margin-block: calc(var(--respiro-secao) * -1);
+    margin-right: calc(var(--sangria-borda) * -1);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   A partir de 1200px as duas seções trocam uma coluna: a fachada já chega no
+   teto útil do arquivo com 3 colunas (276px) e a foto da diária já tem massa
+   com 4 mais a sangria, então a coluna que sobra vai para o texto, que é onde
+   ela rende. Abaixo disso o inverso: as fotos precisam da coluna a mais para
+   não virarem selo e tira.
+   -------------------------------------------------------------------------- */
+
+@media (min-width: 75em) {
+  .casa__figura { grid-column: 1 / span 3; }
+  .casa__texto { grid-column: 5 / -1; }
+
+  .diaria__texto { grid-column: 1 / span 7; }
+  .diaria__figura { grid-column: 9 / -1; }
+}
+
+/* --------------------------------------------------------------------------
+   Celular: a foto vai para o topo, de ponta a ponta, e o texto desce.
+   A ordem é da arte e não do DOM, porque no DOM o texto vem primeiro: quem
+   navega por teclado ou leitor de tela chega ao conteúdo antes da imagem
+   decorativa.
+   -------------------------------------------------------------------------- */
+
+@media (max-width: 56.24em) {
+  .diaria__figura {
+    order: -1;
+    margin-inline: calc(var(--sangria-borda) * -1);
+    min-height: 0;
+  }
+
+  /* A proporção mora na <img> e não na <figure>, e o height volta para auto.
+     Com aspect-ratio na figura e height:100% na imagem o navegador cai numa
+     dependência circular, desiste da altura da figura e desenha a foto na
+     altura nativa: 585px dentro de uma caixa de 487px, cobrindo o olho e o
+     título da seção inteira. Apareceu na primeira renderização em 390px. */
+  .diaria__foto {
+    height: auto;
+    aspect-ratio: var(--prop-retrato);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Gatilho de texto.
+   Sublinhado de 1px afastado do texto, e não botão: o botão primário da seção
+   5 é o único preenchimento dourado destas três seções, e dois dourados
+   seguidos transformariam a página num anúncio.
+   -------------------------------------------------------------------------- */
+
+.gatilho {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--alvo-toque);
+  margin-top: var(--respiro-titulo);
+  font-family: var(--fonte-texto);
+  font-size: var(--fs-apoio);
+  font-weight: var(--peso-forte);
+  letter-spacing: var(--ee-botao);
+  color: var(--bronze);
+  text-decoration-line: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.4em;
+  transition: color var(--dur-rapida) var(--curva-padrao);
+}
+
+.gatilho:hover {
+  color: var(--bronze-hover);
+}

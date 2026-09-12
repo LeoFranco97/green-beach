@@ -98,26 +98,195 @@ export const pousada = {
    * pelo WhatsApp, em vez de uma resposta inventada.
    */
   operacao: {
-    checkin: { valor: 'O check-in começa às 14h.', horario: '14:00', confirmado: true },
-    checkout: { valor: 'O check-out é até as 12h.', horario: '12:00', confirmado: true },
+    /*
+     * Tres campos de texto por item, e cada um serve a um lugar diferente:
+     *
+     *   valor    a frase inteira, para quem responde uma pergunta direta
+     *   rotulo   o nome curto do item, coluna da esquerda da secao 6
+     *   resumo   o dado duro, tambem na coluna da esquerda da secao 6
+     *   pergunta o que a recepcao ainda precisa responder, coluna da direita
+     *
+     * A caixa da secao 6 monta as duas colunas sozinha a partir de
+     * `confirmado`: item confirmado com `resumo` vai para a esquerda, item
+     * nao confirmado com `pergunta` vai para a direita. Quando a pousada
+     * informar uma das pendencias, escreva `valor` e `resumo`, vire
+     * `confirmado` para true, e o item atravessa de uma coluna para a outra
+     * sem ninguem mexer no layout.
+     */
+    checkin: {
+      valor: 'O check-in começa às 14h.',
+      horario: '14:00',
+      rotulo: 'Check-in',
+      resumo: 'A partir das 14h',
+      confirmado: true,
+    },
+    checkout: {
+      valor: 'O check-out é até as 12h.',
+      horario: '12:00',
+      rotulo: 'Check-out',
+      resumo: 'Até as 12h',
+      confirmado: true,
+    },
     cafeDaManha: {
       valor: 'Sim, o café da manhã está incluso na diária.',
+      rotulo: 'Café da manhã',
+      resumo: 'Incluso na diária',
       confirmado: true,
     },
     estacionamento: {
       valor: 'A pousada não tem estacionamento próprio. Se você vem de carro, combine antes pelo WhatsApp onde deixar o veículo.',
+      rotulo: 'Estacionamento',
+      resumo: 'Não há vaga própria',
       confirmado: true,
     },
     pets: {
       valor: 'Sim, a pousada aceita animais de estimação. Confirme o porte do seu pet pelo WhatsApp antes de reservar.',
+      rotulo: 'Pets',
+      resumo: 'Aceitos, confirmando o porte',
       confirmado: true,
     },
     /** PENDENTE: politica de crianca, berco e idade de cortesia. */
-    criancas: { valor: '', confirmado: false },
+    criancas: {
+      valor: '',
+      rotulo: 'Crianças',
+      resumo: '',
+      pergunta: 'Crianças: berço, cama extra e idade de cortesia',
+      confirmado: false,
+    },
     /** PENDENTE: prazo de cancelamento gratuito e regra de no-show. */
-    cancelamento: { valor: '', confirmado: false },
+    cancelamento: {
+      valor: '',
+      rotulo: 'Cancelamento',
+      resumo: '',
+      pergunta: 'Prazo de cancelamento',
+      confirmado: false,
+    },
     /** PENDENTE: cartoes aceitos, Pix, parcelamento e valor do sinal. */
-    pagamento: { valor: '', confirmado: false },
+    pagamento: {
+      valor: '',
+      rotulo: 'Pagamento',
+      resumo: '',
+      pergunta: 'Formas de pagamento, parcelamento e sinal',
+      confirmado: false,
+    },
+    /**
+     * PENDENTE: horario em que o cafe e servido.
+     * Item separado do `cafeDaManha` de proposito: que o cafe esta incluso
+     * tem duas fontes e ja e fato; o horario nao tem nenhuma. Juntar os dois
+     * num campo so obrigaria a esconder o fato para esconder a pendencia.
+     */
+    cafeHorario: {
+      valor: '',
+      rotulo: 'Horário do café',
+      resumo: '',
+      pergunta: 'Horário do café da manhã',
+      confirmado: false,
+    },
+  },
+
+  /**
+   * SECAO 6: o que combinar antes de chegar.
+   *
+   * Substitui a sanfona de duvidas frequentes da v1, que respondia "confirme
+   * pelo WhatsApp" em metade dos itens e lia como site que nao sabe das
+   * coisas. Aqui a mesma verdade vira duas colunas: o que ja esta resolvido e
+   * o que a recepcao resolve na conversa.
+   *
+   * As listas abaixo sao so a ORDEM de exibicao. O conteudo de cada linha
+   * mora em `operacao`, e e de la que sai a decisao de qual coluna recebe o
+   * item. Item citado aqui que nao existir em `operacao` e ignorado em
+   * silencio, entao errar um nome nao quebra a pagina.
+   */
+  combinar: {
+    olho: 'ANTES DE CHEGAR',
+    titulo: 'O que combinar antes de chegar',
+    tituloCombinado: 'Já está combinado',
+    tituloRecepcao: 'A recepção confirma na hora',
+    combinado: ['checkin', 'checkout', 'cafeDaManha', 'pets', 'estacionamento'],
+    naRecepcao: ['pagamento', 'cancelamento', 'criancas', 'cafeHorario'],
+    /**
+     * O numero de pontos pendentes entra em {pontos} na hora de renderizar.
+     * Escrito assim, e nao com o "quatro" fixo que a arquitetura sugeria,
+     * porque a caixa inteira foi desenhada para os itens atravessarem de uma
+     * coluna para a outra: no dia em que o cliente confirmar o pagamento, a
+     * frase com numero fixo vira mentira sem ninguem perceber.
+     */
+    fecho: 'A pousada confirma {pontos} na hora da consulta. Pergunte junto com as datas, que vem tudo na mesma resposta.',
+    gatilho: 'Perguntar pelo WhatsApp',
+    /**
+     * Vai no corpo da mensagem do WhatsApp. E o unico gatilho da pagina que
+     * abre a conversa sem data preenchida, e por isso ele se identifica como
+     * duvida: assim a recepcao separa quem pergunta de quem reserva.
+     *
+     * {pontos} recebe os rotulos das pendencias que estao na tela naquele
+     * momento. Escrito a mao, este texto envelheceria na primeira confirmacao
+     * que o cliente mandasse.
+     */
+    observacaoWhatsApp: 'A dúvida é sobre um destes pontos: {pontos}.',
+    confirmado: true,
+  },
+
+  /**
+   * SECAO 7: a faixa de respiro.
+   * Sem gatilho e sem link, de proposito: e pausa, nao e venda. A foto e a
+   * unica do acervo com luz prateada e ela entra CLARA, sem veu escuro por
+   * cima. A frase e a legenda sao o que se ve na foto, e nada alem disso.
+   */
+  faixaRespiro: {
+    frase: 'De manhã cedo, a praia ainda é de quem acorda primeiro.',
+    apoio: 'O amanhecer em Itapema, visto do alto.',
+    confirmado: true,
+  },
+
+  /**
+   * SECAO 8: Itapema.
+   *
+   * Quatro cartoes, e nao onze como na referencia. O acervo tem quatorze
+   * aereas, mas seis mostram a mesma baia: enfileirar mais repetiria a mesma
+   * praia e leria como pousada que nao tem o que mostrar. Uma foto, um lugar.
+   *
+   * `escala` nao e gosto, e a regra de contraste de area da direcao de arte:
+   * num bloco com mais de uma foto a razao entre a maior e a menor fica entre
+   * 2:1 e 6:1. Aqui da 2,3:1. As duas 'grande' sao as fotos cujo assunto e
+   * uma linha horizontal (a curva da praia), que nao aceitam recorte abaixo
+   * de 3:2; as duas 'pequena' tem massa vertical e aguentam o 4:5.
+   *
+   * Cada cartao abre o lightbox com o acervo inteiro, comecando pela propria
+   * foto. E a valvula da pagina: as outras aereas e a fachada ficam atras de
+   * um clique, em vez de empilhadas na rolagem.
+   */
+  itapema: {
+    olho: 'EM VOLTA',
+    titulo: 'Itapema não acaba na areia',
+    apoio:
+      'A Meia Praia é a praia larga do centro, a que aparece nas fotos do alto. Do outro lado do morro estão as praias menores, e no canto ficam os barcos de pesca. Tudo isso cabe num fim de semana.',
+    cartoes: [
+      {
+        arquivo: 'itapema-verao-na-praia',
+        nome: 'A Meia Praia',
+        texto: 'A praia larga do centro, a que enche de guarda-sol em dezembro.',
+        escala: 'grande',
+      },
+      {
+        arquivo: 'itapema-barcos-de-pesca',
+        nome: 'O Canto da Praia',
+        texto: 'A ponta onde os barcos de pesca ficam ancorados, na água calma.',
+        escala: 'pequena',
+      },
+      {
+        arquivo: 'itapema-ilha-praia-grossa',
+        nome: 'A Praia Grossa',
+        texto: 'Água clara e uma ilhota logo em frente, do outro lado do morro.',
+        escala: 'pequena',
+      },
+      {
+        arquivo: 'itapema-baia-do-mirante',
+        nome: 'Do alto',
+        texto: 'A baía inteira vista do mirante, com o mar aberto até o horizonte.',
+        escala: 'grande',
+      },
+    ],
+    confirmado: true,
   },
 
   sobre: {
@@ -194,7 +363,6 @@ export const pousada = {
       categoria: 'Meia Praia',
       legenda: 'A Meia Praia vista do alto. A pousada fica no centro, poucos passos atrás dessa faixa de areia.',
       foco: '50% 46%',
-      recorte: true,
     },
     {
       arquivo: 'itapema-por-do-sol',
@@ -307,6 +475,10 @@ export const pousada = {
     {
       arquivo: 'itapema-barcos-de-pesca',
       mosaico: 3,
+      /* Assume a vaga de cartao que era de `meia-praia-aerea`: a gemea dela,
+         `canto-da-praia`, subiu para o hero em 11/09/2026, e duas fotos do
+         mesmo canto na mesma rolagem leem como uma foto so. */
+      recorte: true,
       tipo: 'destino',
       alt: 'Barcos de pesca ancorados no Canto da Praia, com as casas e os quiosques da vila na encosta',
       categoria: 'Canto da Praia',

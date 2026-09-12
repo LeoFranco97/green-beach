@@ -1,0 +1,330 @@
+/* ==========================================================================
+   CALENDÁRIO E SELETOR DE HÓSPEDES
+   Portado da v1 para o vocabulário da v3. A tradução foi feita pelo PAPEL de
+   cada token e não pelo nome parecido.
+
+   Uma imprecisão declarada: a v1 tinha --text-disabled, um cinza específico
+   para dia fora do mês. A v3 não tem equivalente, então dia desabilitado usa
+   --tinta-suave, que é mais escuro do que o ideal. Se incomodar na tela, o
+   conserto é um token novo no sistema, não um hex solto aqui.
+   ========================================================================== */
+
+.calendario-overlay,
+.hospedes-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 150;
+  display: flex;
+  opacity: 0;
+  transition: opacity var(--dur-base) var(--curva-padrao);
+}
+.calendario-overlay.is-aberto,
+.hospedes-overlay.is-aberto { opacity: 1; }
+
+/* Popover no desktop: o fundo nao escurece, so captura o clique fora. */
+.calendario-overlay.is-popover,
+.hospedes-overlay.is-popover {
+  align-items: center;
+  justify-content: center;
+  padding: var(--passo-lg);
+  background: rgb(20 28 16 / 0.32);
+}
+
+/* Bottom sheet no mobile. */
+.calendario-overlay.is-sheet,
+.hospedes-overlay.is-sheet {
+  align-items: flex-end;
+  background: rgb(20 28 16 / 0.45);
+}
+
+.calendario,
+.hospedes {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  background: var(--papel);
+  color: var(--tinta-titulo);
+  box-shadow: var(--sombra-2);
+}
+
+.is-popover .calendario,
+.is-popover .hospedes {
+  max-width: 44rem;
+  max-height: min(42rem, 88svh);
+  border-radius: var(--raio-modal);
+}
+
+.is-popover .hospedes { max-width: 26rem; }
+
+.is-sheet .calendario,
+.is-sheet .hospedes {
+  max-height: 92svh;
+  border-radius: var(--raio-modal) var(--raio-modal) 0 0;
+  padding-bottom: env(safe-area-inset-bottom);
+  translate: 0 100%;
+  transition: translate var(--dur-base) var(--curva-saida);
+}
+.is-sheet.is-aberto .calendario,
+.is-sheet.is-aberto .hospedes { translate: 0 0; }
+
+/* ------------------------------------------------------------ cabecalho */
+
+.calendario__cabecalho,
+.hospedes__cabecalho {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--passo-sm);
+  padding: var(--passo-md) var(--passo-md) var(--passo-sm);
+  border-bottom: 1px solid var(--filete);
+}
+
+.calendario__titulo,
+.hospedes__titulo {
+  font-family: var(--fonte-display);
+  font-size: var(--fs-h3);
+  color: var(--verde-fundo);
+}
+
+.calendario__subtitulo {
+  margin-top: 0.2rem;
+  font-size: var(--fs-apoio);
+  color: var(--tinta-suave);
+}
+
+.calendario__fechar,
+.hospedes__fechar {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: var(--raio-botao);
+  color: var(--tinta);
+  transition: background-color var(--dur-rapida) var(--curva-padrao);
+}
+.calendario__fechar:hover,
+.hospedes__fechar:hover { background: var(--papel-areia); }
+.calendario__fechar svg,
+.hospedes__fechar svg {
+  width: 1.15rem; height: 1.15rem;
+  fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round;
+}
+
+/* ---------------------------------------------------------------- corpo */
+
+.calendario__corpo {
+  position: relative;
+  flex: 1 1 auto;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: var(--passo-md);
+}
+
+.calendario__nav {
+  position: absolute;
+  top: var(--passo-md);
+  display: grid;
+  place-items: center;
+  width: 2.4rem;
+  height: 2.4rem;
+  border-radius: var(--raio-botao);
+  border: 1px solid var(--filete);
+  color: var(--tinta);
+  background: var(--papel);
+  z-index: 2;
+  transition: border-color var(--dur-rapida) var(--curva-padrao), color var(--dur-rapida) var(--curva-padrao);
+}
+.calendario__nav:hover:not([disabled]) { border-color: var(--verde); color: var(--verde); }
+.calendario__nav[disabled] { opacity: 0.3; cursor: not-allowed; }
+.calendario__nav svg { width: 1.1rem; height: 1.1rem; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.calendario__nav--anterior { left: var(--passo-md); }
+.calendario__nav--proximo { right: var(--passo-md); }
+
+.calendario__meses { display: grid; gap: var(--passo-xl); }
+
+.mes__titulo {
+  margin-bottom: var(--passo-sm);
+  text-align: center;
+  font-family: var(--fonte-texto);
+  font-size: var(--fs-apoio);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--verde-fundo);
+}
+
+.mes__semana {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+}
+
+.mes__semana--rotulos { margin-bottom: 0.35rem; }
+
+.mes__rotulo {
+  text-align: center;
+  font-size: var(--fs-olho);
+  font-weight: 600;
+  color: var(--tinta-suave);
+  text-transform: lowercase;
+}
+
+/* ----------------------------------------------------------------- dia */
+
+.dia {
+  position: relative;
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1;
+  min-height: 2.6rem;
+  font-size: var(--fs-apoio);
+  font-weight: 500;
+  color: var(--tinta-titulo);
+  border-radius: var(--raio-botao);
+  transition: background-color var(--dur-rapida) var(--curva-padrao), color var(--dur-rapida) var(--curva-padrao);
+}
+
+.dia__numero { position: relative; z-index: 1; }
+
+/* O alvo do dia e redondo, entao o anel de foco tambem precisa ser. */
+.dia:focus-visible { outline-offset: 1px; border-radius: var(--raio-botao); }
+
+.dia--vazio { pointer-events: none; }
+
+.dia[disabled] {
+  color: var(--tinta-suave);
+  cursor: not-allowed;
+  text-decoration: line-through;
+  text-decoration-thickness: 1px;
+}
+
+.dia:hover:not([disabled]):not(.dia--inicio):not(.dia--fim) { background: var(--papel-areia); }
+
+.dia--hoje::after {
+  content: '';
+  position: absolute;
+  bottom: 0.42rem;
+  width: 3px; height: 3px;
+  border-radius: 50%;
+  background: var(--bronze);
+}
+
+/* A faixa do intervalo usa um pseudo-elemento retangular por tras do circulo,
+   assim os dias do meio se encostam sem buraco entre as celulas. */
+.dia--meio::before,
+.dia--inicio::before,
+.dia--fim::before {
+  content: '';
+  position: absolute;
+  inset: 0.18rem -1px;
+  background: var(--papel-areia);
+  z-index: 0;
+}
+.dia--inicio::before { left: 50%; border-radius: 0; }
+.dia--fim::before { right: 50%; border-radius: 0; }
+.dia--inicio.dia--fim::before { display: none; }
+
+.dia--inicio,
+.dia--fim {
+  color: var(--papel);
+  font-weight: 600;
+}
+.dia--inicio::after,
+.dia--fim::after {
+  content: '';
+  position: absolute;
+  inset: 0.1rem;
+  border-radius: 50%;
+  background: var(--verde);
+  z-index: 0;
+}
+.dia--hoje.dia--inicio::after,
+.dia--hoje.dia--fim::after { bottom: 0.1rem; width: auto; height: auto; }
+
+/* --------------------------------------------------------------- rodape */
+
+.calendario__rodape,
+.hospedes__rodape {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--passo-sm);
+  padding: var(--passo-sm) var(--passo-md);
+  border-top: 1px solid var(--filete);
+  background: var(--papel);
+}
+
+.calendario__limpar {
+  font-size: var(--fs-apoio);
+  font-weight: 500;
+  color: var(--tinta);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.calendario__limpar:hover { color: var(--verde-fundo); }
+.calendario__limpar[disabled] { opacity: 0.4; cursor: not-allowed; text-decoration: none; }
+
+.calendario__aplicar,
+.hospedes__aplicar {
+  padding: 0.8rem 1.8rem;
+  min-height: 2.9rem;
+  border-radius: var(--raio-botao);
+  background: var(--verde);
+  color: var(--papel);
+  font-size: var(--fs-apoio);
+  font-weight: 600;
+  transition: background-color var(--dur-rapida) var(--curva-padrao);
+}
+.calendario__aplicar:hover,
+.hospedes__aplicar:hover { background: var(--verde-fundo); }
+.calendario__aplicar[disabled] { opacity: 0.45; cursor: not-allowed; }
+
+.hospedes__rodape { justify-content: flex-end; }
+.hospedes__aplicar { width: 100%; }
+
+/* ----------------------------------------------------------- hospedes */
+
+.hospedes__lista { padding: var(--passo-2xs) var(--passo-md); }
+
+.hospedes__linha {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--passo-md);
+  padding-block: var(--passo-md);
+}
+.hospedes__linha + .hospedes__linha { border-top: 1px solid var(--filete); }
+
+.hospedes__nome { font-weight: 600; color: var(--tinta-titulo); }
+.hospedes__apoio { font-size: var(--fs-olho); color: var(--tinta-suave); }
+
+.stepper { display: flex; align-items: center; gap: var(--passo-sm); }
+
+.stepper__botao {
+  display: grid;
+  place-items: center;
+  width: 2.6rem;
+  height: 2.6rem;
+  border-radius: var(--raio-botao);
+  border: 1px solid var(--filete-forte);
+  color: var(--verde-fundo);
+  transition: border-color var(--dur-rapida) var(--curva-padrao), color var(--dur-rapida) var(--curva-padrao), background-color var(--dur-rapida) var(--curva-padrao);
+}
+.stepper__botao:hover:not([disabled]) { border-color: var(--verde); background: var(--papel-areia); }
+.stepper__botao[disabled] { opacity: 0.35; cursor: not-allowed; }
+.stepper__botao svg { width: 1.05rem; height: 1.05rem; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; }
+
+.stepper__valor {
+  min-width: 1.6rem;
+  text-align: center;
+  font-size: var(--fs-corpo);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+@media (min-width: 48em) {
+  .calendario__meses { grid-template-columns: 1fr 1fr; gap: var(--passo-2xl); }
+  .calendario__corpo { padding-inline: var(--passo-xl); }
+  .calendario__nav--anterior { left: var(--passo-sm); }
+  .calendario__nav--proximo { right: var(--passo-sm); }
+  .dia { min-height: 2.4rem; }
+}
