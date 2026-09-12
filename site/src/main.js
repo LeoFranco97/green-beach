@@ -18,6 +18,7 @@ import { criarSecaoMapa } from './components/mapa.js'
 import { criarFaixa } from './components/faixa.js'
 import { criarDuvidas } from './components/duvidas.js'
 import { criarFechamento, criarBarraFixa, criarRodape } from './components/fechamento.js'
+import { criarBotaoWhatsApp } from './components/botao-whatsapp.js'
 
 // Marca que o JavaScript está vivo ANTES de montar a página. Todo estado
 // inicial invisível do movimento fica trancado atrás desta classe, então sem
@@ -28,6 +29,7 @@ const montar = () => {
   const app = qs('#app')
   const cabecalho = criarCabecalho()
   const barra = criarBarraFixa()
+  const zap = criarBotaoWhatsApp()
 
   const principal = document.createElement('main')
   principal.id = 'conteudo'
@@ -57,10 +59,11 @@ const montar = () => {
     ].filter(Boolean),
   )
 
-  app.append(cabecalho.raiz, cabecalho.sentinela, principal, criarRodape(), barra.raiz)
+  app.append(cabecalho.raiz, cabecalho.sentinela, principal, criarRodape(), barra.raiz, zap.raiz)
 
   cabecalho.iniciar()
   barra.iniciar()
+  zap.observarHero()
   // Depois de tudo montado: o fatiamento do título precisa do layout pronto.
   iniciarMovimento()
 

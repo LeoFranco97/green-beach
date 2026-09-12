@@ -99,6 +99,18 @@ export const criarBarraFixa = () => {
 
   const recolher = (recolhida) => {
     raiz.classList.toggle('is-recolhida', recolhida)
+    // Anuncia o estado no documento para quem mais disputa este canto da
+    // tela. Sem isso, o botao flutuante de WhatsApp teria que adivinhar
+    // quando a barra sobe, e adivinhar errado significa dois botoes
+    // empilhados no mesmo lugar.
+    document.documentElement.classList.toggle('tem-barra-fixa', !recolhida)
+    // Publica a altura medida, nao um valor chutado: ela muda com o tamanho
+    // da fonte do sistema e com a area segura do aparelho. Quem precisa
+    // desviar dela le esta variavel.
+    document.documentElement.style.setProperty(
+      '--altura-barra-fixa',
+      recolhida ? '0px' : `${Math.round(raiz.getBoundingClientRect().height)}px`,
+    )
     raiz.setAttribute('aria-hidden', String(recolhida))
     if (recolhida) raiz.setAttribute('inert', '')
     else raiz.removeAttribute('inert')

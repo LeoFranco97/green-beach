@@ -133,7 +133,28 @@ async function main() {
   })()`)
   checar('nenhuma âncora quebrada', links.quebrados.length === 0, links.quebrados.join(', '))
   checar('todo link _blank tem rel noopener', links.semRel === 0, `${links.semRel} sem rel`)
-  checar('nenhum link para localhost ou placeholder', !links.urls.some((u) => /localhost|exemplo|placeholder|XXXX/i.test(u)), links.urls.join(' '))
+  /*
+   * Duas perguntas diferentes, que a versao anterior misturava numa so.
+   *
+   * Para ONDE o link leva: ali localhost e erro de verdade, um link que sai
+   * quebrado no ar. Testa so o destino, sem a query.
+   *
+   * O QUE o link carrega: a mensagem do WhatsApp inclui um campo `Pagina`
+   * com a origem da visita, e em desenvolvimento ela e localhost por
+   * definicao. Isso e dado correto, nao link quebrado. Mas placeholder no
+   * corpo continua sendo erro, porque chegaria ao leitor.
+   */
+  const destino = (u) => { try { const x = new URL(u); return x.origin + x.pathname } catch { return u } }
+  checar(
+    'nenhum link aponta para localhost',
+    !links.urls.some((u) => /localhost|127\.0\.0\.1/i.test(destino(u))),
+    links.urls.filter((u) => /localhost|127\.0\.0\.1/i.test(destino(u))).join(' ') || 'nenhum',
+  )
+  checar(
+    'nenhum link com placeholder',
+    !links.urls.some((u) => /exemplo|placeholder|XXXX/i.test(u)),
+    links.urls.filter((u) => /exemplo|placeholder|XXXX/i.test(u)).join(' ') || 'nenhum',
+  )
 
   /* -------------------------------------------------- acessibilidade */
   grupo('Acessibilidade')

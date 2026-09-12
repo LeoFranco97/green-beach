@@ -1,0 +1,118 @@
+/* ---------------------------------------------------- botao flutuante zap */
+
+/*
+ * Camada 80, e o numero nao e arbitrario: fica abaixo da barra fixa (90), do
+ * cabecalho (100), do calendario (150) e do lightbox (200). Assim qualquer
+ * coisa que precise cobrir a tela cobre ele tambem, sem ninguem precisar
+ * lembrar disso depois.
+ */
+.zap {
+  position: fixed;
+  z-index: 80;
+  right: var(--gutter);
+  bottom: calc(var(--space-md) + env(safe-area-inset-bottom));
+
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2xs);
+
+  /* Alvo de toque confortavel mesmo quando so o icone aparece. */
+  min-height: 3.5rem;
+  padding-inline: 1.125rem;
+
+  /* O unico elemento redondo da pagina inteira, e de proposito: a forma
+     sozinha ja diz "fale comigo", sem precisar de cor de rede social. */
+  border-radius: var(--radius-pill);
+
+  /* Verde da marca, nao o verde do WhatsApp. O #25D366 e reconhecivel mas
+     briga com a paleta inteira e entrega cara de modelo pronto. O simbolo do
+     balao ja carrega o reconhecimento sozinho. */
+  background: var(--green-deep);
+  color: var(--text-inverse);
+  box-shadow: var(--shadow-3);
+
+  font-size: var(--fs-body-s);
+  font-weight: 600;
+  line-height: 1;
+  text-decoration: none;
+
+  transition:
+    opacity var(--dur-base) var(--ease-standard),
+    translate var(--dur-base) var(--ease-standard),
+    bottom var(--dur-base) var(--ease-standard),
+    background-color var(--dur-base) var(--ease-standard);
+}
+
+.zap:hover { background: var(--green-brand); }
+
+.zap__icone {
+  display: inline-flex;
+  width: 1.5rem;
+  height: 1.5rem;
+  flex: 0 0 auto;
+}
+.zap__icone svg { width: 100%; height: 100%; }
+
+/*
+ * Escondido por opacidade e deslocamento, nunca por display:none nem pelo
+ * atributo hidden: os dois matam a transicao de saida, e o botao apareceria
+ * e sumiria aos solavancos. inert e aria-hidden nao entram aqui porque o
+ * estado escondido dura pouco e o link continua util para quem navega por
+ * teclado antes da primeira rolagem.
+ */
+.zap.is-oculto {
+  opacity: 0;
+  translate: 0 calc(100% + var(--space-md));
+  pointer-events: none;
+}
+
+/* Sem JavaScript o observador nunca roda, e a classe inicial deixaria o
+   botao invisivel para sempre. */
+html:not(.js) .zap.is-oculto { opacity: 1; translate: none; pointer-events: auto; }
+
+/* No celular so o icone, porque o rotulo comeria metade da largura da tela e
+   competiria com o conteudo. */
+@media (max-width: 47.99em) {
+  .zap {
+    padding-inline: 0;
+    width: 3.5rem;
+    justify-content: center;
+  }
+  .zap__rotulo {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}
+
+/*
+ * Sobe acima da barra fixa em vez de sumir.
+ *
+ * A primeira versao escondia o botao quando a barra subia, e o resultado era
+ * pior que o problema: como a barra aparece logo depois do hero, o botao
+ * ficava invisivel no celular praticamente a pagina inteira, que e onde
+ * chega a maior parte das visitas.
+ *
+ * Os dois tem trabalhos diferentes e merecem existir juntos: a barra e
+ * reserva, com as datas escolhidas, o botao e conversa, para quem so quer
+ * perguntar. O desvio usa a altura que a propria barra publica, medida, e
+ * nao um numero chutado que quebraria com fonte grande do sistema.
+ *
+ * So no celular, porque acima de 62em a barra nem existe.
+ */
+@media (max-width: 61.99em) {
+  .tem-barra-fixa .zap {
+    bottom: calc(
+      var(--space-sm) + env(safe-area-inset-bottom) + var(--altura-barra-fixa, 0px)
+    );
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .zap { transition: opacity 1ms; }
+  .zap.is-oculto { translate: none; }
+}

@@ -10,6 +10,7 @@
 @import './secoes.css';
 @import './itapema.css';
 @import './fechamento.css';
+@import './botao-whatsapp.css';
 
 /* Movimento por ultimo: ele reage ao que os componentes ja desenharam. */
 @import './movimento.css';

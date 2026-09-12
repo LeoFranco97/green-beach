@@ -92,6 +92,39 @@ export const montarMensagem = (consulta) => {
   return linhas.join('\n')
 }
 
+/**
+ * Mensagem curta, para quem so quer perguntar.
+ *
+ * A `montarMensagem` acima assume dois adultos e nenhuma crianca quando o
+ * visitante nao escolheu nada, porque ela existe para o formulario, onde
+ * esses campos sempre tem valor. Num botao de conversa isso vira um numero
+ * inventado: a recepcao recebe "Adultos: 2" e orca para duas pessoas sem que
+ * ninguem tenha dito isso.
+ *
+ * Aqui vai so o que e verdade: veio do site, de onde clicou, e o protocolo
+ * para cruzar com o analytics. Sem data falsa, sem hospede falso.
+ */
+export const montarMensagemDePergunta = ({ origem = 'site', protocolo = gerarProtocolo() } = {}) => {
+  const linhas = [
+    'Olá! Vim pelo site da Pousada Green Beach e queria tirar uma dúvida.',
+    '',
+    `Consulta: ${protocolo}`,
+    `Origem: ${limpar(origem, 40)}`,
+    `Página: ${window.location.origin}${window.location.pathname}`,
+  ]
+
+  const utmTexto = Object.entries(lerUTMs())
+    .map(([chave, valor]) => `${chave}=${valor}`)
+    .join(' | ')
+  if (utmTexto) linhas.push(`Campanha: ${utmTexto}`)
+
+  return linhas.join('\n')
+}
+
+/** URL do wa.me para a mensagem curta de pergunta. */
+export const montarLinkDePergunta = (opcoes) =>
+  `https://wa.me/${config.whatsappNumber}?text=${encodeURIComponent(montarMensagemDePergunta(opcoes))}`
+
 /** Monta a URL final do wa.me com a mensagem codificada. */
 export const montarLinkWhatsApp = (consulta) =>
   `https://wa.me/${config.whatsappNumber}?text=${encodeURIComponent(montarMensagem(consulta))}`
