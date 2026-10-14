@@ -23,7 +23,9 @@ const extras = Object.values(
 
 const manifesto = { ...base, ...extras }
 
-const BASE = '/fotos'
+/* Caminho absoluto quebra quando a pagina e servida de uma subpasta, que e
+   o caso do GitHub Pages. BASE_URL ja vem com a barra no fim. */
+const BASE = `${import.meta.env.BASE_URL}fotos`
 
 /** Dados brutos de uma foto do manifesto. Nome desconhecido devolve null. */
 export const dadosDaFoto = (nome) => manifesto[nome] || null
