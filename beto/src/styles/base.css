@@ -1,61 +1,51 @@
-/* ==========================================================================
+/* ============================================================================
    BASE
-   Reset, primitivas de layout e tipografia padrão.
-   Tudo aqui lê token e não declara cor nem corpo próprio.
-   ========================================================================== */
+   Reset, tipografia, utilitarios de secao e de gatilho. Nada de componente.
+   Todo valor sai de tokens.css. Hex solto aqui e bug.
+   ========================================================================= */
 
-*,
-*::before,
-*::after { box-sizing: border-box; }
+*, *::before, *::after { box-sizing: border-box; }
 
-* { margin: 0; }
-
-/* O navegador aplica display:none no [hidden], mas qualquer regra de
-   componente com display vence por especificidade. Na v1 isso custou uma
-   barra fixa que nunca escondia. */
-[hidden] { display: none !important; }
+* { margin: 0; padding: 0; }
 
 html {
-  /* clip e não hidden. hidden transforma o body em contêiner de rolagem, e
-     aí animation-timeline: view() passa a medir algo que nunca rola. Foi o
-     bug que apagou todo o movimento da v1 por uma tarde inteira. */
-  overflow-x: clip;
-  scroll-behavior: smooth;
-  /* Compensa o cabeçalho fixo quando o link de âncora rola até a seção. */
-  scroll-padding-top: var(--altura-cabecalho-solido);
   -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
+  /* O cabecalho e fixo. Sem isso a ancora do configurador para debaixo dele
+     e o visitante cai no meio do passo 1 sem ver o titulo. */
+  scroll-padding-top: calc(var(--altura-cabecalho-solido) + var(--passo-sm));
 }
-
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
 }
 
 body {
-  overflow-x: clip;
   background: var(--papel);
   color: var(--tinta);
   font-family: var(--fonte-texto);
   font-size: var(--fs-corpo);
-  line-height: var(--el-corpo);
   font-weight: var(--peso-texto);
+  line-height: var(--el-corpo);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+  overflow-x: hidden;
 }
 
-img,
-picture,
-svg,
-video {
+img, picture, svg, video {
   display: block;
   max-width: 100%;
 }
 
-button,
-input,
-select,
-textarea {
+button, input, select, textarea {
   font: inherit;
   color: inherit;
+}
+
+ul, ol { list-style: none; }
+
+::selection {
+  background: var(--selecao-fundo);
+  color: var(--selecao-tinta);
 }
 
 /* ==========================================================================
@@ -64,34 +54,32 @@ textarea {
 
 h1, h2, h3 {
   font-family: var(--fonte-display);
-  font-weight: var(--peso-display);
   color: var(--tinta-titulo);
-  /* Serifada de contraste alto pede o desligamento da ligadura automática
-     em caixa alta, senão "ffi" cola em nome próprio. */
-  font-variant-ligatures: common-ligatures;
   text-wrap: balance;
 }
 
 h1 {
+  font-weight: var(--peso-black);
   font-size: var(--fs-display);
   line-height: var(--el-display);
   letter-spacing: var(--ee-display);
-  max-width: var(--medida-display);
+  /* Caixa alta no display e o gesto da referencia. Titulo de parque e grito
+     curto: em caixa alta uma frase longa vira muro, entao o dado precisa vir
+     curto, e isso esta escrito em oferta.js. */
+  text-transform: uppercase;
 }
 
 h2 {
+  font-weight: var(--peso-black);
   font-size: var(--fs-h2);
   line-height: var(--el-h2);
   letter-spacing: var(--ee-h2);
+  text-transform: uppercase;
   max-width: var(--medida-h2);
 }
 
-/* H3 é Source Sans 600, não serifada. Decisão da direção de arte: nenhuma
-   serifada aparece abaixo de 30px neste sistema, porque a Playfair tem
-   contraste de traço 4,8:1 e a haste fina some. */
 h3 {
-  font-family: var(--fonte-texto);
-  font-weight: var(--peso-forte);
+  font-weight: var(--peso-display);
   font-size: var(--fs-h3);
   line-height: var(--el-h3);
   letter-spacing: var(--ee-h3);
@@ -99,30 +87,22 @@ h3 {
 
 p { max-width: var(--medida-corpo); }
 
-a { color: var(--bronze); }
+a { color: var(--acao); }
 
-/* O olho de cada seção. Caixa alta SEMPRE com entreletra aberta: sem isso
-   a caixa alta lê como grito, com isso lê como etiqueta. */
+strong, b { font-weight: var(--peso-forte); }
+
+/* O olho de cada secao. Caixa alta SEMPRE com entreletra aberta: sem isso a
+   caixa alta le como grito, com isso le como etiqueta. */
 .olho {
   display: block;
-  font-family: var(--fonte-texto);
+  font-family: var(--fonte-display);
   font-size: var(--fs-olho);
-  font-weight: var(--peso-forte);
+  font-weight: var(--peso-black);
   line-height: var(--el-olho);
   letter-spacing: var(--ee-olho);
   text-transform: uppercase;
-  color: var(--bronze);
+  color: var(--acao);
   margin-bottom: var(--respiro-titulo);
-}
-
-/* A linha itálica do display. É a assinatura da página e só aparece uma vez
-   por bloco, sempre como linha inteira, nunca como palavra solta no meio. */
-.italica {
-  display: block;
-  font-style: italic;
-  font-weight: 400;
-  letter-spacing: var(--ee-display-italico);
-  color: var(--bronze-display);
 }
 
 .lead {
@@ -135,7 +115,6 @@ a { color: var(--bronze); }
 .apoio {
   font-size: var(--fs-apoio);
   line-height: var(--el-apoio);
-  letter-spacing: var(--ee-apoio);
   max-width: var(--medida-apoio);
   color: var(--tinta-suave);
 }
@@ -151,18 +130,10 @@ a { color: var(--bronze); }
   padding-inline: var(--margem-lateral);
 }
 
-/* Sangria: leva o filho até a borda da janela de dentro do envelope.
-   Margem negativa e nunca translate: translate move o desenho e deixa a
-   caixa de layout no lugar, o que estourou o documento em 840px na v1. */
+/* Sangria: leva o filho ate a borda da janela de dentro do envelope. Margem
+   negativa e nunca translate: translate move o desenho e deixa a caixa de
+   layout no lugar, o que estoura o documento na horizontal. */
 .sangra {
-  /* A distância da borda da janela até onde o conteúdo do envelope começa é
-     a soma de duas coisas: o quanto o envelope está afastado por estar
-     centralizado, mais o padding dele. Numa janela de 1440 isso é
-     80 + 40 = 120.
-
-     Estava escrito com max() no lugar da soma, e max(40, 80) devolve 80: a
-     foto parava a 40px da borda em qualquer tela acima de 1280. Abaixo de
-     1280 o erro não aparecia, porque lá a primeira parcela é zero. */
   --sangria: calc(
     var(--margem-lateral) + max(0px, (100vw - var(--medida-pagina)) / 2)
   );
@@ -171,29 +142,28 @@ a { color: var(--bronze); }
   max-width: none;
 }
 
-.secao {
-  padding-block: var(--respiro-secao);
-}
+.secao { padding-block: var(--respiro-secao); }
+.secao--pausa { padding-block: var(--respiro-secao); }
+.secao--areia { background: var(--papel-frio); }
 
-/* A pausa: usada entre dois blocos de peso, para a página respirar. */
-.secao--pausa { padding-block: var(--respiro-pausa); }
-
-.secao--areia { background: var(--papel-areia); }
-
-/* A faixa de contraste, UMA na página inteira. O contexto escuro troca os
-   tokens semânticos, então nada dentro precisa saber que está no escuro. */
+/* A faixa escura. Navy, que e a unica superficie escura do sistema fora o
+   cabecalho. */
 .secao--verde {
-  background: var(--verde);
+  background: var(--barra);
+  color: var(--tinta-clara);
 }
+.secao--verde h1,
+.secao--verde h2,
+.secao--verde h3 { color: var(--tinta-clara); }
+.secao--verde .olho { color: var(--destaque); }
 
-.cabeca {
-  margin-bottom: var(--respiro-bloco);
-}
-
+.cabeca { margin-bottom: var(--respiro-bloco); }
 .cabeca > p { margin-top: var(--respiro-titulo); }
 
 /* ==========================================================================
-   CONTROLES
+   GATILHOS
+   Um so gatilho primario na pagina inteira, e ele e vermelho. Pilula, nao
+   retangulo: a referencia usa raio total em tudo que e clicavel.
    ========================================================================== */
 
 .botao {
@@ -202,40 +172,79 @@ a { color: var(--bronze); }
   justify-content: center;
   gap: var(--passo-2xs);
   min-height: var(--alvo-toque);
-  padding: 0 var(--passo-md);
-  border: 1px solid transparent;
+  padding: 0 var(--passo-lg);
+  border: 2px solid transparent;
   border-radius: var(--raio-botao);
-  font-family: var(--fonte-texto);
-  font-size: var(--fs-apoio);
-  font-weight: var(--peso-forte);
+  font-family: var(--fonte-display);
+  font-size: var(--fs-corpo);
+  font-weight: var(--peso-display);
   letter-spacing: var(--ee-botao);
   text-decoration: none;
   cursor: pointer;
   transition: background-color var(--dur-base) var(--curva-padrao),
               border-color var(--dur-base) var(--curva-padrao),
-              color var(--dur-base) var(--curva-padrao);
+              color var(--dur-base) var(--curva-padrao),
+              transform var(--dur-rapida) var(--curva-padrao);
 }
+.botao:active { transform: translateY(1px); }
 
-/* O dourado do manual como SUPERFÍCIE, com tinta escura por cima: 7,56:1.
-   Dourado como texto sobre fundo claro continua proibido, dá 1,75:1.
-
-   O alias --primario existe porque o componente de busca vem da v1 e fala
-   nesse vocabulário. Traduzir aqui é melhor que editar o componente: o CSS
-   é o lugar certo para decidir que "primário" quer dizer dourado. */
+/* Vermelho com branco por cima: 5,43:1. O inverso, vermelho como texto sobre
+   o papel quente, da 4,66:1 e so passa em corpo, nunca em rotulo pequeno. */
 .botao--ouro,
-.botao--primario {
-  background: var(--ouro);
-  color: var(--tinta-sobre-ouro);
+.botao--primario,
+.botao--acao {
+  background: var(--acao);
+  color: var(--tinta-acao);
 }
 .botao--ouro:hover,
-.botao--primario:hover { background: var(--ouro-hover); }
+.botao--primario:hover,
+.botao--acao:hover { background: var(--acao-alto); }
+
+.botao--grande {
+  min-height: 3.5rem;
+  padding-inline: var(--passo-xl);
+  font-size: var(--fs-lead);
+  font-weight: var(--peso-black);
+}
 
 .botao--vazado {
   background: transparent;
   border-color: currentColor;
   color: var(--tinta-titulo);
 }
-.botao--vazado:hover { background: rgb(var(--veu-rgb) / 0.06); }
+.botao--vazado:hover { background: var(--veu-hover); }
+
+/* Sobre foto e sobre superficie escura. */
+.botao--claro {
+  background: var(--papel-campo);
+  color: var(--tinta-titulo);
+}
+.botao--claro:hover { background: var(--papel-frio); }
+
+/* ==========================================================================
+   PILULA
+   O rotulo flutuante que amarra foto e cor no cartao de atracao, e o selo.
+   Vive na base porque mais de um componente usa.
+   ========================================================================== */
+
+.pilula {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--passo-3xs);
+  padding: var(--passo-3xs) var(--passo-sm);
+  border-radius: var(--raio-pilula);
+  background: var(--papel-campo);
+  color: var(--tinta-titulo);
+  font-family: var(--fonte-display);
+  font-size: var(--fs-apoio);
+  font-weight: var(--peso-display);
+  line-height: 1.3;
+}
+
+.pilula--escura {
+  background: var(--_tinta);
+  color: var(--tinta-clara);
+}
 
 /* ==========================================================================
    ACESSO
@@ -246,16 +255,22 @@ a { color: var(--bronze); }
   outline-offset: var(--foco-afastamento);
 }
 
+/* Em superficie escura o anel navy some. Troca por claro. */
+.secao--verde :where(a, button):focus-visible,
+.cabecalho :where(a, button):focus-visible {
+  outline-color: var(--destaque);
+}
+
 .pular {
   position: absolute;
   left: var(--margem-lateral);
   top: 0;
   z-index: var(--z-aviso);
   transform: translateY(-120%);
-  background: var(--papel);
-  color: var(--tinta-titulo);
+  background: var(--acao);
+  color: var(--tinta-acao);
   padding: var(--passo-xs) var(--passo-md);
-  border-radius: 0 0 var(--raio-botao) var(--raio-botao);
+  border-radius: 0 0 var(--raio-campo) var(--raio-campo);
   text-decoration: none;
   font-weight: var(--peso-forte);
   transition: transform var(--dur-base) var(--curva-padrao);
@@ -267,6 +282,7 @@ a { color: var(--bronze); }
   width: 1px;
   height: 1px;
   padding: 0;
+  margin: -1px;
   overflow: hidden;
   clip-path: inset(50%);
   white-space: nowrap;
