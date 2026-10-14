@@ -115,7 +115,19 @@ export const endereco = {
 export const fotos = [
   {
     arquivo: 'itapema-por-do-sol',
-    papel: 'hero',
+    /**
+     * SEM PAPEL DE HERO, e isso e decisao e nao esquecimento.
+     *
+     * Ela e a unica aerea que passa na medicao de luminancia para texto por
+     * cima, e por isso era o hero da v1. Mas a foto e de Itapema e o produto
+     * e o parque: abrir uma pagina de montanha-russa com praia ao entardecer
+     * entrega a promessa errada antes da primeira palavra.
+     *
+     * Sem foto de hero, o componente cai no estado de cor, que e a faixa
+     * vermelha chapada da referencia. Quando a foto oficial de atracao
+     * chegar, ela entra aqui com `papel: 'hero'` e o hero troca sozinho.
+     */
+    papel: '',
     familia: 'C',
     tipo: 'destino',
     alt: 'Pôr do sol em Itapema, com o céu vermelho sobre o morro, a curva da praia e a cidade já iluminada',
@@ -205,7 +217,7 @@ export const hero = {
    */
   titulo: ['Beto Carrero'],
   tituloSegunda: 'sem dirigir',
-  tituloDestaque: 'ida, volta e ingresso',
+  tituloDestaque: 'van e ingresso',
 
   apoio:
     'A van busca você em Itapema, leva até o portão do parque e traz de volta. O ingresso vai junto, no mesmo pedido.',
