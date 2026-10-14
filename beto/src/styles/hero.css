@@ -104,27 +104,17 @@
   gap: var(--passo-sm);
 }
 
-/* A linha de prova. Fio dourado entre os itens em vez de ponto ou barra:
-   o separador tipografico some na foto e o fio nao. */
+/* As provas empilham. Na largura do hero, que é no máximo 57% da tela, duas
+   frases dessas quase sempre quebram, e um separador inline vira um tracinho
+   solto no começo da segunda linha. Empilhado não tem esse problema. */
 .hero__provas {
   display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--passo-xs);
+  flex-direction: column;
+  gap: var(--passo-3xs);
   font-size: var(--fs-apoio);
+  line-height: var(--el-apoio);
   color: var(--papel);
   opacity: 0.85;
-}
-.hero__prova + .hero__prova { padding-left: var(--passo-xs); position: relative; }
-.hero__prova + .hero__prova::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 50%;
-  width: 1px;
-  height: 0.9em;
-  transform: translateY(-50%);
-  background: var(--bronze-sobre-foto);
 }
 
 /* --------------------------------------------------------------------------
@@ -196,5 +186,4 @@
 
   .hero__lead,
   .hero__provas { color: var(--tinta); opacity: 1; }
-  .hero__prova + .hero__prova::before { background: var(--bronze); }
 }

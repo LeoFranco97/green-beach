@@ -17,8 +17,11 @@
   grid-template-columns: repeat(2, 1fr);
   gap: var(--passo-lg) var(--passo-md);
 }
+/* auto-fit e nao repeat(4): o quarto fato depende do horario do transfer, e
+   com tres confirmados uma grade fixa de quatro deixaria uma coluna vazia na
+   direita, que le como bloco faltando. */
 @media (min-width: 48em) {
-  .fatos { grid-template-columns: repeat(4, 1fr); }
+  .fatos { grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr)); }
 }
 
 .fato {
@@ -51,7 +54,7 @@
   font-size: var(--fs-apoio);
   line-height: var(--el-apoio);
   color: var(--tinta-suave);
-  max-width: 18ch;
+  max-width: 22ch;
 }
 
 /* ==========================================================================

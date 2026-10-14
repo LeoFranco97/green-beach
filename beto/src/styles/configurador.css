@@ -108,6 +108,16 @@
 
 .passo__corpo { margin-top: var(--passo-md); }
 
+/* Ressalva de um passo. Vai uma vez, embaixo da lista, nunca repetida item
+   por item. */
+.passo__nota {
+  margin-top: var(--passo-sm);
+  max-width: 34rem;
+  font-size: var(--fs-olho);
+  line-height: var(--el-apoio);
+  color: var(--tinta-suave);
+}
+
 /* ==========================================================================
    Calendario inline
    ========================================================================== */

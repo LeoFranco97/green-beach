@@ -15,6 +15,7 @@
 import { el } from '../lib/dom.js'
 import { atributosDeFoto, fotoExiste } from '../lib/imagens.js'
 import { hero, precoAncora, provaDoHero, fotoPor, ANCORA_PEDIDO } from '../data/oferta.js'
+import { ancoraGeral, emReais } from '../data/produtos.js'
 
 /** Monta a foto de fundo com os veus por cima. */
 const montarFundo = () => {
@@ -63,8 +64,19 @@ const montarTitulo = () => {
  */
 const montarProvas = () => {
   const itens = []
+
+  /*
+   * A ancora sai do proprio catalogo, nao de um texto digitado a mao. Se
+   * alguem corrigir o preco em produtos.js e esquecer do hero, o hero nao
+   * fica mentindo: ele le a mesma tabela que o configurador pratica.
+   * `precoAncora` em oferta.js existe so para sobrescrever isso quando a
+   * Green Beach tiver tabela propria de revenda.
+   */
+  const menor = ancoraGeral()
   if (precoAncora.confirmado && precoAncora.valor) {
     itens.push(el('span', { class: 'hero__prova', text: precoAncora.valor }))
+  } else if (typeof menor === 'number') {
+    itens.push(el('span', { class: 'hero__prova', text: `Ingresso a partir de ${emReais(menor)}` }))
   }
   if (provaDoHero.confirmado && provaDoHero.valor) {
     itens.push(el('span', { class: 'hero__prova', text: provaDoHero.valor }))

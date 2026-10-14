@@ -85,9 +85,11 @@ Sem contagem regressiva, sem selo de desconto, sem "últimas vagas". A casa é
 premium e não grita.
 
 ### 3.3 Faixa de fatos
-Quatro números em linha, tipografia grande, sem ícone de banco de imagens:
-tempo de viagem, quilômetros, horário de saída, pessoas por van. É o bloco que
-responde "é longe?" em dois segundos.
+Quatro números em linha, tipografia grande, sem ícone de banco de imagens.
+Hoje são três confirmados, 44 minutos, 50 km e 7 dias por semana até março, e
+o horário de saída esperando o transfer. É o bloco que responde "é longe?" em
+dois segundos. O piso é três: faixa com dois números e dois buracos não lê
+como grade, lê como erro de carregamento.
 
 ### 3.4 O configurador (o coração da página)
 É aqui que a venda acontece. Precisa estar **alto**, logo depois dos fatos, e
@@ -102,9 +104,11 @@ Passos, todos na mesma tela em desktop e empilhados em mobile:
    idade, porque idade muda o preço e evita a discussão no embarque.
 3. **Qual ingresso.** Cartões com nome, o que inclui, e preço "a partir de".
    Um cartão recomendado, marcado, porque escolha sem recomendação trava.
-4. **Transfer.** Ponto de embarque numa lista (Itapema, Meia Praia, Balneário
-   Camboriú, Porto Belo, Bombinhas, "sou hóspede da Green Beach"), ou "vou por
-   conta".
+4. **Transfer.** Ponto de embarque numa lista curta: Itapema, hóspede da
+   Green Beach, "estou em outra cidade do litoral", ou "vou por conta". A
+   lista é curta de propósito. Nenhuma cidade entra sem alguém confirmar que
+   o carro vai até lá: prometer embarque em Bombinhas sem saber disso é
+   vender o que não se tem.
 5. **Adicionais.** Fila rápida e extras, em caixas de marcar.
 6. **Resumo colado na tela** com a conta "a partir de" somando o que foi
    escolhido, e o botão de WhatsApp. Em mobile vira barra fixa no rodapé.
@@ -190,15 +194,74 @@ Carrero World é marca do parque, não da pousada.
 
 ---
 
-## 6. Pendências antes de publicar
+## 6. O que a apuração de 14/10/2026 trouxe, e o que mudou por causa dela
+
+O dossiê completo está em `../pesquisa/dossie-beto-carrero.md`, fora do
+versionamento porque o repositório é público. Quatro achados mudaram o
+produto, não só o texto:
+
+**O preço do parque não é um número, é uma curva.** O passaporte de um dia foi
+de R$ 119,90 a R$ 189,90 entre outubro e dezembro de 2026, e trava em
+R$ 249,90 em janeiro. Por isso o catálogo guarda uma tabela por mês e o cartão
+de ingresso recalcula quando o visitante escolhe o dia. Cartão com preço fixo
+prometeria um valor e o atendimento cobraria outro.
+
+**Criança não é uma categoria, são três.** Até 1 ano e 11 meses não paga, de 2
+a 4 anos tem ingresso infantil, de 5 em diante paga inteira, e a regra é por
+idade e nunca por altura, ao contrário do que vários blogs publicam. É por
+isso que o passo 2 pede a idade de cada criança: sem ela a conta não fecha, e
+o resumo diz isso em vez de chutar.
+
+**Comprar em cima da hora custa mais.** Dentro da mesma baixa temporada, a
+diferença entre comprar na semana e comprar duas semanas antes passou de
+R$ 50 por pessoa. Isso virou uma pergunta do FAQ e é o melhor argumento de
+urgência que a página tem, porque é verdadeiro e verificável.
+
+**O Mundo Animal acabou em junho de 2024.** Revendedores ainda anunciam
+"ingresso com zoológico". A página responde isso no FAQ, o que protege o
+cliente e separa a Green Beach de quem vende o que não existe.
+
+Calendário: o parque abre todos os dias até 31 de março de 2027, e as paradas
+voltam em abril, sempre em terça ou quarta. As vinte datas fechadas já estão
+bloqueadas no calendário do configurador.
+
+---
+
+## 7. Pendências antes de publicar
 
 Lista viva. Cada item que fica aberto é um bloco que não renderiza.
 
-- [ ] Material oficial de parceiro: logo, fotos do parque e regras de uso
-- [ ] Tabela de preço de revenda e o que entra na margem
-- [ ] Preço do transfer por trecho e lotação da van, e quem opera
-- [ ] Horário de saída e de retorno, por cidade
-- [ ] Política de cancelamento que a Green Beach vai praticar, que pode ser
-      mais restritiva que a do parque
-- [ ] Número de WhatsApp: mesmo da pousada ou um só para ingresso
-- [ ] Endereço final da página e publicação
+Lista viva. Cada item que fica aberto é um bloco que não renderiza.
+
+**Decisão comercial, só o Leonardo responde**
+
+- [ ] **A tabela de venda da Green Beach.** Hoje a página ancora no preço
+      online do próprio parque, apurado na API dele. Se a Green Beach for
+      vender acima disso, os números em `src/data/produtos.js` precisam subir
+      antes de publicar, senão a primeira resposta no WhatsApp é uma correção
+      para cima
+- [ ] Preço do transfer por trecho, lotação da van e quem opera
+- [ ] Horário de saída e de retorno, por ponto de embarque
+- [ ] Política de cancelamento e de remarcação que a Green Beach vai praticar,
+      que pode ser mais restritiva que a do parque
+- [ ] Como o ingresso chega na mão do cliente, e em quanto tempo
+- [ ] Número de WhatsApp: o mesmo da pousada ou um só para ingresso
+
+**Pendente do parque**
+
+- [ ] Confirmar se o programa de parceiro aceita pousada ou só agência de
+      turismo. O formulário se chama "Formulário de agências" e o portal se
+      define como programa com o agente de viagem. Canal:
+      pacotes@betocarrero.com.br, central (47) 3261-2222
+- [ ] Material oficial: logo, fotos do parque e regras de uso. Não existe
+      manual de marca público, e é isso que hoje mantém o bloco "o dia no
+      parque" desligado e a página sem nenhuma foto de atração
+
+**Antes de ir ao ar**
+
+- [ ] Endereço final e publicação. O plano é `greenbeach.com.br/beto-carrero`
+- [ ] Ligar GA4 e Pixel em `src/config.js`
+- [ ] Revisar o preço na virada de temporada: a tabela tem janeiro e julho de
+      2027, e fevereiro a junho ainda não foram coletados. Mês sem preço cai
+      em orçamento no atendimento, que é o comportamento correto, mas é venda
+      mais lenta

@@ -31,6 +31,7 @@ import { montarLinkWhatsApp } from '../lib/whatsapp.js'
 import { rastrear, EVENTOS } from '../lib/analytics.js'
 import {
   emReais, ingressosVisiveis, extrasVisiveis, embarquesVisiveis, calendarioParque,
+  precoAdultoEm, precoInfantilEm,
 } from '../data/produtos.js'
 
 const LIMITE_FUTURO_MESES = 14
@@ -48,36 +49,74 @@ const LIMITE_FUTURO_MESES = 14
  * preco e pior do que nao mostrar total nenhum: o cliente ancora no numero
  * errado e a conversa comeca com uma correcao para cima.
  */
+/**
+ * Soma o que foi escolhido.
+ *
+ * Devolve `{ total, baseCompleta, pendentes, pessoas }`.
+ *
+ * A separacao entre BASE e PENDENTE e o que faz o resumo ser util e honesto
+ * ao mesmo tempo. Base e o ingresso: sem o preco dele nao existe conta
+ * nenhuma, e o resumo nao mostra numero. Pendente e o que foi escolhido e
+ * ainda nao tem preco publicado, hoje o transfer: nesse caso o numero do
+ * ingresso aparece e o resumo diz, em letra de apoio, o que ainda vai
+ * entrar. Esconder o total inteiro porque falta o preco do transfer joga
+ * fora a ancora que a pagina toda construiu.
+ */
 export const calcular = (estado) => {
   const pessoas = estado.adultos + estado.criancas
   let total = 0
-  let completo = true
+  let baseCompleta = true
+  const pendentes = []
 
   const ingresso = ingressosVisiveis().find((i) => i.id === estado.ingressoId)
-  if (ingresso) {
-    const adulto = ingresso.precoAdulto
-    const crianca = ingresso.precoCrianca ?? ingresso.precoAdulto
-    if (typeof adulto === 'number') total += adulto * estado.adultos
-    else completo = false
-    if (typeof crianca === 'number') total += crianca * estado.criancas
-    else if (estado.criancas > 0) completo = false
-  } else {
-    completo = false
+  if (!ingresso) return { total: 0, baseCompleta: false, pendentes, pessoas }
+
+  const adulto = precoAdultoEm(ingresso, estado.data)
+  if (typeof adulto === 'number') total += adulto * estado.adultos
+  else baseCompleta = false
+
+  /*
+   * Crianca nao e uma categoria so, sao tres, e a diferenca entre elas e de
+   * centenas de reais numa familia:
+   *   ate 1 ano e 11 meses  nao paga, por idade e nunca por altura
+   *   de 2 a 4 anos         ingresso infantil, que o parque so oferta em
+   *                         alguns meses
+   *   de 5 anos em diante   paga o ingresso cheio
+   *
+   * Idade em branco nao vira chute. Sem a idade nao da para saber em qual
+   * das tres a crianca cai, entao o total some e a pergunta vai para o
+   * atendimento, que e onde ela pode ser feita.
+   */
+  for (let i = 0; i < estado.criancas; i += 1) {
+    const bruto = estado.idades[i]
+    const idade = bruto === '' || bruto === undefined ? null : Number(bruto)
+    if (idade === null || Number.isNaN(idade)) { baseCompleta = false; continue }
+    if (idade < 2) continue
+
+    if (idade <= 4) {
+      const infantil = precoInfantilEm(ingresso, estado.data)
+      if (typeof infantil === 'number') total += infantil
+      else baseCompleta = false
+      continue
+    }
+
+    if (typeof adulto === 'number') total += adulto
+    else baseCompleta = false
   }
 
   for (const extra of extrasVisiveis()) {
     if (!estado.extras.includes(extra.id)) continue
-    if (typeof extra.preco !== 'number') { completo = false; continue }
+    if (typeof extra.preco !== 'number') { pendentes.push(extra.nome.toLowerCase()); continue }
     total += extra.porPessoa ? extra.preco * pessoas : extra.preco
   }
 
   const embarque = embarquesVisiveis().find((e) => e.id === estado.embarqueId)
-  if (embarque) {
+  if (embarque && embarque.id !== 'sem-transfer') {
     if (typeof embarque.preco === 'number') total += embarque.preco * pessoas
-    else completo = false
+    else pendentes.push('o transfer')
   }
 
-  return { total, completo, pessoas }
+  return { total, baseCompleta, pendentes, pessoas }
 }
 
 /** Monta o objeto que a mensagem do WhatsApp consome. */
@@ -321,13 +360,30 @@ const criarIngressos = () => {
       },
     })
 
-    const preco = typeof item.precoAdulto === 'number'
-      ? el('p', { class: 'cartao__preco' }, [
-          el('span', { class: 'cartao__apartir', text: 'a partir de' }),
-          el('strong', { text: emReais(item.precoAdulto) }),
-          el('span', { class: 'cartao__unidade', text: 'por pessoa' }),
-        ])
-      : el('p', { class: 'cartao__preco cartao__preco--sob-consulta', text: 'Valor no atendimento' })
+    /*
+     * O preco do cartao acompanha a data escolhida, e isso nao e enfeite: o
+     * mesmo passaporte custou R$ 119,90 em outubro e R$ 249,90 em janeiro.
+     * Um cartao com preco fixo faria a pagina prometer um valor e o
+     * atendimento cobrar outro.
+     */
+    const preco = el('p', { class: 'cartao__preco' })
+    assinar((estado) => {
+      const valor = precoAdultoEm(item, estado.data)
+      preco.textContent = ''
+      preco.classList.toggle('cartao__preco--sob-consulta', valor === null)
+      if (valor === null) {
+        preco.textContent = 'Valor no atendimento'
+        return
+      }
+      preco.append(
+        el('span', { class: 'cartao__apartir', text: estado.data ? 'a partir de' : 'a partir de' }),
+        el('strong', { text: emReais(valor) }),
+        el('span', {
+          class: 'cartao__unidade',
+          text: estado.data ? 'por adulto, no dia escolhido' : 'por adulto',
+        }),
+      )
+    })
 
     const rotulo = el('label', { class: 'cartao', for: id }, [
       item.recomendado ? el('span', { class: 'cartao__selo', text: 'Mais escolhido' }) : null,
@@ -368,9 +424,12 @@ const criarTransfer = () => {
       },
     })
 
-    const valor = ponto.id === 'sem-transfer'
+    // Preco so aparece quando existe numero. "valor no atendimento" repetido
+    // em cada linha vira ruido e ainda parece que a pagina nao sabe o que
+    // vende. A ressalva vai uma vez so, embaixo da lista.
+    const valor = ponto.id === 'sem-transfer' || typeof ponto.preco !== 'number'
       ? ''
-      : typeof ponto.preco === 'number' ? `+ ${emReais(ponto.preco)} por pessoa` : 'valor no atendimento'
+      : `+ ${emReais(ponto.preco)} por pessoa`
 
     grupo.append(el('div', { class: 'embarque' }, [
       entrada,
@@ -382,7 +441,16 @@ const criarTransfer = () => {
     ]))
   }
 
-  return grupo
+  const semPreco = lista.some((p) => p.id !== 'sem-transfer' && typeof p.preco !== 'number')
+  if (!semPreco) return grupo
+
+  return el('div', {}, [
+    grupo,
+    el('p', {
+      class: 'passo__nota',
+      text: 'O valor do transfer sai no atendimento, junto com o horário de saída e de retorno.',
+    }),
+  ])
 }
 
 /* ==========================================================================
@@ -477,7 +545,7 @@ export const criarResumo = ({ origem, compacto = false }) => {
     ])
 
   assinar((estado) => {
-    const { total, completo, pessoas } = calcular(estado)
+    const { total, baseCompleta, pendentes, pessoas } = calcular(estado)
 
     if (!compacto) {
       const ingresso = ingressosVisiveis().find((i) => i.id === estado.ingressoId)
@@ -494,17 +562,20 @@ export const criarResumo = ({ origem, compacto = false }) => {
       if (nomesExtras.length) linhas.append(linha('Adicionais', nomesExtras.join(', ')))
     }
 
-    if (completo && total > 0) {
-      valor.textContent = ''
+    valor.textContent = ''
+    if (baseCompleta && total > 0) {
       valor.append(
         el('span', { class: 'resumo__apartir', text: 'a partir de' }),
         el('strong', { text: emReais(total) }),
       )
-      nota.textContent = 'Valor estimado. A confirmação final sai no atendimento, junto com a disponibilidade do dia.'
+      nota.textContent = pendentes.length
+        ? `Valor dos ingressos. Falta ${pendentes.join(' e ')}, que sai no atendimento junto com a confirmação do dia.`
+        : 'Valor estimado. A confirmação final sai no atendimento, junto com a disponibilidade do dia.'
     } else {
-      valor.textContent = ''
       valor.append(el('strong', { text: 'Orçamento no WhatsApp' }))
-      nota.textContent = 'Monte o pedido e o valor fechado volta na primeira resposta.'
+      nota.textContent = estado.criancas > 0 && estado.idades.some((i) => !i)
+        ? 'Falta a idade de cada criança para a conta fechar. Pode mandar assim mesmo, a gente pergunta.'
+        : 'Monte o pedido e o valor fechado volta na primeira resposta.'
     }
 
     botao.href = montarLinkWhatsApp(montarPedido(estado, origem))

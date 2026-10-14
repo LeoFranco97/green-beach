@@ -236,8 +236,11 @@ export const precoAncora = {
  * Google Maps no dia, ou o operador do transfer.
  */
 export const provaDoHero = {
-  valor: '',
-  confirmado: false,
+  /** [OSRM] rota rodoviaria medida em 14/10/2026, nao linha reta de mapa. */
+  valor: '50 km de Itapema, 44 minutos de estrada',
+  fonte: 'OSRM, rota rodoviária Itapema a Penha',
+  coletadoEm: '14/10/2026',
+  confirmado: true,
 }
 
 /* ------------------------------------------------------- faixa de 4 fatos */
@@ -253,34 +256,37 @@ export const provaDoHero = {
 export const fatos = [
   {
     chave: 'duracao',
-    numero: '',
-    unidade: '',
-    rotulo: 'de viagem até o parque',
-    /** PENDENTE: tempo real de porta a porta, medido pelo operador do transfer. */
-    confirmado: false,
+    numero: '44',
+    unidade: 'min',
+    rotulo: 'de Itapema até o portão',
+    /** [OSRM] 14/10/2026. Tempo de estrada, nao de porta a porta: o transfer
+     *  ainda nao tem horario definido, e por isso o rotulo nao promete isso. */
+    confirmado: true,
   },
   {
     chave: 'distancia',
-    numero: '',
+    numero: '50',
     unidade: 'km',
     rotulo: 'de Itapema até Penha',
-    /** PENDENTE: distancia da rota rodoviaria, nao a linha reta do mapa. */
-    confirmado: false,
+    /** [OSRM] 14/10/2026, rota rodoviaria. */
+    confirmado: true,
+  },
+  {
+    chave: 'abertura',
+    numero: '7',
+    unidade: 'dias',
+    rotulo: 'por semana, até 31 de março',
+    /** [PARQUE] calendario oficial consultado em 14/10/2026: nenhuma data
+     *  fechada entre outubro de 2026 e marco de 2027. As paradas voltam em
+     *  abril, sempre em terca ou quarta. */
+    confirmado: true,
   },
   {
     chave: 'saida',
     numero: '',
     unidade: '',
     rotulo: 'horário de saída',
-    /** PENDENTE: horario de saida e de retorno, por cidade. */
-    confirmado: false,
-  },
-  {
-    chave: 'lotacao',
-    numero: '',
-    unidade: '',
-    rotulo: 'pessoas por van',
-    /** PENDENTE: lotacao e quem opera o transfer. */
+    /** PENDENTE: horario de saida e de retorno, por cidade de embarque. */
     confirmado: false,
   },
 ]
@@ -434,6 +440,60 @@ export const duvidas = [
     confirmado: true,
   },
   {
+    /**
+     * Esta e a pergunta que mais muda o valor do pedido de uma familia, e e
+     * a que mais circula errada: tem blog afirmando que crianca abaixo de um
+     * metro nao paga. A regra do parque e por IDADE, nunca por altura.
+     * [PARQUE] Regulamento Interno e catalogo da loja, 14/10/2026.
+     */
+    pergunta: 'Criança paga? A partir de que idade?',
+    resposta:
+      'A regra do parque é por idade, e não por altura. Até 1 ano e 11 meses não paga. De 2 a 4 anos existe um ingresso infantil, mais barato, que o parque oferta em alguns meses do ano. De 5 anos em diante paga o ingresso inteiro. Por isso o pedido pergunta a idade de cada criança: é ela que define o valor.',
+    confirmado: true,
+  },
+  {
+    /**
+     * [PARQUE] 14/10/2026. Verificado em cinco veiculos e confirmado em
+     * fonte primaria: zero mencoes a "Mundo Animal" ou "zoologico" no FAQ e
+     * nas 28 paginas do Regulamento. Revendedor que ainda anuncia "com
+     * zoologico" esta vendendo o que nao existe, e e por isso que esta
+     * pergunta entra na pagina.
+     */
+    pergunta: 'O parque ainda tem o Mundo Animal, o zoológico?',
+    resposta:
+      'Não. O Mundo Animal foi encerrado em junho de 2024 e não faz mais parte do parque. Se você vir alguém anunciando ingresso "com zoológico", é informação velha.',
+    confirmado: true,
+  },
+  {
+    /** [PARQUE] 14/10/2026. O proprio parque diz isso no site dele. */
+    pergunta: 'Vale a pena usar meia-entrada?',
+    resposta:
+      'Quase sempre não. A meia-entrada do parque tem valor fixo, e o passaporte promocional costuma sair bem abaixo dela. Vale conferir os dois antes de decidir, e é uma das contas que a gente faz com você no WhatsApp.',
+    confirmado: true,
+  },
+  {
+    /** [PARQUE] calendario oficial, 14/10/2026. */
+    pergunta: 'O parque abre todo dia?',
+    resposta:
+      'Até 31 de março de 2027, sim, todos os dias. A partir de abril o parque fecha em algumas terças e quartas. O calendário do pedido já bloqueia os dias fechados, então o dia que você conseguir escolher é dia de parque aberto.',
+    confirmado: true,
+  },
+  {
+    /** [PARQUE] 14/10/2026. A tabela e por atracao e muda, entao a resposta
+     *  aponta para a fonte em vez de copiar numeros que envelhecem. */
+    pergunta: 'Tem altura mínima para os brinquedos?',
+    resposta:
+      'Tem, e varia de atração para atração. O parque publica a tabela completa, brinquedo por brinquedo, no FAQ oficial. Se você me disser a altura das crianças no WhatsApp, eu digo o que elas pegam e o que não pegam antes de você comprar.',
+    confirmado: true,
+  },
+  {
+    /** [API DO PARQUE] 5 meses coletados em 14/10/2026. */
+    pergunta: 'Compro agora ou mais perto da data?',
+    resposta:
+      'Agora. O preço do parque sobe conforme o dia chega: dentro da mesma baixa temporada, a diferença entre comprar na semana e comprar com duas semanas de antecedência passou de 50 reais por pessoa. Alta temporada tem preço próprio e mais alto.',
+    confirmado: true,
+  },
+  {
     pergunta: 'Dá para cancelar ou remarcar?',
     resposta: '',
     /** PENDENTE: politica que a Green Beach vai praticar, que pode ser mais
@@ -450,18 +510,6 @@ export const duvidas = [
     pergunta: 'Como eu recebo o ingresso?',
     resposta: '',
     /** PENDENTE: forma de entrega e prazo. Ver `comoFunciona.entrega`. */
-    confirmado: false,
-  },
-  {
-    pergunta: 'Criança paga? A partir de que idade?',
-    resposta: '',
-    /** PENDENTE: faixa etaria e preco, da tabela oficial do parque. */
-    confirmado: false,
-  },
-  {
-    pergunta: 'Tem altura mínima para os brinquedos?',
-    resposta: '',
-    /** PENDENTE: regra do parque, por atracao. So entra com fonte oficial. */
     confirmado: false,
   },
   {
