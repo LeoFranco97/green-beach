@@ -32,7 +32,7 @@ export const criarCabecalho = () => {
           el('span', { text: 'Ingressos e transfer' }),
         ]),
       ]),
-      el('a', { class: 'botao botao--ouro cabecalho__acao', href: ANCORA_PEDIDO, text: hero.botao }),
+      el('a', { class: 'botao botao--acao cabecalho__acao', href: ANCORA_PEDIDO, text: hero.botao }),
     ]),
   ])
 

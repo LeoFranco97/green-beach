@@ -56,11 +56,13 @@ const criarCartao = (atracao, indice) => {
         return el('div', { class: 'atracao__midia' }, [el('img', attrs)])
       })()
     : // Estado de cor: enquanto a foto oficial nao chega, o bloco vira a cor
-      // do cartao com o nome em tipo grande. Intencional em vez de quebrado.
+      // do cartao com a CATEGORIA em tipo grande. Categoria e nao nome: o
+      // nome ja esta na pilula logo abaixo, e repetir a mesma palavra duas
+      // vezes no mesmo cartao le como defeito, nao como design.
       el('div', {
         class: 'atracao__midia atracao__midia--cor',
         'aria-hidden': 'true',
-      }, [el('span', { text: atracao.nome })])
+      }, [el('span', { text: (categorias.find((c) => c.id === atracao.categoria)?.nome || '').toUpperCase() })])
 
   const selos = []
   if (atracao.altura !== null) {

@@ -1,19 +1,24 @@
 /* ==========================================================================
    CABECALHO
-   Transparente sobre o hero, solido depois dele. Sem sombra em nenhum dos
-   dois estados: a separacao e feita por fio, que e o vocabulario da v3.
+   Sempre navy, nunca transparente. A referencia faz assim, e isso resolve de
+   uma vez a familia inteira de bugs de contraste que um cabecalho
+   transparente cria: ele passa por cima de uma faixa vermelha, de uma foto
+   clara e de uma secao branca na mesma rolagem, e em duas das tres o texto
+   branco some.
+
+   Sem menu: a pagina tem uma secao que importa e o cabecalho leva a ela.
+   Menu de cinco itens numa landing de conversao e cinco maneiras de sair do
+   caminho.
    ========================================================================== */
 
 .cabecalho {
   position: fixed;
   inset: 0 0 auto 0;
   z-index: var(--z-cabecalho);
-  background: transparent;
-  border-bottom: 1px solid transparent;
-  transition: background-color var(--dur-base) var(--curva-padrao),
-              border-color var(--dur-base) var(--curva-padrao),
-              height var(--dur-base) var(--curva-padrao);
+  background: var(--barra);
+  transition: box-shadow var(--dur-base) var(--curva-padrao);
 }
+.cabecalho.is-solido { box-shadow: var(--sombra-2); }
 
 .cabecalho__interno {
   display: flex;
@@ -23,6 +28,7 @@
   height: var(--altura-cabecalho);
   transition: height var(--dur-base) var(--curva-padrao);
 }
+.cabecalho.is-solido .cabecalho__interno { height: var(--altura-cabecalho-solido); }
 
 .cabecalho__marca {
   display: flex;
@@ -33,16 +39,16 @@
 }
 
 .cabecalho__simbolo {
-  width: 2.75rem;
-  height: 2.75rem;
+  width: 2.5rem;
+  height: 2.5rem;
   object-fit: contain;
 }
 
 .cabecalho__nome {
   display: none;
   flex-direction: column;
-  line-height: 1.2;
-  color: var(--papel);
+  line-height: 1.15;
+  color: var(--tinta-clara);
 }
 .cabecalho__nome strong {
   font-family: var(--fonte-display);
@@ -50,30 +56,16 @@
   font-size: var(--fs-apoio);
 }
 .cabecalho__nome span {
-  font-size: var(--fs-olho);
+  font-size: var(--fs-selo);
+  font-weight: var(--peso-forte);
   letter-spacing: var(--ee-olho);
   text-transform: uppercase;
-  opacity: 0.8;
+  opacity: 0.75;
 }
 @media (min-width: 30em) { .cabecalho__nome { display: flex; } }
 
-/* --------------------------------------------------------------------------
-   Estado solido
-   -------------------------------------------------------------------------- */
-
-.cabecalho.is-solido {
-  background: var(--papel);
-  border-bottom-color: var(--filete);
-}
-.cabecalho.is-solido .cabecalho__interno { height: var(--altura-cabecalho-solido); }
-.cabecalho.is-solido .cabecalho__nome { color: var(--tinta-titulo); }
-
-/* --------------------------------------------------------------------------
-   O gatilho
-   No celular o botao do cabecalho some: a barra fixa do configurador ja
-   ocupa o polegar, e dois gatilhos competindo na mesma tela diluem o unico
-   caminho de conversao da pagina.
-   -------------------------------------------------------------------------- */
-
+/* O gatilho some no celular: a barra fixa do configurador ja ocupa o
+   polegar, e dois gatilhos competindo na mesma tela diluem o unico caminho
+   de conversao da pagina. */
 .cabecalho__acao { display: none; }
 @media (min-width: 48em) { .cabecalho__acao { display: inline-flex; } }

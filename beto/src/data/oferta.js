@@ -186,26 +186,29 @@ export const fotoPor = (papel) => fotos.find((f) => f.papel === papel && f.tipo 
 
 export const hero = {
   /** Diz de onde sai e para onde vai, que e a primeira pergunta do turista. */
-  olho: 'De Itapema ao Beto Carrero World',
+  olho: 'De Itapema, Santa Catarina',
 
   /**
-   * Tres linhas, a terceira em italico dourado. A quebra e dado e nao
-   * resultado de largura de tela: ela e a assinatura tipografica da pagina.
+   * TRES LINHAS CURTAS, e a brevidade aqui e regra e nao estilo.
    *
-   * Duas regras foram obedecidas ao escrever estas linhas:
-   *   medida  no maximo 19 caracteres por linha. Playfair a 80px gasta
-   *           0,474em por caractere, e a coluna do hero tem 730px numa
-   *           janela de 1280. "O ingresso, a ida" ocupa 644px.
-   *   acento  nenhuma maiuscula acentuada, em nenhuma linha. Em portugues o
-   *           acento sobe 32,6% acima da altura de maiuscula e come a folga
-   *           da entrelinha de 1,06.
+   * O display da v2 e Nunito 900 em CAIXA ALTA, que e o gesto da referencia.
+   * Caixa alta pesada come o dobro da largura da caixa baixa, entao o texto
+   * que funcionava em Playyfair nao funciona aqui: "O INGRESSO, A IDA / E A
+   * VOLTA / NUM PEDIDO SO" virou um muro de tres linhas cheias.
+   *
+   * Teto por linha: 14 caracteres. Quem escrever mais vai ver o titulo
+   * encostar na borda em 1280.
+   *
+   * A terceira linha mora dentro de uma pilula amarela com tinta navy, que e
+   * o vocabulario de pilula do parque e resolve o contraste: amarelo como
+   * TEXTO sobre o vermelho do hero daria 2,3:1 e reprova.
    */
-  titulo: ['O ingresso, a ida'],
-  tituloSegunda: 'e a volta',
-  tituloItalico: 'num pedido só',
+  titulo: ['Beto Carrero'],
+  tituloSegunda: 'sem dirigir',
+  tituloDestaque: 'ida, volta e ingresso',
 
   apoio:
-    'Você monta o pedido aqui: o dia, quem vai, qual ingresso e de onde o transfer sai. A gente responde no WhatsApp com o valor fechado.',
+    'A van busca você em Itapema, leva até o portão do parque e traz de volta. O ingresso vai junto, no mesmo pedido.',
 
   /** Rotulo do unico botao primario da pagina. Ele rola ate o configurador. */
   botao: 'Montar meu pedido',
