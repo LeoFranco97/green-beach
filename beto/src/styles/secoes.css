@@ -222,7 +222,10 @@
   color: var(--papel);
   text-wrap: balance;
 }
-.respiro__frase .linha:last-child { color: var(--bronze-sobre-foto); font-style: italic; }
+/* Sem italico. A Nunito so carrega 800 e 900 romanos, entao italico aqui
+   seria falso, sintetizado pelo navegador, e italico falso em peso 900
+   inclina a letra e engorda a haste. A cor sozinha ja separa a linha. */
+.respiro__frase .linha:last-child { color: var(--destaque); }
 
 .respiro__apoio {
   margin-top: var(--respiro-titulo);
