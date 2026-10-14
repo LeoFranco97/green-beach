@@ -17,3 +17,12 @@ assets-raw/brasil-uf.json
 pesquisa/
 PENDENCIAS.md
 capturas-beto/
+
+# Fotos das atracoes do Beto Carrero: material do parque, usado em AMOSTRA
+# local enquanto o material oficial de parceiro nao chega. Este repositorio e
+# PUBLICO, e commitar foto do parque aqui seria publicar. Ficam fora, junto
+# com o manifesto proprio delas. Em clone limpo a grade cai no estado de cor,
+# que e um estado desenhado e nao um erro. Ver beto/FOTOS.md
+beto/public/fotos/atracao-*
+beto/public/fotos/fotos-atracoes.json
+beto/referencia-atracoes.png

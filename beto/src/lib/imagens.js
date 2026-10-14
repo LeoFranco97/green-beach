@@ -3,7 +3,25 @@
  * As larguras disponiveis de cada foto vem do manifesto gerado por
  * scripts/preparar-fotos.py, entao nunca pedimos um arquivo que nao existe.
  */
-import manifesto from '../../public/fotos/fotos.json'
+import base from '../../public/fotos/fotos.json'
+
+/**
+ * Manifesto OPCIONAL das fotos de atracao.
+ *
+ * Ele e separado e fica FORA do versionamento, junto com os arquivos
+ * `atracao-*.webp`, por um motivo concreto: o repositorio e publico, e as
+ * fotos do parque nao sao nossas. Commitar uma foto do Beto Carrero num repo
+ * publico e publicar, mesmo que a pagina nunca va ao ar.
+ *
+ * `import.meta.glob` devolve um objeto vazio quando o arquivo nao existe, e e
+ * exatamente isso que se quer: em clone limpo as atracoes ficam sem foto e o
+ * cartao cai no estado de cor, que e um estado desenhado e nao um erro.
+ */
+const extras = Object.values(
+  import.meta.glob('../../public/fotos/fotos-atracoes.json', { eager: true, import: 'default' }),
+)[0] || {}
+
+const manifesto = { ...base, ...extras }
 
 const BASE = '/fotos'
 

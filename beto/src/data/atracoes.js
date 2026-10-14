@@ -21,14 +21,17 @@
  *    mostra so foto, nome e altura, que ja e o suficiente.
  *
  * ---------------------------------------------------------------------------
- * FOTO: ainda nao existe nenhuma. Enquanto o material oficial de parceiro nao
- * chegar, `foto` fica vazio e o cartao renderiza em ESTADO DE COR, que e um
- * bloco chapado com o nome em tipo grande. Fica intencional em vez de
- * quebrado. Para ligar a foto, solte o arquivo em
- * `public/fotos/atracoes/<nome>.webp` e preencha o campo.
+ * FOTO: as que estao ligadas aqui sao do proprio parque e servem como
+ * AMOSTRA LOCAL, para o Leonardo ver o layout funcionando. Elas NAO sao
+ * versionadas, porque o repositorio e publico, e nao podem ir ao ar sem o
+ * material oficial de parceiro. Detalhe em ../../FOTOS.md
  *
- * Nao vale puxar imagem do servidor do parque e nao vale gerar imagem de
- * brinquedo por IA. O porque esta em DIRECAO-DE-ARTE.md, secao 5.
+ * Atracao sem foto cai no ESTADO DE COR, que e um bloco chapado com a
+ * categoria em tipo grande. Fica intencional em vez de quebrado, e e o que
+ * qualquer clone limpo deste repositorio vai mostrar.
+ *
+ * Nao vale gerar imagem de brinquedo por IA, em nenhuma hipotese: numa pagina
+ * de produto isso nao e estetica, e propaganda enganosa.
  * ---------------------------------------------------------------------------
  *
  * Fonte das atracoes e das alturas: pagina oficial de atracoes do parque e o
@@ -71,7 +74,7 @@ export const atracoes = [
     altura: 130,
     /** [PARQUE] 14/10/2026, pagina oficial de atracoes. */
     descricao: 'A primeira montanha-russa invertida do Brasil, de 2008.',
-    foto: '',
+    foto: 'atracao-fire-whip',
     confirmado: true,
   },
   {
@@ -81,7 +84,7 @@ export const atracoes = [
     altura: 130,
     /** [PARQUE] 14/10/2026, pagina oficial de atracoes. */
     descricao: 'Cem metros de altura, uma das maiores torres radicais do mundo.',
-    foto: '',
+    foto: 'atracao-big-drop',
     confirmado: true,
   },
   {
@@ -91,7 +94,7 @@ export const atracoes = [
     altura: 95,
     /** [PARQUE] 14/10/2026, pagina oficial de atracoes. */
     descricao: 'A família pilota um Hot Wheels em tamanho real.',
-    foto: '',
+    foto: 'atracao-hot-wheels-turbo-drive',
     confirmado: true,
   },
   {
@@ -100,7 +103,7 @@ export const atracoes = [
     categoria: 'radical',
     altura: 120,
     descricao: '',
-    foto: '',
+    foto: 'atracao-spin-blast',
     confirmado: true,
   },
   {
@@ -109,7 +112,7 @@ export const atracoes = [
     categoria: 'radical',
     altura: 120,
     descricao: '',
-    foto: '',
+    foto: 'atracao-rebulico',
     confirmado: true,
   },
   {
@@ -118,7 +121,7 @@ export const atracoes = [
     categoria: 'familia',
     altura: 90,
     descricao: '',
-    foto: '',
+    foto: 'atracao-super-soaker-splash',
     confirmado: true,
   },
   {
@@ -128,7 +131,7 @@ export const atracoes = [
     /** [PARQUE] FAQ oficial, 14/10/2026. */
     altura: 130,
     descricao: '',
-    foto: '',
+    foto: 'atracao-tchibum',
     confirmado: true,
   },
   {
@@ -148,7 +151,7 @@ export const atracoes = [
     /** PENDENTE: altura nao conferida. */
     altura: null,
     descricao: '',
-    foto: '',
+    foto: 'atracao-barco-pirata',
     confirmado: true,
   },
   {
@@ -158,7 +161,7 @@ export const atracoes = [
     altura: 0,
     /** [PARQUE] 14/10/2026: encontro para foto, sem restricao de altura. */
     descricao: 'Encontro e foto com a turma, sem restrição de altura.',
-    foto: '',
+    foto: 'atracao-galinha-pintadinha',
     confirmado: true,
   },
 ]
