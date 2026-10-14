@@ -1,0 +1,15 @@
+/* ============================================================================
+   Ordem de carga. Ela importa.
+
+   tokens  primeiro, porque todo o resto le dele
+   base    reset, tipografia, utilitarios de secao e de botao
+   depois  os componentes, na ordem em que aparecem na pagina
+   ========================================================================= */
+
+@import './tokens.css';
+@import './base.css';
+
+@import './cabecalho.css';
+@import './hero.css';
+@import './configurador.css';
+@import './secoes.css';

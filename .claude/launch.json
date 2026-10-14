@@ -4,8 +4,24 @@
     {
       "name": "green-beach",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "dev", "--prefix", "site"],
+      "runtimeArgs": [
+        "run",
+        "dev",
+        "--prefix",
+        "site"
+      ],
       "port": 5180
+    },
+    {
+      "name": "green-beach-beto",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "run",
+        "dev",
+        "--prefix",
+        "beto"
+      ],
+      "port": 5195
     }
   ]
 }

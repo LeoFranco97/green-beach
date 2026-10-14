@@ -1,0 +1,428 @@
+/* ==========================================================================
+   SECOES
+   Tudo que nao e hero nem configurador. Vocabulario da v3 sem excecao:
+   raio zero, fio em vez de sombra, foto sangrando, contraste de escala entre
+   imagens, e uma unica faixa escura na pagina inteira.
+   ========================================================================== */
+
+/* Linha de titulo quebrada no dado, nao na largura da tela. */
+.linha { display: block; }
+
+/* ==========================================================================
+   Faixa de fatos
+   ========================================================================== */
+
+.fatos {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--passo-lg) var(--passo-md);
+}
+@media (min-width: 48em) {
+  .fatos { grid-template-columns: repeat(4, 1fr); }
+}
+
+.fato {
+  display: flex;
+  flex-direction: column;
+  gap: var(--passo-3xs);
+  padding-left: var(--passo-sm);
+  border-left: 1px solid var(--bronze);
+}
+
+.fato__numero {
+  display: flex;
+  align-items: baseline;
+  gap: 0.2em;
+  font-family: var(--fonte-display);
+  font-weight: var(--peso-display);
+  color: var(--tinta-titulo);
+}
+.fato__numero strong {
+  font-size: var(--fs-h2);
+  line-height: 1;
+  font-variant-numeric: var(--numeral-tabular);
+}
+.fato__unidade {
+  font-size: var(--fs-h3);
+  color: var(--bronze);
+}
+
+.fato__rotulo {
+  font-size: var(--fs-apoio);
+  line-height: var(--el-apoio);
+  color: var(--tinta-suave);
+  max-width: 18ch;
+}
+
+/* ==========================================================================
+   Como funciona
+   ========================================================================== */
+
+.como__passos {
+  list-style: none;
+  margin-top: var(--respiro-bloco);
+  display: grid;
+  gap: var(--passo-xl);
+}
+@media (min-width: 48em) {
+  .como__passos { grid-template-columns: repeat(3, 1fr); gap: var(--passo-lg); }
+}
+
+.como__passo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--passo-2xs);
+  padding-top: var(--passo-sm);
+  border-top: 1px solid var(--filete);
+}
+
+/* Numeral grande e dourado. Nao e badge redondo: badge e o vocabulario de
+   template que a v3 recusou. */
+.como__numero {
+  font-family: var(--fonte-display);
+  font-size: var(--fs-h2);
+  line-height: 1;
+  color: var(--bronze);
+  font-variant-numeric: var(--numeral-tabular);
+}
+
+.como__titulo {
+  font-family: var(--fonte-display);
+  font-weight: var(--peso-display);
+  font-size: var(--fs-h3);
+  line-height: var(--el-h3);
+  color: var(--tinta-titulo);
+}
+
+.como__texto {
+  font-size: var(--fs-corpo);
+  line-height: var(--el-corpo);
+  color: var(--tinta);
+  max-width: var(--medida-corpo);
+}
+
+.como__entrega { margin-top: var(--respiro-bloco); }
+
+/* ==========================================================================
+   O dia no parque
+   ========================================================================== */
+
+.dia__interno {
+  display: grid;
+  gap: var(--respiro-bloco);
+}
+@media (min-width: 64em) {
+  .dia__interno {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+    gap: var(--passo-2xl);
+    align-items: start;
+  }
+}
+
+.dia__paragrafo {
+  margin-top: var(--respiro-paragrafo);
+  font-size: var(--fs-corpo);
+  line-height: var(--el-corpo);
+  color: var(--tinta);
+  max-width: var(--medida-corpo);
+}
+
+.roteiro {
+  list-style: none;
+  margin-top: var(--respiro-bloco);
+  display: flex;
+  flex-direction: column;
+}
+
+.roteiro__etapa {
+  display: grid;
+  grid-template-columns: 5.5rem 1fr;
+  gap: var(--passo-sm);
+  padding-block: var(--passo-sm);
+  border-top: 1px solid var(--filete);
+}
+
+.roteiro__hora {
+  font-family: var(--fonte-display);
+  font-size: var(--fs-h3);
+  line-height: var(--el-h3);
+  color: var(--bronze);
+  font-variant-numeric: var(--numeral-tabular);
+}
+
+.roteiro__rotulo {
+  font-size: var(--fs-corpo);
+  font-weight: var(--peso-forte);
+  color: var(--tinta-titulo);
+}
+.roteiro__texto {
+  margin-top: var(--passo-3xs);
+  font-size: var(--fs-apoio);
+  line-height: var(--el-apoio);
+  color: var(--tinta);
+}
+
+/* Contraste de escala: a grande ocupa a coluna inteira, a de detalhe entra
+   recuada e menor. Duas fotos do mesmo tamanho lado a lado e grade de
+   estoque, e e o defeito 1.3 da direcao de arte v3. */
+.dia__fotos { display: flex; flex-direction: column; }
+
+.dia__grande img {
+  width: 100%;
+  aspect-ratio: var(--prop-larga);
+  object-fit: cover;
+  filter: var(--tratamento-foto);
+}
+
+.dia__detalhe {
+  width: 58%;
+  margin-top: calc(var(--passo-xl) * -1);
+  margin-left: auto;
+  margin-right: calc(var(--margem-lateral) * -1);
+  position: relative;
+  z-index: var(--z-conteudo);
+}
+@media (min-width: 64em) {
+  .dia__detalhe { margin-right: calc(var(--passo-xl) * -1); }
+}
+.dia__detalhe img {
+  width: 100%;
+  aspect-ratio: var(--prop-retrato);
+  object-fit: cover;
+  filter: var(--tratamento-foto);
+}
+
+.dia__fotos figcaption {
+  margin-top: var(--passo-2xs);
+  font-size: var(--fs-olho);
+  line-height: var(--el-apoio);
+  color: var(--tinta-suave);
+}
+
+/* ==========================================================================
+   Respiro
+   ========================================================================== */
+
+.respiro {
+  display: grid;
+  align-content: center;
+  min-height: var(--altura-faixa);
+  text-align: center;
+}
+
+.respiro__frase {
+  font-family: var(--fonte-display);
+  font-weight: var(--peso-display);
+  font-size: var(--fs-h2);
+  line-height: var(--el-h2);
+  letter-spacing: var(--ee-h2);
+  color: var(--papel);
+  text-wrap: balance;
+}
+.respiro__frase .linha:last-child { color: var(--bronze-sobre-foto); font-style: italic; }
+
+.respiro__apoio {
+  margin-top: var(--respiro-titulo);
+  margin-inline: auto;
+  max-width: var(--medida-lead);
+  font-size: var(--fs-apoio);
+  line-height: var(--el-apoio);
+  color: var(--papel);
+  opacity: 0.82;
+}
+
+/* ==========================================================================
+   Hospedagem
+   ========================================================================== */
+
+.hosp__interno {
+  display: grid;
+  gap: var(--respiro-bloco);
+  align-items: center;
+}
+@media (min-width: 64em) {
+  .hosp__interno { grid-template-columns: minmax(0, 1fr) 22rem; gap: var(--passo-2xl); }
+}
+
+.hosp__paragrafo {
+  margin-top: var(--respiro-paragrafo);
+  font-size: var(--fs-corpo);
+  line-height: var(--el-corpo);
+  color: var(--tinta);
+  max-width: var(--medida-corpo);
+}
+
+.hosp__foto img {
+  width: 100%;
+  aspect-ratio: var(--prop-retrato);
+  object-fit: cover;
+  filter: var(--tratamento-foto);
+}
+.hosp__foto figcaption {
+  margin-top: var(--passo-2xs);
+  font-size: var(--fs-olho);
+  color: var(--tinta-suave);
+}
+
+/* Gatilho de texto, com o fio dourado por baixo. Nao e botao, de proposito. */
+.elo {
+  display: inline-block;
+  margin-top: var(--respiro-bloco);
+  font-size: var(--fs-apoio);
+  font-weight: var(--peso-forte);
+  letter-spacing: var(--ee-botao);
+  color: var(--tinta-titulo);
+  text-decoration: none;
+  border-bottom: 1px solid var(--bronze);
+  padding-bottom: 0.15rem;
+  transition: color var(--dur-rapida) var(--curva-padrao);
+}
+.elo:hover { color: var(--bronze-hover); }
+
+/* ==========================================================================
+   Duvidas
+   ========================================================================== */
+
+.duvidas__lista {
+  margin-top: var(--respiro-bloco);
+  max-width: 48rem;
+}
+
+.duvida { border-top: 1px solid var(--filete); }
+.duvida:last-child { border-bottom: 1px solid var(--filete); }
+
+.duvida__pergunta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--passo-sm);
+  min-height: var(--alvo-toque);
+  padding-block: var(--passo-sm);
+  font-size: var(--fs-corpo);
+  color: var(--tinta-titulo);
+  cursor: pointer;
+  list-style: none;
+}
+.duvida__pergunta::-webkit-details-marker { display: none; }
+
+/* O sinal e um mais que vira menos. Chevron girando exige transform numa
+   pseudo e quebra em zoom de texto alto. */
+.duvida__pergunta::after {
+  content: '+';
+  flex: none;
+  font-family: var(--fonte-display);
+  font-size: var(--fs-h3);
+  line-height: 1;
+  color: var(--bronze);
+}
+.duvida[open] .duvida__pergunta::after { content: '−'; }
+
+.duvida__resposta {
+  padding-bottom: var(--passo-md);
+  font-size: var(--fs-corpo);
+  line-height: var(--el-corpo);
+  color: var(--tinta);
+  max-width: var(--medida-corpo);
+}
+
+/* ==========================================================================
+   Fechamento
+   ========================================================================== */
+
+.fecho__interno {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--respiro-titulo);
+}
+
+.fecho__titulo {
+  font-family: var(--fonte-display);
+  font-weight: var(--peso-display);
+  font-size: var(--fs-h2);
+  line-height: var(--el-h2);
+  letter-spacing: var(--ee-h2);
+  color: var(--tinta-titulo);
+}
+
+.fecho__apoio { max-width: var(--medida-lead); }
+.fecho__interno .botao { margin-top: var(--passo-sm); }
+
+/* ==========================================================================
+   Rodape
+   ========================================================================== */
+
+.rodape {
+  background: var(--verde-fundo);
+  color: var(--papel);
+  padding-block: var(--respiro-secao);
+}
+
+.rodape__interno {
+  display: grid;
+  gap: var(--passo-xl);
+}
+@media (min-width: 48em) {
+  .rodape__interno {
+    grid-template-columns: 1.2fr 1fr 1fr;
+    gap: var(--passo-lg) var(--passo-xl);
+  }
+  .rodape__notas { grid-column: 1 / -1; }
+}
+
+.rodape__logo { width: 11rem; height: auto; }
+.rodape__grupo {
+  margin-top: var(--passo-2xs);
+  font-size: var(--fs-olho);
+  letter-spacing: var(--ee-olho);
+  text-transform: uppercase;
+  opacity: 0.7;
+}
+
+.rodape__coluna { display: flex; flex-direction: column; gap: var(--passo-2xs); }
+
+/* `color: inherit` nao e detalhe: base.css pinta todo H1 a H3 com a tinta
+   escura, e no rodape verde isso deixava o titulo invisivel sobre o fundo. */
+.rodape__titulo {
+  color: inherit;
+  font-size: var(--fs-olho);
+  letter-spacing: var(--ee-olho);
+  text-transform: uppercase;
+  opacity: 0.7;
+  margin-bottom: var(--passo-2xs);
+}
+
+.rodape__linha { font-size: var(--fs-apoio); line-height: var(--el-apoio); opacity: 0.9; }
+
+.rodape__elo {
+  display: inline-block;
+  min-height: var(--alvo-toque);
+  line-height: var(--alvo-toque);
+  font-size: var(--fs-apoio);
+  color: var(--papel);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: border-color var(--dur-rapida) var(--curva-padrao);
+}
+.rodape__elo:hover { border-bottom-color: var(--bronze-sobre-foto); }
+
+.rodape__notas {
+  display: flex;
+  flex-direction: column;
+  gap: var(--passo-2xs);
+  padding-top: var(--passo-md);
+  border-top: 1px solid rgb(255 255 255 / 0.14);
+}
+.rodape__nota {
+  font-size: var(--fs-olho);
+  line-height: var(--el-apoio);
+  opacity: 0.74;
+  max-width: 62ch;
+}
+.rodape__nota--fina { opacity: 0.55; }
+
+/* A barra fixa do mobile cobre o fim da pagina. Sem esta folga, a ultima
+   linha do rodape fica debaixo dela. */
+@media (max-width: 63.99em) {
+  .rodape { padding-bottom: calc(var(--respiro-secao) + 5rem); }
+}
