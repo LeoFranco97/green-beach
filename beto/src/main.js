@@ -16,6 +16,7 @@ import './styles/index.css'
 
 import { criarCabecalho } from './components/cabecalho.js'
 import { criarHero } from './components/hero.js'
+import { criarAtracoes } from './components/atracoes.js'
 import { criarConfigurador, criarBarraFixa } from './components/configurador.js'
 import {
   criarFatos, criarComoFunciona, criarDiaNoParque, criarRespiro,
@@ -46,6 +47,11 @@ conteudo.id = 'conteudo'
 const secoes = [
   criarHero(),
   criarFatos(),
+  // A grade vem ANTES do configurador porque ela e quem cria a vontade:
+  // ninguem compra "passaporte 1 dia", as pessoas compram a Fire Whip. Quem
+  // ja chegou decidido pula ela pelo botao do hero, que aponta direto para
+  // o pedido.
+  criarAtracoes(),
   criarConfigurador(),
   criarComoFunciona(),
   criarDiaNoParque(),

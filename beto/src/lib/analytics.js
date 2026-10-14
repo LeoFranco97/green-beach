@@ -14,6 +14,7 @@ export const EVENTOS = {
   TRANSFER_ESCOLHIDO: 'transfer_escolhido',
   EXTRA_ALTERNADO: 'extra_alternado',
   WHATSAPP_CLIQUE: 'whatsapp_clique',
+  ALTURA_FILTRADA: 'altura_filtrada',
   DUVIDA_ABERTA: 'duvida_aberta',
 }
 
