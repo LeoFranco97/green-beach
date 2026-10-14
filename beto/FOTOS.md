@@ -1,10 +1,37 @@
 # As fotos das atrações
 
-## O estado de hoje, em uma frase
+## O estado de hoje
 
-As nove fotos de atração que estão na página agora **são do próprio parque,
-baixadas do site oficial, e servem só como amostra local**. Elas não estão
-versionadas e **não podem ir ao ar**.
+> **ATENÇÃO, estado temporário com prazo.** Em 14/10/2026 o Leonardo pediu
+> para publicar a amostra **com as fotos**, para mostrar a peça, e pediu para
+> tirá-las **na manhã de 15/10/2026**. Está no ar em
+> https://leofranco97.github.io/beto-carrero-green-beach/
+>
+> Para voltar ao estado de repouso:
+>
+> ```bash
+> bash beto/scripts/amostra.sh sem-fotos
+> ```
+
+As nove fotos de atração **são do próprio parque**, baixadas do site oficial
+em 14/10/2026. Elas não estão versionadas e, fora da janela combinada acima,
+**não ficam no ar**.
+
+A amostra serve `robots.txt` com `Disallow: /` nos dois modos, então ela não
+entra na busca do Google nem com as fotos no ar. Mostrar por link é uma
+coisa, aparecer no Google Imagens com foto de terceiro é outra.
+
+## Os dois modos de publicação
+
+| Comando | O que vai ao ar |
+|---|---|
+| `bash beto/scripts/amostra.sh com-fotos` | grade com as fotos do parque, estado temporário |
+| `bash beto/scripts/amostra.sh sem-fotos` | grade nos blocos de cor, estado de repouso |
+
+O script esconde os arquivos de `public/` antes do build no modo `sem-fotos`,
+porque o Vite copia `public/` inteiro: esconder é a única forma de garantir
+que eles não entrem no pacote. Ele devolve os arquivos no fim, inclusive se
+falhar no meio.
 
 ## Por que elas não estão no git
 
@@ -29,6 +56,7 @@ este repositório vai receber imagem do parque, e a página continua inteira.
 |---|---|
 | Rodar local para ver o layout | sim, é o que elas existem para fazer |
 | Mandar captura para o cliente avaliar o design | sim |
+| Ficar na amostra pública depois de 15/10/2026 | **não**, rodar `sem-fotos` |
 | Publicar em `greenbeach.com.br` | **não** |
 | Rodar anúncio com essas imagens | **não** |
 | Commitar no repositório público | **não**, o `.gitignore` já impede |
