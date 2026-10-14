@@ -62,6 +62,20 @@ export const atualizar = (mudancas = {}) => {
   notificar()
 }
 
+/**
+ * Aplica um valor PADRAO, sem marcar o pedido como tocado.
+ *
+ * Existe por causa da barra fixa do mobile: ela acende quando `tocado` vira
+ * true. O configurador ja nasce com um ingresso e um ponto de embarque
+ * marcados, e se essas duas escolhas automaticas contassem como toque, a
+ * barra apareceria antes de o visitante fazer qualquer coisa, que e
+ * exatamente a barra que ele aprende a ignorar.
+ */
+export const definirPadrao = (mudancas = {}) => {
+  Object.assign(estado, mudancas)
+  notificar()
+}
+
 /** Liga ou desliga um adicional sem o componente precisar mexer no array. */
 export const alternarExtra = (id) => {
   const i = estado.extras.indexOf(id)

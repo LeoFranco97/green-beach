@@ -26,7 +26,7 @@ import {
   hoje, somaMeses, mesmoDia, gradeDoMes, diasDaSemana,
   formatoMesAno, formatoExtenso, formatoCurto, paraISO,
 } from '../lib/dates.js'
-import { lerEstado, assinar, atualizar, alternarExtra, definirIdade } from '../lib/store.js'
+import { lerEstado, assinar, atualizar, definirPadrao, alternarExtra, definirIdade } from '../lib/store.js'
 import { montarLinkWhatsApp } from '../lib/whatsapp.js'
 import { rastrear, EVENTOS } from '../lib/analytics.js'
 import {
@@ -306,7 +306,7 @@ const criarIngressos = () => {
   // Um recomendado ja vem marcado. Tela que comeca sem nada escolhido faz o
   // visitante decidir do zero, e decidir do zero e onde ele desiste.
   const padrao = lista.find((i) => i.recomendado) || lista[0]
-  if (!lerEstado().ingressoId) atualizar({ ingressoId: padrao.id })
+  if (!lerEstado().ingressoId) definirPadrao({ ingressoId: padrao.id })
 
   const grupo = el('div', { class: 'cartoes', role: 'radiogroup', 'aria-label': 'Tipo de ingresso' })
 
@@ -353,7 +353,7 @@ const criarTransfer = () => {
   const lista = embarquesVisiveis()
   if (lista.length <= 1) return null
 
-  if (!lerEstado().embarqueId) atualizar({ embarqueId: lista[0].id })
+  if (!lerEstado().embarqueId) definirPadrao({ embarqueId: lista[0].id })
 
   const grupo = el('div', { class: 'embarques', role: 'radiogroup', 'aria-label': 'Ponto de embarque' })
 
@@ -435,7 +435,9 @@ const criarExtras = () => {
  */
 export const criarResumo = ({ origem, compacto = false }) => {
   const linhas = el('dl', { class: 'resumo__linhas' })
-  const valor = el('p', { class: 'resumo__valor' })
+  // aria-live: o total muda sem recarregar e sem mover o foco. Sem isso,
+  // quem usa leitor de tela escolhe um adicional e nao ouve o preco mudar.
+  const valor = el('p', { class: 'resumo__valor', 'aria-live': 'polite' })
   const nota = el('p', { class: 'resumo__nota' })
 
   const botao = el('a', {
@@ -580,6 +582,15 @@ export const criarConfigurador = () => {
     ]),
   ])
 
-  rastrear(EVENTOS.PEDIDO_INICIADO, {})
+  // O evento marca o INICIO do pedido, nao a montagem da secao. Disparar na
+  // criacao contaria toda visita como pedido iniciado e a taxa de conversao
+  // da pagina viraria ficcao.
+  let avisado = false
+  assinar((estado) => {
+    if (avisado || !estado.tocado) return
+    avisado = true
+    rastrear(EVENTOS.PEDIDO_INICIADO, {})
+  })
+
   return secao
 }

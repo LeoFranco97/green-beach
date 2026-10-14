@@ -66,6 +66,11 @@ const montarNegocio = () => ({
     addressRegion: endereco.estado,
     addressCountry: endereco.pais,
   },
+  geo: {
+    '@type': 'GeoCoordinates',
+    latitude: -27.098438,
+    longitude: -48.614563,
+  },
   sameAs: [contato.instagramUrl],
 })
 

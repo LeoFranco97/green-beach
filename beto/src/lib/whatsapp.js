@@ -48,7 +48,7 @@ const linhaPessoas = ({ adultos = 2, criancas = 0, idadesCriancas = [] }) => {
     const idades = idadesCriancas.filter(Boolean).join(', ')
     partes.push(`${criancas} criança${criancas === 1 ? '' : 's'}${idades ? ` (${idades})` : ''}`)
   }
-  return `${partes.join(' e ')} — total ${total}`
+  return `${partes.join(' e ')}, total de ${total}`
 }
 
 /**
